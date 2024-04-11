@@ -24,7 +24,7 @@ const App = () => {
           <Route index element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path='/newCohort' element={<NewCohort />} />
+          <Route path='/newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
         </Route>
       </Routes>
     </BrowserRouter>

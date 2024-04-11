@@ -11,7 +11,7 @@ app.use(cors()); // Using CORS middleware to enable cross-origin requests
 app.use(bodyParser.json({ limit: '50mb' }));
 
 // Connect to MongoDB Atlas
-mongoose.connect('mongodb+srv://frontendfiends:6lCbNr0xOdhPlIYw@studysphere.efmnucf.mongodb.net/?retryWrites=true&w=majority&appName=StudySphere', {
+mongoose.connect('mongodb+srv://frontendfiends:BVT123@studysphere.efmnucf.mongodb.net/?retryWrites=true&w=majority&appName=StudySphere', {
   useNewUrlParser: true, // MongoDB connection options
   useUnifiedTopology: true,
 })
@@ -128,11 +128,11 @@ app.post('/refresh-token', async (req, res) => {
 app.post('/newCohort', async (req, res) => {
   try {
     const { cohortName, adminID, instructorID, dateRange, cohortFiles, providerID, isLive} = req.body;
-    const existingCohort = await User.findOne({ cohortName }); // Check if user already exists in the database
+    const existingCohort = await Cohort.findOne({ cohortName }); // Check if user already exists in the database
     if (existingCohort) { // If cohort already exists, return error
       return res.status(400).send('Cohort already exists');
     }
-    const newCohort = new Cohort({ cohortName, adminID, instructorID, dateRange, cohortFiles, providerID, isLive}); // Create a new User document
+    const newCohort = new Cohort({ cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive}); // Create a new User document
     await newCohort.save(); // Save the new cohort to the database
     res.status(201).send('Cohort successfully created'); // Send success response
   } catch (error) {
