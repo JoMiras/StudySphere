@@ -5,6 +5,7 @@ import Login from './Pages/Login';
 import Home from './Pages/Home';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthContext } from './context/authContext';
+import NewCohort from './Pages/NewCohort';
 
 const App = () => {
   const { currentUser } = useContext(AuthContext);
@@ -23,6 +24,7 @@ const App = () => {
           <Route index element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path='/newCohort' element={<NewCohort />} />
         </Route>
       </Routes>
     </BrowserRouter>

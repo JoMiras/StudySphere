@@ -30,6 +30,28 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema); // Creating a User model based on the UserSchema
 
+// Define Cohort Schema
+
+const CohortSchema = new mongoose.Schema({
+  cohortName: String,
+  adminID: String,
+  instructorID: String,
+  dateRange: {
+    startDate: Date,
+    endDate: Date
+  },
+  cohortFiles: {
+    readingMaterial: Array,
+    assignments: Array,
+    tests: Array
+  },
+  providerID: String,
+  isLive: Boolean
+})
+
+const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the User model
+
+
 // User Registration
 app.post('/register', async (req, res) => {
   try {
@@ -100,6 +122,25 @@ app.post('/refresh-token', async (req, res) => {
         res.status(401).send('Invalid refresh token');
     }
 });
+
+
+// Creating a cohort in the database
+app.post('/newCohort', async (req, res) => {
+  try {
+    const { cohortName, adminID, instructorID, dateRange, cohortFiles, providerID, isLive} = req.body;
+    const existingCohort = await User.findOne({ cohortName }); // Check if user already exists in the database
+    if (existingCohort) { // If cohort already exists, return error
+      return res.status(400).send('Cohort already exists');
+    }
+    const newCohort = new Cohort({ cohortName, adminID, instructorID, dateRange, cohortFiles, providerID, isLive}); // Create a new User document
+    await newCohort.save(); // Save the new cohort to the database
+    res.status(201).send('Cohort successfully created'); // Send success response
+  } catch (error) {
+    console.error('Error creating cohort:', error); // Log registration error
+    res.status(500).send('Error creating cohort'); // Send error response
+  }
+});
+
 
 const PORT = process.env.PORT || 4000; // Define port for the server to listen on
 app.listen(PORT, () => {

@@ -1,10 +1,12 @@
 // Home.js
 import React, { useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
 import { checkAndRenewToken } from '../utilities/checkToken';
 import axios from 'axios'
 
 function Home() {
+  const navigate = useNavigate();
   const { currentUser, setIsLoggedIn, setCurrentUser } = useContext(AuthContext);
   const avatar = currentUser.profilePicture;
   console.log(currentUser.profilePicture);
@@ -32,6 +34,10 @@ function Home() {
     }
   };
 
+  const newCohort = async () => {
+    navigate("/newCohort");
+  }
+
   console.log(localStorage.getItem("accessToken"))
 
 
@@ -43,6 +49,7 @@ function Home() {
       </h1>
       <button className='log-out-btn' onClick={logout}> log out</button>
       <button onClick={test}>test</button>
+      <button onClick={newCohort}>New Cohort</button>
       <h3>accessToken: {showToken}</h3>
     </>
   );
