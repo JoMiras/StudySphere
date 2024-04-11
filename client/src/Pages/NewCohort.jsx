@@ -37,8 +37,8 @@ const NewCohort = () => {
   const onChangeDate = (e) => {
     setCohortInfo(oldArr => ({ // Using the old array you add any files to reading material
       ...oldArr, 
-      cohortFiles: {
-          ...oldArr.cohortFiles, readingMaterial: [...oldArr.cohortFiles.readingMaterial, reader.result] 
+      dateRange: {
+          ...oldArr.dateRange, [e.target.name]: e.target.value
       }
       }))};
   
