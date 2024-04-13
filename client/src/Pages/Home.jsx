@@ -9,12 +9,14 @@ function Home() {
   const navigate = useNavigate();
   const { currentUser, setIsLoggedIn, setCurrentUser } = useContext(AuthContext);
   const avatar = currentUser.profilePicture;
-  console.log(currentUser.profilePicture);
+
   const logout = () => {
     setIsLoggedIn(false);
     setCurrentUser(null);
-    localStorage.setItem('accessToken', null);
-    localStorage.setItem('refreshToken', null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('currentUser')
+    console.log('Logged out successfully!')
   };
 
   const[showToken, setShowToken] = useState('')

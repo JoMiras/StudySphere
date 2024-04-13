@@ -1,11 +1,11 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sphere from "../img/globe.png"
 import { AuthContext } from '../context/authContext.jsx';
 
 const NewCohort = () => {
-    const currentUser = useContext(AuthContext)
+    const { currentUser } = useContext(AuthContext)
     const navigate = useNavigate();
 
     const [cohortInfo, setCohortInfo] = useState({
@@ -42,17 +42,26 @@ const NewCohort = () => {
       }
       }))};
   
-    
-
-  const onSubmit = async e => {
-    e.preventDefault();
+  useEffect(() => {
     // Set the admin ID to user creating cohort
     setCohortInfo(oldArr => ({ 
       ...oldArr, 
       adminID: currentUser._id
       }))
+  }, [currentUser._id])
+
+  useEffect(() => {
+    // Set the cohort subject
+    setCohortInfo(Arr => ({
+      ...Arr, cohortSubject: 'test'
+    }))
+  })
+    
+
+  const onSubmit = async e => {
+    e.preventDefault();
       try {
-        const res = await axios.post('http://localhost:4000/newCohort', { cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive });
+        const res = await axios.post('http://localhost:4000/newCohort', cohortInfo);
         console.log(res.data); // Handle successful registration
         navigate("/home"); // Go back home if cohort is created successfully
       } catch (err) {

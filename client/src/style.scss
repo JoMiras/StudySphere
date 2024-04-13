@@ -14,7 +14,7 @@ $body-background-color-end: #CAF0F8;
 }
 
 @mixin tablet {
-  @media screen and (max-width: 963px){
+  @media screen and (max-width: 1095px){
     @content;
   }
 }
@@ -25,73 +25,185 @@ $body-background-color-end: #CAF0F8;
   }
 }
 
+@keyframes bounce2 {
+  from {
+    transform: translateY(5);
+  }
+  to {
+    transform: translateY(-5px);
+  }
+}
+
+p {
+  margin-top: 5px;
+}
+
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge, and Firefox */
+body {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+body {
+  scrollbar-width: none;  /* For Firefox */
+}
+
+
 body {
   padding: 0;
   margin: 0;
-  overflow: hidden;
   font-family: Arial, Helvetica, sans-serif;
+  height: 100vh;
+  width: 100vw;
+  background-color: #ADE8F4;
+  overflow: hidden;
 }
 
 .register-logo{
   height: 10vh;
 }
 
-.register-container, .login-container {
-  background: linear-gradient(to right, $body-background-color-start 50%, $body-background-color-6 50%);
+.loading-login{
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-content: center;
-  height: 100vh;
-  width: 100vw;
-  gap: 20vw;
 
+  h1{
+    padding: 0;
+    margin: 0;
+  }
 }
 
-.centeredContentLeft{
+.register-container, .login-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+
+  .login-button{
+    margin-right: 20px;
+  }
+
+  .centeredContentLeft{
     // transform: translate(-50%, -50%);
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     flex-wrap: wrap;
     align-items: center;
-    color: $body-background-color-6;
+    background-color: #023E8A;
     font-size: 8.5em;
     font-weight: bold;
     text-align: center;
-    max-width: 30vw;
-    margin-top: auto;
     height: 100vh;
-   img {
-    display: flex;
-    justify-content: center;
-     height: 20vh;
-    // margin-top: 10%; 
-    // margin-left: 70%; 
-    // margin-right: auto; 
-   }
+    color: #ADE8F4;
+    flex: 1;
+    margin: 0;
+    padding: 0;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
+    border-radius: 0px 0px 20px 20px;
+
+
+
+    .big-sphere {
+      height: 5vh;
+      margin-left: 20px;
+      animation: 
+    bounce2 800ms
+          alternate infinite
+          cubic-bezier(.5, .5, .5, 0.5);
+
+    }
 
 }
+
+  @include tablet {
+    overflow: scroll;
+
+    .centeredContentLeft {
+      display: flex;
+      justify-content: center;
+      border-radius: 0px 0px 20px 20px;
+      margin-bottom: 20px;
+      box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
+      flex: 1;
+      flex-direction: row;
+      
+      .big-sphere {
+        height: 3rem;
+        animation: 
+      bounce2 800ms
+            alternate infinite
+            cubic-bezier(.5, .5, .5, 0.5);
+
+      }
+      
+      .app-title {
+        font-size: 10vh;
+        font-size: 10vw;
+        padding: 10px;
+      }
+    }
+
+    .formContainer {
+      flex: 3;
+      width: 100%;
+
+    }
+  }
+
+  @include mobile{
+    .centeredContentLeft{
+      display: none;
+    }
+  }
+
+  input {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 20px;
+    background-color: $body-background-color-end !important;
+    color: $body-background-color-start;
+    &:focus {
+      outline: none;
+    } 
+    &::placeholder{
+      color: #023E8A;
+    }
+  }
+}
+
 form {
   max-width: 40vw;
 }
 .formContainer {
-    height: 100vh;
+    flex: 3;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
-    right: -1px;
-    overflow: hidden;
-    margin-right: 4.5rem;
-    margin-left: 1.5rem;
-    @include tablet{
-      display: flex;
-      justify-content: center;
-    }
-    @include mobile {
-      display: flex;
-      justify-content: center;
+    background-color: #ADE8F4;
+    margin-top: 10px;
+    padding: 0;
+
+    button {
+      background-color: $body-background-color-start;
+      color: $body-background-color-5;
+      padding: 15px;
+      font-weight: bold;
+      border: none;
+      border-radius: 90px;
+      cursor: pointer;
+      min-width: 250px;
     }
   }  
   .formWrapper {
@@ -107,40 +219,36 @@ form {
     .logo {
       color: $body-background-color-start;
       font-weight: bold;
-      font-size: 54px;
-    }
+      font-size: 45px;
+      margin-right: 20px
+    };
   
     form {
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 15px;
+
+      p{
+        margin-left: 65px;
+        padding: 0;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-content: center;
+        text-wrap: nowrap;
+        color: #023E8A;
+        font-family: bold;
+      }
+
   
       .inputWrapper {
         display: flex;
-        align-items: center;
+        justify-content: center;
+        align-content: center;
         gap: 10px;
         padding-right: 20px;
-  
-        label {
-          color: $body-background-color-start;
-          font-weight: bold;
-          font-size: 20px;
-          width: 150px; 
-        }
-  
-        input {
-          flex: 1;
-          padding: 10px;
-          border: none;
-          border-radius: 5px;
-          font-size: 20px;
-          background-color: $body-background-color-end !important;
-          color: $body-background-color-start;
-          &:focus {
-            outline: none;
-          } 
-        }
-      }
+      };
 
       .avatar-container {
         display: flex;
@@ -172,23 +280,8 @@ form {
           color: $body-background-color-start;
           font-weight: bold;
         }
-      
-
       }
       
-  
-      button {
-        background-color: $body-background-color-start;
-        color: $body-background-color-5;
-        padding: 15px;
-        font-weight: bold;
-        border: none;
-        border-radius: 90px;
-        margin-top: 25px;
-        margin-left: 35px;
-        cursor: pointer;
-        max-width: 30vw;
-      }
     }
   
     p {
@@ -207,5 +300,3 @@ form {
       }
     }
   }
-  
-  
