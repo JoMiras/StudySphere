@@ -11,7 +11,7 @@ function EmailConfirmation() {
     axios.post(`http://localhost:4000/confirmation`, { token })
       .then(res => {
         console.log(res.data); // Handle successful confirmation
-        navigate('/home');
+        navigate('/login');
       })
       .catch(error => {
         console.error(error); // Handle errors, such as invalid or expired token
@@ -21,7 +21,6 @@ function EmailConfirmation() {
   return (
     <div>
       Confirming your email...
-      {/* You can also add more UI feedback here */}
     </div>
   );
 }
