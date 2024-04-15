@@ -146,7 +146,7 @@ app.post('/login', async (req, res) => {
       if (!user) {
           return res.status(404).send('User not found');
       }
-      if (!user.confirmed) {
+      if (!user.isEmailConfirmed) {
         return res.status(401).send('Please confirm email.') // If you haven't confirmed your email, do it
       }
       const validPassword = await bcrypt.compare(password, user.password);
@@ -208,7 +208,7 @@ app.post('/confirmation', async (req, res) => {
     const decoded = jwt.verify(token, EMAIL_SECRET);
     console.log('test')
 
-    const user = await User.findByIdAndUpdate(decoded.userId, {confirmed: true}, {new: true});
+    const user = await User.findByIdAndUpdate(decoded.userId, {isEmailConfirmed: true}, {new: true});
     
     if (!user) {
       return res.status(404).send('User not found.');
