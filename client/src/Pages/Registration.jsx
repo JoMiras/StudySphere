@@ -13,14 +13,14 @@ const Registration = () => {
     password: '',
     confirmPassword: '',
     profilePicture:'',
-    userType: 'student',
-    confirmed: false
+    role: 'student',
+    isEmailConfirmed: false
   });
 
   const [avatar, setAvatar] = useState('');
   const [showPasswordStrength, setShowPasswordStrength] = useState(false); // State to track if password strength should be shown
   const navigate = useNavigate();
-  const { username, email, phoneNumber, password, confirmPassword, profilePicture, userType, confirmed } = formData;
+  const { username, email, phoneNumber, password, confirmPassword, profilePicture, role, isEmailConfirmed } = formData;
   
   const passwordStrengthStyle = {
     color:"blue",
@@ -55,7 +55,7 @@ const Registration = () => {
       console.error('Passwords do not match');
     } else {
       try {
-        const res = await axios.post('http://localhost:4000/register', { username, email, phoneNumber, password, profilePicture, userType, confirmed });
+        const res = await axios.post('http://localhost:4000/register', { username, email, phoneNumber, password, profilePicture, role, isEmailConfirmed });
         console.log(res.data); // Handle successful registration
         navigate("/login"); // Redirect to login page after successful registration
       } catch (err) {

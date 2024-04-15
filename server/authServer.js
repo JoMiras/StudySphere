@@ -38,8 +38,8 @@ const UserSchema = new mongoose.Schema({
   email: String,
   phoneNumber: String,
   profilePicture: String,
-  userType: {type: String, default: 'student'}, // Basic, Admin, SuperAdmin
-  confirmed: {type: Boolean, default: false} // Check if account has been confirmed with email verification
+  role: {type: String, default: 'student'}, // Basic, Admin, SuperAdmin
+  isEmailConfirmed: {type: Boolean, default: false} // Check if account has been confirmed with email verification
 });
 
 const User = mongoose.model('User', UserSchema); // Creating a User model based on the UserSchema
@@ -70,7 +70,7 @@ const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the 
 // User Registration
 app.post('/register', async (req, res) => {
   try {
-    const { username, email,  phoneNumber, password, refreshToken, profilePicture, userType, confirmed} = req.body;
+    const { username, email,  phoneNumber, password, refreshToken, profilePicture, role, isEmailConfirmed} = req.body;
     const existingUser = await User.findOne({ username }); // Check if username exists in the database
     const existingEmail = await User.findOne({email}); // Checks if email exists in database
 
@@ -83,17 +83,17 @@ app.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
-    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture, userType, confirmed}); // Create a new User document
+    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture, role, isEmailConfirmed}); // Create a new User document
     await newUser.save(); // Save the new user to the database
 
     // Setting up user for confirmation
     jwt.sign(
       {userId: newUser._id.toString()},
       EMAIL_SECRET,
-      {expiresIn: '1d'},
+      {expiresIn: '1d'}, // Token that expires in a day, special to each user
       (err, emailToken) =>{
 
-        const url = `http://localhost:5173/confirmation/${emailToken}`;
+        const url = `http://localhost:5173/confirmation/${emailToken}`; //Creating url for confirmation
     
         transporter.sendMail({
           to: newUser.email,
