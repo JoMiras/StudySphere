@@ -33,7 +33,7 @@ const Login = (props) => {
       setLoading(true);
       setIsLoggedIn(true);
       setTimeout(() => {
-        navigate("/home"); // Redirect to home page after successful login
+        navigate("/Verify"); // Redirect to home page after successful login
         setLoading(false);
       }, 2000)
     } catch (err) {

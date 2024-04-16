@@ -9,6 +9,7 @@ import Login from './Pages/Login';
 import Home from './Pages/Home';
 import NewCohort from './Pages/NewCohort';
 import EmailConfirmation from './components/UserConfirmation';
+import Verify from './Pages/Verify';
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
@@ -26,6 +27,7 @@ const App = () => {
         <Route path="/">
           <Route index element={<Registration />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/Verify" element={<Verify />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path='/newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
           <Route path='/confirmation/:token' element={<EmailConfirmation />} />
