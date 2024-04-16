@@ -22,8 +22,7 @@ const transporter = nodemailer.createTransport({
   }
 })
 
-const EMAIL_SECRET = 'GU3uOdDUujIbnsdtrBTuFJlczjgTVLih9TGRi0Lp5czpu7RfrFNv7eNqP6DUQZEGQ6CBhyRGdA3AfnSmPhnshQ' 
-
+const EMAIL_SECRET = process.env.EMAIL_SECRET;
 
 const app = express(); // Creating an Express application
 app.use(cors()); // Using CORS middleware to enable cross-origin requests
