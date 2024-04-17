@@ -246,7 +246,7 @@ app.post('/verify/start', async (req, res) => {
  app.post('/verify/check', async (req, res) => {
   const { to, code } = req.body;
   try {
-    const verificationCheck = await client.verify.services(verifySid)
+    const verificationCheck = await client.verify.v2.services(verifySid)
       .verificationChecks
       .create({ to, code });
 
