@@ -26,7 +26,7 @@ const EMAIL_SECRET = process.env.EMAIL_SECRET;
 
 const app = express(); // Creating an Express application
 app.use(cors()); // Using CORS middleware to enable cross-origin requests
-app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
 
 // Connect to MongoDB Atlas
 mongoose.connect('mongodb+srv://frontendfiends:BVT123@studysphere.efmnucf.mongodb.net/?retryWrites=true&w=majority&appName=StudySphere', {
@@ -77,17 +77,15 @@ const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the 
 app.post('/register', async (req, res) => {
   try {
     const { username, email,  phoneNumber, password, refreshToken, profilePicture, role, isEmailConfirmed} = req.body;
-    const existingUser = await User.findOne({ username }); // Check if username exists in the database
+    const duplicateUser = await User.findOne({username});
     const existingEmail = await User.findOne({email}); // Checks if email exists in database
-
-    if (existingUser) { // If user already exists, return error
-      return res.status(400).send('Username already in use.');
-    }
-
+    //check for usernames in use
+    if(duplicateUser) {
+      return res.status(400).send('username already in use')}
     if (existingEmail) { // If user already exists, return error
       return res.status(400).send('Email already in use.');
     }
-
+    
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
     const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture, role, isEmailConfirmed}); // Create a new User document
     await newUser.save(); // Save the new user to the database
@@ -142,7 +140,6 @@ function generateAccessToken(user) {
     };
     return jwt.sign(payload, "secret_value", { expiresIn: '60min' }); // Expires in 1 hour
 };
-
 
 // Revised /login endpoint with refreshToken
 app.post('/login', async (req, res) => {
@@ -207,7 +204,6 @@ app.post('/refresh-token', async (req, res) => {
     }
 });
 
-
 app.post('/confirmation', async (req, res) => {
   try {
     const { token } = req.body;
@@ -265,13 +261,55 @@ app.post('/verify/start', async (req, res) => {
     console.error('Verification error:', error);
     res.status(500).send({ success: false, message: 'Internal server error' });
   }
+ });
+ 
+//check username availability 
+app.post('/checkUsername', async (req, res) => {
+  console.log('ping')
+  try {
+    const { username } = req.body;
+    const checkUsernameAvailability = await User.findOne({ username });
+    if (checkUsernameAvailability) {
+      res.send(false);
+    } else {
+      res.send(true);
+    }
+  } catch (error) {
+    console.error('Error checking username availability:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
+//gets users for SuperAdmins 
+app.get('/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
+//this endpoint will allow us to pass in a user to make a super admin
+app.post('/make-super-admin', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (user) {
+      await User.updateOne({ email }, { $set: { role: 'SuperAdmin' } });
+      res.status(201).send('User has been upgraded to SuperAdmin');
+    } else {
+      res.status(404).send('User not found');
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+});
 
-
- 
 const PORT = process.env.PORT || 4000; // Define port for the server to listen on
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // Log server start message
 });
+
