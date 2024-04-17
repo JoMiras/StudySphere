@@ -7,6 +7,37 @@ import axios from 'axios'
 import Loading from '../components/Loading';
 import UserModal from '../components/userModal';
 
+function TopNavBar() {
+  return (
+    <div className="top-navbar">
+      <div className="logo">Student Name?</div>
+      <div className="spacer"></div>
+      <div className="settings">Settings</div>
+    </div>
+  );
+}
+
+
+function SideNavBar() {
+  const navigate = useNavigate(); // Hook for navigation
+
+  const handleLogout = () => {
+    // Navigate to the login page when logout button is clicked
+    navigate('/login');
+  };
+
+  return (
+    <div className="side-navbar">
+      <div className="course-title">Course 5</div>
+      <ul>
+        <li>Cards</li>
+        <li>Vocab</li>
+        <li>Videos</li>
+      </ul>
+      <button className="logout" onClick={handleLogout}>Logout</button>
+    </div>
+  );
+}
 
 function Home() {
   const navigate = useNavigate();
@@ -70,7 +101,8 @@ function Home() {
       <button onClick={test}>test</button>
       <button onClick={newCohort}>New Cohort</button>
       <h3>accessToken: {showToken}</h3>
-
+      <TopNavBar />
+      <SideNavBar />
       <div>
       <button onClick={openModal}>Open User List Modal</button>
       <UserModal isOpen={isModalOpen} onClose={closeModal} />
@@ -80,10 +112,3 @@ function Home() {
 }
 
 export default Home;
-
-const passwordStrengthStyle = {
-  color:"blue",
-  fontFamily:"arial",
-  fontWeight:"bold",
-  fontSize:"20px"
-}

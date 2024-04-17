@@ -148,8 +148,6 @@ body {
     box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
     border-radius: 0px 0px 20px 20px;
 
-
-
     .big-sphere {
       height: 5vh;
       margin-left: 20px;
@@ -159,12 +157,10 @@ body {
           cubic-bezier(.5, .5, .5, 0.5);
 
     }
-
+  }
 }
 
   @include tablet {
-    overflow: scroll;
-
     .centeredContentLeft {
       display: flex;
       justify-content: center;
@@ -173,6 +169,7 @@ body {
       box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
       flex: 1;
       flex-direction: row;
+      overflow: scroll;
       
       .big-sphere {
         height: 3rem;
@@ -189,12 +186,15 @@ body {
         padding: 10px;
       }
     }
-
-    .formContainer {
-      flex: 3;
-      width: 100%;
-
-    }
+.formContainer {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    position: absolute;
+    overflow: hidden;
+    right: -25px; 
+    overflow:hidden;
   }
 
   @include mobile{
@@ -221,7 +221,8 @@ body {
 
 form {
   max-width: 40vw;
-}
+};
+
 .formContainer {
     flex: 3;
     display: flex;
@@ -241,7 +242,8 @@ form {
       cursor: pointer;
       min-width: 250px;
     }
-  }  
+  };
+
   .formWrapper {
     // padding: 20px 90px;
     // margin-right: 100px;
@@ -317,7 +319,6 @@ form {
           font-weight: bold;
         }
       }
-      
     }
   
     p {
@@ -334,5 +335,201 @@ form {
         border-radius: 10px;
         cursor: pointer;
       }
+    }
+  };
+  
+  .top-navbar {
+    background-color: #011013;
+    color: #90E0EF;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 20px;
+    margin-top: -10px;
+    margin-left: -10px;
+    margin-right: -10px;
+    .logo {
+      flex: 1;
+    }
+    .spacer {
+      flex: 2;
+    }
+    .settings {
+      cursor: pointer;
+    }
+  }
+  
+  .side-navbar {
+    background-color: #020b18;
+    color: #90E0EF;
+    width: 200px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    margin-left: -10px;
+    ul {
+      list-style-type: none;
+      padding: 0;
+      li {
+        padding: 10px 0;
+        cursor: pointer;
+      }
+
+    }
+
+    .course-title {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+  }
+
+
+
+
+
+
+
+
+  .landing-page {
+    font-family: Arial, sans-serif;
+    overflow-y: auto; /* Couldn't Enable vertical scrolling maybe you can */
+    overflow-x: hidden; /*Tried horizontal scrollbar */
+    overflow: visible !important; /* It didn't override for some reason*/
+    
+  }
+  
+  .header {
+    background-color: black;
+    color: #fff;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-right: -10px;
+    margin-left: -10px;
+    margin-top: -10px;
+  
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+  
+    nav {
+      ul {
+        list-style-type: none;
+        display: flex;
+        gap: 20px;
+  
+        li {
+          a {
+            color: #fff;
+            text-decoration: none;
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  .hero {
+    background-color: #023E8A;
+    color: #fff;
+    padding: 100px 20px;
+    text-align: center;
+    margin-right: -10px;
+  
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+    }
+  
+    p {
+      font-size: 20px;
+      margin-bottom: 40px;
+    }
+  
+    button {
+      background-color: #90E0EF;
+      color: #023E8A;
+      padding: 15px 30px;
+      font-size: 20px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      &:hover {
+        background-color: #0570b0;
+      }
+    }
+  }
+  
+  .features {
+    background-color: #90E0EF;
+    padding: 100px 20px;
+    text-align: center;
+    margin-left: -10px;
+  
+    h2 {
+      font-size: 32px;
+      margin-bottom: 40px;
+    }
+  
+    .feature-list {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+  
+      .feature-item {
+        max-width: 300px;
+        text-align: left;
+  
+        h3 {
+          font-size: 24px;
+          margin-bottom: 10px;
+        }
+  
+        p {
+          font-size: 18px;
+        }
+      }
+    }
+  }
+  
+  .footer {
+    background-color: #011013;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+  }
+
+
+
+
+  .search {
+    display: flex;
+    align-items: center;
+
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #023E8A;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
   }

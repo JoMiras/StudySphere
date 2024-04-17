@@ -1,4 +1,3 @@
-// App.js
 import React, {useContext} from 'react';
 import Registration from './Pages/Registration';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import Home from './Pages/Home';
 import NewCohort from './Pages/NewCohort';
 import EmailConfirmation from './components/UserConfirmation';
 import Verify from './Pages/Verify';
+import Landing from './Pages/Landing'; 
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
@@ -31,6 +31,7 @@ const App = () => {
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path='/newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
           <Route path='/confirmation/:token' element={<EmailConfirmation />} />
+          <Route path="/landing" element={<Landing />} />
         </Route>
       </Routes>
     </BrowserRouter>

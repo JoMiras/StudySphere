@@ -11,21 +11,40 @@ const Verify = () => {
  const navigate = useNavigate();
 
  const handlePhoneNumberSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await axios.post('http://localhost:4000/verify/start', {
-        to: phoneNumber,
-      });
-      console.log('verify/start post request sent');
-      setLoading(false);
-    } catch (err) {
-      console.error('Error sending verification code:', err.response.data);
-      setError('Error sending verification code');
-      setLoading(false);
-    }
+  event.preventDefault();
+  setLoading(true);
+  setError(null);
+  let retries = 3;
+  let delay = 1000; // Start with a 1-second delay
+ 
+  while (retries > 0) {
+     try {
+       const res = await axios.post('http://localhost:4000/verify/start', {
+         to: phoneNumber,
+       });
+       console.log('verify/start post request sent');
+       setLoading(false);
+       return; // Exit the function if the request is successful
+     } catch (err) {
+       if (err.response && err.response.status === 429) { // Check for rate limiting error
+         console.error('Rate limit exceeded, retrying...');
+         retries--;
+         await new Promise(resolve => setTimeout(resolve, delay));
+         delay *= 2; // Double the delay for the next retry
+       } else {
+         console.error('Error sending verification code:', err.response.data);
+         setError('Error sending verification code');
+         setLoading(false);
+         return; // Exit the function if it's a different error
+       }
+     }
+  }
+ 
+  // If all retries fail, set an error message
+  setError('Failed to send verification code after multiple attempts. Please try again later.');
+  setLoading(false);
  };
+ 
 
  const handleVerificationCodeSubmit = async (event) => {
     event.preventDefault();
