@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import Registration from './Pages/Registration';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthContext } from './context/authContext';
@@ -10,9 +10,13 @@ import NewCohort from './Pages/NewCohort';
 import EmailConfirmation from './components/UserConfirmation';
 import Verify from './Pages/Verify';
 import Landing from './Pages/Landing'; 
+import SubmitVerify from './Pages/SubmitVerify';
+import PhoneNumberContext from './context/phoneNumberContext';
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
+  const [phoneNumber, setPhoneNumber] = useState('');
+
 
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
@@ -22,12 +26,14 @@ const App = () => {
   };
 
   return (
+    <PhoneNumberContext.Provider value={{ phoneNumber, setPhoneNumber }}>
     <BrowserRouter>
       <Routes>
         <Route path="/">
           <Route index element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/Verify" element={<Verify />} />
+          <Route path="/SubmitVerify" element={<SubmitVerify />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
           <Route path='/newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
           <Route path='/confirmation/:token' element={<EmailConfirmation />} />
@@ -35,6 +41,7 @@ const App = () => {
         </Route>
       </Routes>
     </BrowserRouter>
+    </PhoneNumberContext.Provider>
   );
 };
 

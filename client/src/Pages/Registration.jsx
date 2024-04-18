@@ -14,7 +14,7 @@ const Registration = () => {
     phoneNumber: '',
     password: '',
     confirmPassword: '',
-    profilePicture:'',
+    profilePicture: '',
     role: 'student',
     isEmailConfirmed: false
   });
@@ -24,12 +24,12 @@ const Registration = () => {
   const [showPasswordStrength, setShowPasswordStrength] = useState(false); // State to track if password strength should be shown
   const navigate = useNavigate();
   const { username, email, phoneNumber, password, confirmPassword, profilePicture, role, isEmailConfirmed } = formData;
-  
+
   const passwordStrengthStyle = {
-    color:"#023E8A",
-    fontFamily:"arial",
-    fontWeight:"bold",
-    fontSize:"20px"
+    color: "#023E8A",
+    fontFamily: "arial",
+    fontWeight: "bold",
+    fontSize: "20px"
   }
 
   const onChange = (e) => {
@@ -39,9 +39,9 @@ const Registration = () => {
     } else {
       setShowPasswordStrength(false);
     }
-    };
+  };
 
-  
+
   const onFileChange = (e) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -50,7 +50,7 @@ const Registration = () => {
     };
     reader.readAsDataURL(e.target.files[0]);
   };
-    
+
 
   const onSubmit = async e => {
     e.preventDefault();
@@ -69,17 +69,17 @@ const Registration = () => {
 
   const checkUsernameAvailability = async () => {
     console.log(username)
-   try {
-    const res =  await axios.post('http://localhost:4000/checkUsername', {username});
-    setUSerAvailability(res.data)
-   } catch (error) {
-    console.error(error)
-   }
+    try {
+      const res = await axios.post('http://localhost:4000/checkUsername', { username });
+      setUSerAvailability(res.data)
+    } catch (error) {
+      console.error(error)
+    }
   };
 
 
   useEffect(() => {
-    if(username === ''){
+    if (username === '') {
       setUSerAvailability(null)
     } else {
       checkUsernameAvailability();
@@ -88,42 +88,42 @@ const Registration = () => {
 
 
 
-  
+
 
   return (
     <div className='register-container'>
-      <div className='centeredContentLeft'> 
+      <div className='centeredContentLeft'>
         <span className='app-title'> Study Sphere</span>
-        <img src={BigSphere} alt="Sphere" className='big-sphere'/> 
+        <img src={BigSphere} alt="Sphere" className='big-sphere' />
       </div>
       <div className='formContainer'>
         <div className='formWrapper'>
           <span className='logo'>Register</span>
           <form onSubmit={e => onSubmit(e)}>
             <div className="inputWrapper username-wrapper">
-              <input type="text" id="userName" name="username" value={username} onChange={e => onChange(e)} required  placeholder='Username'/>
-              {userAvailability === true && <img className="thumbs-up" src={thumbsUp}/>}
-              {userAvailability === false && <img className="thumbs-down" src={thumbsDown}/>}
+              <input type="text" id="userName" name="username" value={username} onChange={e => onChange(e)} required placeholder='Username' />
+              {userAvailability === true && <img className="thumbs-up" src={thumbsUp} />}
+              {userAvailability === false && <img className="thumbs-down" src={thumbsDown} />}
             </div>
             <div className="inputWrapper username-wrapper">
-              <input type="email" id="email" name="email" value={email} onChange={e => onChange(e)} required placeholder='Email'/>
+              <input type="email" id="email" name="email" value={email} onChange={e => onChange(e)} required placeholder='Email' />
             </div>
             <div className="inputWrapper">
-              <input type="tel" id="phoneNumber" name="phoneNumber" value={phoneNumber} onChange={e => onChange(e)} required placeholder='Phone Number'/>
+              <input type="tel" id="phoneNumber" name="phoneNumber" value={phoneNumber} onChange={e => onChange(e)} required placeholder='Phone Number' />
             </div>
             <div className="inputWrapper">
-              <input type="password" id="password" name="password" value={password} onChange={e => onChange(e)} minLength='6' required placeholder='Password'/>
+              <input type="password" id="password" name="password" value={password} onChange={e => onChange(e)} minLength='6' required placeholder='Password' />
             </div>
-            {showPasswordStrength && <PasswordStrengthBar 
-            password={password} 
-            scoreWordStyle={passwordStrengthStyle}
+            {showPasswordStrength && <PasswordStrengthBar
+              password={password}
+              scoreWordStyle={passwordStrengthStyle}
             />}
             <div className="inputWrapper">
-              <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={e => onChange(e)} minLength='6' required placeholder='Confirm Password'/>
+              <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={e => onChange(e)} minLength='6' required placeholder='Confirm Password' />
             </div>
             <div className='avatar-container'>
               <label htmlFor='file' className='avatar-input'>
-                {avatar == '' || avatar == null ? <img  className="selected-avatar-image" width={100} height={100} src={defaultProfilePicture}/> : <img  className="selected-avatar-image" width={100} height={100} src={avatar}/>}
+                {avatar == '' || avatar == null ? <img className="selected-avatar-image" width={100} height={100} src={defaultProfilePicture} /> : <img className="selected-avatar-image" width={100} height={100} src={avatar} />}
                 <input
                   type="file"
                   id="file"
