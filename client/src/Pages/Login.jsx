@@ -33,7 +33,7 @@ const Login = (props) => {
       setLoading(true);
       setIsLoggedIn(true);
       setTimeout(() => {
-        navigate("/home");
+        navigate("/Verify");
         setLoading(false);
       }, 2000);
     } catch (err) {

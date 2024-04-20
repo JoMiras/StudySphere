@@ -28,7 +28,6 @@ const transporter = nodemailer.createTransport({
 
 const EMAIL_SECRET = process.env.EMAIL_SECRET;
 
-
 const app = express(); // Creating an Express application
 app.use(cors()); // Using CORS middleware to enable cross-origin requests
 app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
@@ -67,7 +66,8 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema); // Creating a User model based on the UserSchema
 
-// Defining Cohort Schema
+// Define Cohort Schema
+
 const CohortSchema = new mongoose.Schema({
   cohortName: String,
   cohortSubject: String,
@@ -95,23 +95,15 @@ const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the 
 // User Registration
 app.post('/register', async (req, res) => {
   try {
-    const { username, email,  phoneNumber, password, refreshToken, profilePicture, role} = req.body;
-    const existingUser = await User.findOne({
-      $or: [
-          { username: username },
-          { email: email }
-      ]
-  });
-  
-  // Check if the username or email is already in use
-  if (existingUser) {
-    if(existingUser.username === username) {
-      return res.status(400).send('Username is already in use.')}
-    if (existingUser.email === email) { // If user already exists, return error
-      return res.status(400).send('Email is already in use.');
+    const { username, email,  phoneNumber, password, refreshToken, profilePicture, role, isEmailConfirmed} = req.body;
+    const duplicateUser = await User.findOne({username});
+    const existingEmail = await User.findOne({email}); // Checks if email exists in database
+    //check for usernames in use
+    if(duplicateUser) {
+      return res.status(400).send('username already in use')}
+    if (existingEmail) { // If user already exists, return error
+      return res.status(400).send('Email already in use.');
     }
-  }
-  
     
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
     const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture, role, isEmailConfirmed}); // Create a new User document
@@ -124,7 +116,7 @@ app.post('/register', async (req, res) => {
       {expiresIn: '1d'}, // Token that expires in a day, special to each user
       (err, emailToken) =>{
 
-        const url = `http://localhost:5173/confirmation/${emailToken}`; //Creating individualized url for confirmation with custom emailToken
+        const url = `http://localhost:5173/confirmation/${emailToken}`; //Creating url for confirmation
     
         transporter.sendMail({
           to: newUser.email,
@@ -157,40 +149,55 @@ app.post('/userData', authenticateToken, async (req, res) => {
   }
 });
 
-
 // Revised generateAccessToken function with longer expiry time
 function generateAccessToken(user) {
     const payload = {
         id: user._id,
         username: user.username 
     };
-    return jwt.sign(payload, "secret_value", { expiresIn: '60min' }); // Expires in 15 minutes
+    return jwt.sign(payload, "secret_value", { expiresIn: '60min' }); // Expires in 1 hour
 };
-
 
 // Revised /login endpoint with refreshToken
 app.post('/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
-        if (!user) {
-            return res.status(404).send('User not found');
-        }
-        if (!user.isEmailConfirmed) {
-          return res.status(401).send('Please confirm email.') // If you haven't confirmed your email, do it
-        }
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) {
-            return res.status(401).send('Invalid password');
-        }
-        const accessToken = generateAccessToken(user.toObject());
-        const refreshToken = jwt.sign({ id: user._id }, "secret_value"); // Only store user id in refresh token
-        await User.updateOne({ _id: user._id }, { $set: { refreshToken: refreshToken } }); // Update refreshToken field
-        res.json({ accessToken, refreshToken, user });
-    } catch (error) {
-        console.error('Error logging in:', error);
-        res.status(500).send('Error logging in');
+  try {
+      const { username, password } = req.body;
+      const user = await User.findOne({ username });
+      if (!user) {
+          return res.status(404).send('User not found');
+      }
+      if (!user.isEmailConfirmed) {
+        return res.status(401).send('Please confirm email.') // If you haven't confirmed your email, do it
+      }
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+          return res.status(401).send('Invalid password');
+      }
+      const accessToken = generateAccessToken(user.toObject());
+      const refreshToken = jwt.sign({ id: user._id }, "secret_value"); // Only store user id in refresh token
+      await User.updateOne({ _id: user._id }, { $set: { refreshToken: refreshToken } }); // Update refreshToken field
+      res.json({ accessToken, refreshToken, user });
+  } catch (error) {
+      console.error('Error logging in:', error);
+      res.status(500).send('Error logging in');
+  }
+});
+
+// Creating a cohort in the database
+app.post('/newCohort', async (req, res) => {
+  try {
+    const { cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive} = req.body;
+    const existingCohort = await Cohort.findOne({ cohortName }); // Check if user already exists in the database
+    if (existingCohort) { // If cohort already exists, return error
+      return res.status(400).send('Cohort already exists');
     }
+    const newCohort = new Cohort({ cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive}); // Create a new User document
+    await newCohort.save(); // Save the new cohort to the database
+    res.status(201).send('Cohort successfully created'); // Send success response
+  } catch (error) {
+    console.error('Error creating cohort:', error); // Log registration error
+    res.status(500).send('Error creating cohort'); // Send error response
+  }
 });
 
 // Creating a cohort in the database
@@ -289,7 +296,7 @@ app.post('/verify/start', async (req, res) => {
     res.status(500).send({ success: false, message: 'Internal server error' });
   }
  });
-
+ 
 //check username availability 
 app.post('/checkUsername', async (req, res) => {
   console.log('ping')
@@ -317,6 +324,31 @@ app.get('/users', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+ app.post('/update-user', async (req, res) => {
+  try {
+     // Extract user ID and new data from the request body
+     const { userId, newData } = req.body;
+
+     if (newData.password) {
+      newData.password = await bcrypt.hash(newData.password, 10); // Hash the new password
+    }
+ 
+     // Use findByIdAndUpdate to update the user's document
+     const updatedUser = await User.findByIdAndUpdate(userId, newData, { new: true });
+ 
+     // Check if the user was found and updated
+     if (!updatedUser) {
+       return res.status(404).json({ error: 'User not found' });
+     }
+ 
+     // Send the updated user data back to the client
+     res.json(updatedUser);
+  } catch (error) {
+     console.error(error);
+     res.status(500).json({ error: 'Internal Server Error' });
+  }
+ });
 
 //this endpoint will allow us to pass in a user to make a super admin
 app.post('/make-super-admin', async (req, res) => {
@@ -380,3 +412,4 @@ const PORT = process.env.PORT || 4000; // Define port for the server to listen o
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // Log server start message
 });
+

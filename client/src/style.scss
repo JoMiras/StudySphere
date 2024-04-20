@@ -34,8 +34,6 @@ $body-background-color-end: #CAF0F8;
   }
 }
 
-
-
 .formWrapper form {
   transition: height 0.5s, opacity 0.5s;
 }
@@ -126,6 +124,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-content: center;
+  overflow: scroll ;
 
   .login-button{
     margin-right: 20px;
@@ -145,59 +144,77 @@ body {
     height: 100vh;
     color: #ADE8F4;
     flex: 1;
-    margin: 0;
-    padding: 0;
     box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
     border-radius: 0px 0px 20px 20px;
-
-
+    padding-top: 10rem;
 
     .big-sphere {
       height: 5vh;
       margin-left: 20px;
+      padding-top: 3rem;
       animation: 
     bounce2 800ms
           alternate infinite
           cubic-bezier(.5, .5, .5, 0.5);
-
     }
 
-}
-
-  @include tablet {
-    overflow: scroll;
-
-    .centeredContentLeft {
-      display: flex;
-      justify-content: center;
-      border-radius: 0px 0px 20px 20px;
-      margin-bottom: 20px;
-      box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
-      flex: 1;
-      flex-direction: row;
-      
-      .big-sphere {
-        height: 3rem;
-        animation: 
-      bounce2 800ms
-            alternate infinite
-            cubic-bezier(.5, .5, .5, 0.5);
-
-      }
-      
-      .app-title {
-        font-size: 10vh;
-        font-size: 10vw;
-        padding: 10px;
-      }
-    }
-
-    .formContainer {
-      flex: 3;
-      width: 100%;
-
+    .app-title{
+      padding-bottom: 1rem;
     }
   }
+}
+
+.login-container .centeredContentLeft {
+  padding-top: 2rem;
+}
+
+@include tablet {
+  .register-container .login-container {
+     display: flex;
+     flex-direction: column;
+     background-color: #023E8A;
+  }
+ 
+  .centeredContentLeft {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
+     flex: 1;
+     width: 50%;
+     height: 100vh;
+  }
+
+  .register-container .centeredContentLeft .big-sphere {
+    height: 5rem;
+    width: 5rem;
+    padding-top: 0;
+    padding-bottom: 10rem;
+   }
+   .login-container .centeredContentLeft .big-sphere {
+    height: 5rem;
+    width: 5rem;
+    padding-top: 0;
+    padding-bottom: 10rem;
+   }
+ 
+  .app-title {
+     font-size: 8vw;
+  }
+ 
+  .formContainer {
+     height: 100vh;
+     display: flex;
+     align-items: center;
+     justify-content: end;
+     position: absolute;
+     overflow: scroll;
+     right: -10px;
+     flex: 2;
+  }
+ }
+ 
 
   @include mobile{
     .centeredContentLeft{
@@ -219,7 +236,7 @@ body {
       color: #023E8A;
     }
   }
-}
+
 
 form {
   max-width: 40vw;
@@ -230,8 +247,7 @@ form {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #ADE8F4;
-    margin-top: 10px;
+    // background-color: white;
     padding: 0;
 
     button {
@@ -244,22 +260,25 @@ form {
       cursor: pointer;
       min-width: 250px;
     }
-  }  
+  };
+
   .formWrapper {
-    // padding: 20px 90px;
     // margin-right: 100px;
-    // border-radius: 10px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
     justify-content: center;
+    // background-color: #011013;
   
     .form-message {
       color: $body-background-color-start;
       font-weight: bold;
       font-size: 45px;
-      margin-right: 20px
+      margin-right: 20px;
+      padding-bottom: 2rem;
+      padding-top: 2rem;
     };
   
     form {
@@ -287,8 +306,6 @@ form {
         align-content: center;
         gap: 10px;
         padding-right: 20px;
-
-        
       };
 
       .avatar-container {
@@ -322,7 +339,6 @@ form {
           font-weight: bold;
         }
       }
-      
     }
   
     p {
@@ -340,6 +356,27 @@ form {
         cursor: pointer;
       }
     }
+  };
+  
+  .top-navbar {
+    background-color: #011013;
+    color: #90E0EF;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-size: 20px;
+    margin-top: -10px;
+    width: 100vw;
+    .logo {
+      flex: 1;
+    }
+    .spacer {
+      flex: 2;
+    }
+    .settings {
+      cursor: pointer;
+    }
   }
   
 
@@ -349,6 +386,7 @@ form {
   width: 100vw;
   background-image: radial-gradient(circle, #023e8a, #1c6baa, #4f98c4, #8ac4dd, #caf0f8);  
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center; /* Center vertically */
   padding: 20px;
