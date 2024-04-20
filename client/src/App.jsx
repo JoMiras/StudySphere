@@ -12,6 +12,8 @@ import Verify from './Pages/Verify';
 import Landing from './Pages/Landing'; 
 import SubmitVerify from './Pages/SubmitVerify';
 import PhoneNumberContext from './context/phoneNumberContext';
+import Settings from './Pages/Settings';
+import TopNavbar from './components/TopNavbar';
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
@@ -33,8 +35,10 @@ const App = () => {
           <Route index element={<Registration />} />
           <Route path="/login" element={<Login />} />
           <Route path="/Verify" element={<Verify />} />
+          <Route path="/TopNavbar" element={<TopNavbar />} />
           <Route path="/SubmitVerify" element={<SubmitVerify />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path="/Settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
           <Route path='/newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
           <Route path='/confirmation/:token' element={<EmailConfirmation />} />
           <Route path="/landing" element={<Landing />} />

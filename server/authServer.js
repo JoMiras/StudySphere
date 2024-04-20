@@ -291,6 +291,31 @@ app.get('/users', async (req, res) => {
   }
 });
 
+ app.post('/update-user', async (req, res) => {
+  try {
+     // Extract user ID and new data from the request body
+     const { userId, newData } = req.body;
+
+     if (newData.password) {
+      newData.password = await bcrypt.hash(newData.password, 10); // Hash the new password
+    }
+ 
+     // Use findByIdAndUpdate to update the user's document
+     const updatedUser = await User.findByIdAndUpdate(userId, newData, { new: true });
+ 
+     // Check if the user was found and updated
+     if (!updatedUser) {
+       return res.status(404).json({ error: 'User not found' });
+     }
+ 
+     // Send the updated user data back to the client
+     res.json(updatedUser);
+  } catch (error) {
+     console.error(error);
+     res.status(500).json({ error: 'Internal Server Error' });
+  }
+ });
+
 //this endpoint will allow us to pass in a user to make a super admin
 app.post('/make-super-admin', async (req, res) => {
   try {

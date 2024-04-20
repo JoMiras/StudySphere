@@ -6,16 +6,7 @@ import { checkAndRenewToken } from '../utilities/checkToken';
 import axios from 'axios'
 import Loading from '../components/Loading';
 import UserModal from '../components/userModal';
-
-function TopNavBar() {
-  return (
-    <div className="top-navbar">
-      <div className="logo">Student Name?</div>
-      <div className="spacer"></div>
-      <div className="settings">Settings</div>
-    </div>
-  );
-}
+import TopNavbar from '../components/TopNavbar';
 
 
 function SideNavBar() {
@@ -37,7 +28,7 @@ function SideNavBar() {
       <button className="logout" onClick={handleLogout}>Logout</button>
     </div>
   );
-}
+};
 
 function Home() {
   const navigate = useNavigate();
@@ -92,6 +83,7 @@ function Home() {
 
   return (
     <>
+    <TopNavbar />
       <h1>
         {currentUser ? `Welcome, ${currentUser.username}` : 'Welcome'}
         {avatar == '' || avatar == null ? "" : <img  width={100} height={100} src={avatar}/>}
@@ -101,7 +93,6 @@ function Home() {
       <button onClick={test}>test</button>
       <button onClick={newCohort}>New Cohort</button>
       <h3>accessToken: {showToken}</h3>
-      <TopNavBar />
       <SideNavBar />
       <div>
       <button onClick={openModal}>Open User List Modal</button>
