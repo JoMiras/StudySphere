@@ -13,10 +13,14 @@
     "axios": "^1.6.8",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
+    "ldrs": "^1.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-password-strength-bar": "^0.4.1",
+    "react-phone-number-input": "^3.3.12",
     "react-router-dom": "^6.22.3",
-    "sass": "^1.74.1"
+    "sass": "^1.74.1",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

@@ -1,13 +1,28 @@
+<<<<<<< HEAD
 // App.js
 import React, { useState, useContext } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Registration from './Pages/Registration';
 import Login from './Pages/Login';
 import Home from './Pages/Home';
+=======
+import React, {useContext} from 'react';
+import Registration from './Pages/Registration';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
+>>>>>>> a9cf4d2a8fdeec2b8eee623d4f9ae2e2b669f8d8
 import { AuthContext } from './context/authContext';
 import handiCapToolbar from '../../server/StudySphere/client/src/components/handicapToolbar';
 
+// Pages
+import Login from './Pages/Login';
+import Home from './Pages/Home';
+import NewCohort from './Pages/NewCohort';
+import EmailConfirmation from './components/UserConfirmation';
+import Verify from './Pages/Verify';
+import Landing from './Pages/Landing'; 
+
 const App = () => {
+<<<<<<< HEAD
   const { currentUser } = useContext(AuthContext);
   const [localStream, setLocalStream] = useState(null);
   const [remoteStream, setRemoteStream] = useState(null);
@@ -52,6 +67,9 @@ const App = () => {
     }
     setRemoteStream(null);
   };
+=======
+  const { currentUser, setIsLoggedIn } = useContext(AuthContext);
+>>>>>>> a9cf4d2a8fdeec2b8eee623d4f9ae2e2b669f8d8
 
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
@@ -67,7 +85,11 @@ const App = () => {
         <Route path="/">
           <Route index element={<Registration />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/Verify" element={<Verify />} />
           <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+          <Route path='/newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
+          <Route path='/confirmation/:token' element={<EmailConfirmation />} />
+          <Route path="/landing" element={<Landing />} />
         </Route>
       </Routes>
 

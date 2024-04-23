@@ -3,8 +3,12 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+<<<<<<< HEAD
 const { Server } = require('ws'); // Import WebSocket Server from 'ws'
 const authenticateToken = require('./authMiddleware');
+=======
+const authenticateToken = require('./middleware/authMiddleware');
+>>>>>>> a9cf4d2a8fdeec2b8eee623d4f9ae2e2b669f8d8
 
 const app = express();
 const PORT = process.env.PORT || 3000;

@@ -1,11 +1,11 @@
-
-// Registration.js
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Sphere from "../img/globe.png"
-import Add from "../img/gallery (1).png"
-import SphereComponent from '../components/SideSphere.jsx';
+import defaultProfilePicture from "../img/user(1).png";
+import BigSphere from "../img/globe(1).png";
+import PasswordStrengthBar from 'react-password-strength-bar'; // Import PasswordStrengthBar component
+import thumbsUp from "../img/dislike(2).png"
+import thumbsDown from "../img/dislike(1).png"
 
 const Registration = () => {
   const [formData, setFormData] = useState({
@@ -13,29 +13,43 @@ const Registration = () => {
     email: '',
     phoneNumber: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    profilePicture:'',
+    role: 'student',
+    isEmailConfirmed: false
   });
 
   const [avatar, setAvatar] = useState('');
-
-
-  console.log("registration")
+  const [userAvailability, setUSerAvailability] = useState(null);
+  const [showPasswordStrength, setShowPasswordStrength] = useState(false); // State to track if password strength should be shown
   const navigate = useNavigate();
-
-  const { username, email, phoneNumber, password, confirmPassword } = formData;
+  const { username, email, phoneNumber, password, confirmPassword, profilePicture, role, isEmailConfirmed } = formData;
   
+  const passwordStrengthStyle = {
+    color:"#023E8A",
+    fontFamily:"arial",
+    fontWeight:"bold",
+    fontSize:"20px"
+  }
 
   const onChange = (e) => {
-    if (e.target.name === 'file') {
-      setFormData({ ...formData, avatarPic: e.target.files[0] });
-      setAvatar(e.target.files[0].name);
-      console.log(formData.avatarPic)
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === 'password' && e.target.value.trim() !== '') {
+      setShowPasswordStrength(true);
     } else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+      setShowPasswordStrength(false);
     }
-  };
+    };
 
   
+  const onFileChange = (e) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFormData({ ...formData, profilePicture: reader.result });
+      setAvatar(reader.result);
+    };
+    reader.readAsDataURL(e.target.files[0]);
+  };
     
 
   const onSubmit = async e => {
@@ -44,7 +58,7 @@ const Registration = () => {
       console.error('Passwords do not match');
     } else {
       try {
-        const res = await axios.post('http://localhost:4000/register', { username, email, phoneNumber, password });
+        const res = await axios.post('http://localhost:4000/register', { username, email, phoneNumber, password, profilePicture, role, isEmailConfirmed });
         console.log(res.data); // Handle successful registration
         navigate("/login"); // Redirect to login page after successful registration
       } catch (err) {
@@ -53,60 +67,82 @@ const Registration = () => {
     }
   };
 
+  const checkUsernameAvailability = async () => {
+    console.log(username)
+   try {
+    const res =  await axios.post('http://localhost:4000/checkUsername', {username});
+    setUSerAvailability(res.data)
+   } catch (error) {
+    console.error(error)
+   }
+  };
+
+
+  useEffect(() => {
+    if(username === ''){
+      setUSerAvailability(null)
+    } else {
+      checkUsernameAvailability();
+    }
+  }, [username]);
+
+
+
+  
+
   return (
     <div className='register-container'>
-      <SphereComponent />
-  
+      <div className='centeredContentLeft'> 
+        <span className='app-title'> Study Sphere</span>
+        <img src={BigSphere} alt="Sphere" className='big-sphere'/> 
+      </div>
       <div className='formContainer'>
         <div className='formWrapper'>
-          <img src={Sphere} alt="Sphere" className='register-logo'/>
           <span className='logo'>Register</span>
           <form onSubmit={e => onSubmit(e)}>
-            <div className="inputWrapper">
-              <label htmlFor="firstName">Username</label>
-              <input type="text" id="userName" name="username" value={username} onChange={e => onChange(e)} required />
+            <div className="inputWrapper username-wrapper">
+              <input type="text" id="userName" name="username" value={username} onChange={e => onChange(e)} required  placeholder='Username'/>
+              {userAvailability === true && <img className="thumbs-up" src={thumbsUp}/>}
+              {userAvailability === false && <img className="thumbs-down" src={thumbsDown}/>}
+            </div>
+            <div className="inputWrapper username-wrapper">
+              <input type="email" id="email" name="email" value={email} onChange={e => onChange(e)} required placeholder='Email'/>
             </div>
             <div className="inputWrapper">
-              <label htmlFor="email">Email Address</label>
-              <input type="email" id="email" name="email" value={email} onChange={e => onChange(e)} required />
+              <input type="tel" id="phoneNumber" name="phoneNumber" value={phoneNumber} onChange={e => onChange(e)} required placeholder='Phone Number'/>
             </div>
             <div className="inputWrapper">
-              <label htmlFor="phoneNumber">Phone Number</label>
-              <input type="tel" id="phoneNumber" name="phoneNumber" value={phoneNumber} onChange={e => onChange(e)} required />
+              <input type="password" id="password" name="password" value={password} onChange={e => onChange(e)} minLength='6' required placeholder='Password'/>
             </div>
+            {showPasswordStrength && <PasswordStrengthBar 
+            password={password} 
+            scoreWordStyle={passwordStrengthStyle}
+            />}
             <div className="inputWrapper">
-              <label htmlFor="password">Password</label>
-              <input type="password" id="password" name="password" value={password} onChange={e => onChange(e)} minLength='6' required />
+              <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={e => onChange(e)} minLength='6' required placeholder='Confirm Password'/>
             </div>
-            <div className="inputWrapper">
-              <label htmlFor="confirmPassword">Confirm Password</label>
-              <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={e => onChange(e)} minLength='6' required />
+            <div className='avatar-container'>
+              <label htmlFor='file' className='avatar-input'>
+                {avatar == '' || avatar == null ? <img  className="selected-avatar-image" width={100} height={100} src={defaultProfilePicture}/> : <img  className="selected-avatar-image" width={100} height={100} src={avatar}/>}
+                <input
+                  type="file"
+                  id="file"
+                  name="profilePicture"
+                  onChange={onFileChange}
+                  style={{ display: 'none', cursor: 'pointer' }}
+                />
+              </label>
             </div>
-            <input
-              type="file"
-              id="file"
-              onChange={(e) => {
-                setAvatar(e.target.files[0].name);
-                // Add any other file handling logic here
-              }}
-              style={{ display: 'none', cursor: 'pointer' }}
-            />
-            <label htmlFor='file' className='avatarInput'>
-              <img src={Add} alt='Add avatar' className='avatar-logo' />
-              <input type='file' id='avatarPic' style={{ display: 'none', cursor: 'pointer' }} name="avatarPic" onClick={e => onChange(e)}/>
-            </label>
-            {avatar && <p>Selected file: {avatar}</p>}
             <button type='submit'>Register</button>
+            <p>
+              Already have an account? {' '}
+              <button onClick={() => navigate("/login")}>Login</button>
+            </p>
           </form>
-          <p>
-            Already have an account? {' '}
-            <button onClick={() => navigate("/login")}>Login</button>
-          </p>
         </div>
       </div>
     </div>
   );
-  };
+};
 
 export default Registration;
-
