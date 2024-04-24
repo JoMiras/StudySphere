@@ -7,10 +7,11 @@ import axios from 'axios'
 import Loading from '../components/Loading';
 import UserModal from '../components/userModal';
 
-function TopNavBar() {
+function TopNavBar({ currentUser }) {
+  
   return (
     <div className="top-navbar">
-      <div className="logo">Student Name?</div>
+      <div className="logo">{currentUser ? `Welcome, ${currentUser.username} !` : 'Welcome'}</div>
       <div className="spacer"></div>
       <div className="settings">Settings</div>
     </div>
@@ -92,8 +93,10 @@ function NewHome() {
 
   return (
     <>
+     <TopNavBar currentUser={currentUser} />
+      <SideNavBar />
       <h1>
-        {currentUser ? `Welcome, ${currentUser.username}` : 'Welcome'}
+        {currentUser ? `Welcome ${currentUser.username}` : 'Welcome'}
         {avatar == '' || avatar == null ? "" : <img  width={100} height={100} src={avatar}/>}
       </h1>
       <h3>Role: {currentUser.role}</h3>
@@ -101,8 +104,8 @@ function NewHome() {
       <button onClick={test}>test</button>
       <button onClick={newCohort}>New Cohort</button>
       <h3>accessToken: {showToken}</h3>
-      <TopNavBar />
-      <SideNavBar />
+      {/* <TopNavBar /> */}
+      {/* <SideNavBar /> */}
       <div>
       <button onClick={openModal}>Open User List Modal</button>
       <UserModal isOpen={isModalOpen} onClose={closeModal} />

@@ -7,6 +7,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import EmailConfirmation from './components/UserConfirmation';
 import AdminStudents from './components/AdminStudents';
 import AdminDashboard from './components/AdminDashboard';
+import TeacherDashboard from './components/TeacherDashboard';
 import AdminCohorts from './components/AdminCohorts';
 import AdminTeachers from './components/AdminTeachers'
 import Registration from './Pages/Registration';
@@ -22,6 +23,8 @@ import SubmitVerify from './Pages/SubmitVerify';
 import PhoneNumberContext from './context/phoneNumberContext';
 import Settings from './Pages/Settings';
 import TopNavbar from './components/TopNavbar';
+
+
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
@@ -44,9 +47,11 @@ const App = () => {
           <Route path="login" element={<Login />} />
           <Route path="home" element={<ProtectedRoute><Home /></ProtectedRoute>}>
             <Route path="admindashboard" element={<AdminDashboard />}/>  
+            <Route path="teacherdashboard" element={<TeacherDashboard />}/> 
             <Route path="adminstudents" element={<AdminStudents />}/>
             <Route path="adminsteachers" element={<AdminTeachers />}/>
             <Route path="admincohorts" element={<AdminCohorts />}/>
+
           </Route>
           <Route path="landing" element={<LandingPage />} />
           <Route path='confirmation/:token' element={<EmailConfirmation />} />
