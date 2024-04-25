@@ -242,7 +242,7 @@ form {
   max-width: 40vw;
 }
 
-.formContainer {
+.formContainer, .settingsFormContainer {
     flex: 3;
     display: flex;
     align-items: center;
@@ -261,6 +261,59 @@ form {
       min-width: 250px;
     }
   };
+
+  .settings-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .setNumberEmail {
+    font-size: 1.5rem;
+    color: black;
+    border-bottom: 1px solid #004c96;
+    padding-left: 20px;
+  }
+
+  .settings-container-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 0;
+    width: 100vw;
+  }
+
+  .settings-logo {
+    font-size: 2rem;
+    padding-right: 2rem;
+    margin-top: 0;
+  }
+
+  .settings-nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: 15rem;
+    padding-left: .5rem;
+
+    button {
+      margin-bottom: 2rem;
+      margin-top: .5rem;
+      border-radius: 10px;
+      padding: .5rem;
+      border: none;
+      background-color: #023E8A;
+      color: #90E0EF;
+    }
+    button:hover {
+      border: 5px solid #004c96;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+
+
 
   .formWrapper {
     // margin-right: 100px;
@@ -300,8 +353,9 @@ form {
       }
 
   
-      .inputWrapper {
+      .inputWrapper, .setNumberEmail {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-content: center;
         gap: 10px;
@@ -310,7 +364,7 @@ form {
 
       .avatar-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         justify-content: center;
         align-content: center;
         position: relative;
@@ -318,11 +372,19 @@ form {
 
         .selected-avatar-image {
           border-radius: 50%;
+          margin-left: 4rem;
+          margin-right: 4rem;
+        }
+        .selected-avatar-image:hover {
+          width: 7rem;
+          height: 7rem;
+          cursor: pointer;
+          border: 5px solid #004c96;
+          box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .avatar-logo{
           cursor: pointer;
-          margin-right: 50px;
         };
       }
 
@@ -356,6 +418,11 @@ form {
         cursor: pointer;
       }
     }
+    button:hover {
+      font-weight: bolder;
+      border: 5px solid #004c96;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
   };
   
   .top-navbar {
@@ -376,6 +443,19 @@ form {
     }
     .settings {
       cursor: pointer;
+    }
+
+    button {
+      margin-left: 1rem;
+      border-radius: 10px;
+      background-color: #004c96;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      font-weight: bolder;
+      border: 5px solid #004c96;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
     }
   }
   

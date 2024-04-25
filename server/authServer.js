@@ -325,30 +325,115 @@ app.get('/users', async (req, res) => {
   }
 });
 
+app.get('/user/:userId', async (req, res) => {
+  try {
+     const user = await User.findById(req.params.userId);
+     if (!user) {
+       return res.status(404).json({ message: 'User not found' });
+     }
+     // Select only the fields you want to expose
+     const userInfo = {
+       username: user.username,
+       email: user.email,
+       phoneNumber: user.phoneNumber,
+       profilePicture: user.profilePicture,
+     };
+     res.json(userInfo);
+  } catch (error) {
+     console.error(error);
+     res.status(500).json({ message: 'Server error' });
+  }
+ });
+
+ // Example Express.js route for password verification
+app.post('/verify-password', async (req, res) => {
+  const { userId, password } = req.body;
+  try {
+     const user = await User.findById(userId);
+     if (!user) {
+       return res.status(404).json({ message: 'User not found' });
+     }
+     const isMatch = await bcrypt.compare(password, user.password);
+     if (!isMatch) {
+       return res.status(400).json({ message: 'Incorrect password' });
+     }
+     res.json({ message: 'Password is correct' });
+  } catch (error) {
+     console.error(error);
+     res.status(500).json({ message: 'Server error' });
+  }
+ }); 
+
  app.post('/update-user', async (req, res) => {
   try {
-     // Extract user ID and new data from the request body
      const { userId, newData } = req.body;
-
-     if (newData.password) {
-      newData.password = await bcrypt.hash(newData.password, 10); // Hash the new password
-    }
  
-     // Use findByIdAndUpdate to update the user's document
+     // Check if the user is trying to update their email
+     if (newData.email) {
+       // Generate a confirmation token
+       const emailToken = jwt.sign(
+         { userId, newEmail: newData.email },
+         EMAIL_SECRET,
+         { expiresIn: '1d' } // Token expires in 1 day
+       );
+ 
+       // Construct the confirmation URL
+       const confirmationUrl = `http://localhost:4000/confirm-email-update?token=${emailToken}`;
+ 
+       // Send the confirmation email
+       await transporter.sendMail({
+         from: 'fiendsauthentication@gmail.com',
+         to: newData.email,
+         subject: 'Confirm Your Email Update',
+         html: `Please confirm your email update by clicking the following link: <a href="${confirmationUrl}">${confirmationUrl}</a>`
+       });
+ 
+       // Respond with a message indicating that a confirmation email has been sent
+       return res.status(200).send('A confirmation email has been sent to your new email address. Please check your inbox and click the confirmation link.');
+     }
+ 
+     // If the user is not updating their email, proceed with the update
+     if (newData.password) {
+       newData.password = await bcrypt.hash(newData.password, 10); // Hash the new password
+     }
+ 
      const updatedUser = await User.findByIdAndUpdate(userId, newData, { new: true });
  
-     // Check if the user was found and updated
      if (!updatedUser) {
        return res.status(404).json({ error: 'User not found' });
      }
  
-     // Send the updated user data back to the client
      res.json(updatedUser);
   } catch (error) {
      console.error(error);
      res.status(500).json({ error: 'Internal Server Error' });
   }
  });
+
+ app.get('/confirm-email-update', async (req, res) => {
+ try {
+    const { token } = req.query;
+    if (!token) {
+      return res.status(400).send('Token is missing');
+    }
+
+    // Verify the token
+    const decoded = jwt.verify(token, EMAIL_SECRET);
+
+    // Update the user's email in the database
+    const updatedUser = await User.findByIdAndUpdate(decoded.userId, { email: decoded.newEmail }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).send('User not found');
+    }
+
+    res.send('Your email has been updated successfully.');
+ } catch (error) {
+    console.error(error);
+    res.status(400).send('Invalid or expired token');
+ }
+});
+
 
 //this endpoint will allow us to pass in a user to make a super admin
 app.post('/make-super-admin', async (req, res) => {

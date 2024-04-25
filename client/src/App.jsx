@@ -10,6 +10,8 @@ import AdminDashboard from './components/AdminDashboard';
 import AdminCohorts from './components/AdminCohorts';
 import AdminTeachers from './components/AdminTeachers'
 import Registration from './Pages/Registration';
+import TopNavbar from './components/TopNavbar';
+
 
 // Pages
 import Login from './Pages/Login';
@@ -21,7 +23,10 @@ import LandingPage from './Pages/Landing';
 import SubmitVerify from './Pages/SubmitVerify';
 import PhoneNumberContext from './context/phoneNumberContext';
 import Settings from './Pages/Settings';
-import TopNavbar from './components/TopNavbar';
+import ChangePassword from './Pages/ChangePassword';
+import UpdateEmail from './Pages/UpdateEmail';
+import UpdateUserProfile from './Pages/UpdateUserProfile';
+import ConfirmEmail from './Pages/ConfirmEmail';
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
@@ -56,6 +61,11 @@ const App = () => {
           <Route path="/TopNavbar" element={<TopNavbar />} />
           <Route path="/SubmitVerify" element={<SubmitVerify />} />
           <Route path="/Settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/ChangePassword" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+          <Route path="/UpdateEmail" element={<ProtectedRoute><UpdateEmail /></ProtectedRoute>} />
+          <Route path="/UpdateUserProfile" element={<ProtectedRoute><UpdateUserProfile /></ProtectedRoute>} />
+          <Route path="/ConfirmEmail" element={<ProtectedRoute><ConfirmEmail /></ProtectedRoute>} />
+
         </Route>
       </Routes>
     </BrowserRouter>

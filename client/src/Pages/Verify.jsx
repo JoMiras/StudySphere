@@ -16,7 +16,7 @@ const Verify = () => {
   event.preventDefault();
   setLoading(true);
   setError(null);
-  let retries = 3;
+  let retries = 1;
   let delay = 1000; // Start with a 1-second delay
  
   while (retries > 0) {
