@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 // App.js
 import React, { useState, useContext } from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
@@ -8,18 +9,47 @@ import Home from './Pages/Home';
 =======
 import React, {useContext} from 'react';
 import Registration from './Pages/Registration';
+=======
+// App.js
+import React, {useContext, useState} from 'react';
+>>>>>>> e8375ef523d4e4de42b00335da08a38e533347cc
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 >>>>>>> a9cf4d2a8fdeec2b8eee623d4f9ae2e2b669f8d8
 import { AuthContext } from './context/authContext';
+<<<<<<< HEAD
 import handiCapToolbar from '../../server/StudySphere/client/src/components/handicapToolbar';
+=======
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import EmailConfirmation from './components/UserConfirmation';
+import AdminStudents from './components/AdminStudents';
+import AdminDashboard from './components/AdminDashboard';
+import AdminCohorts from './components/AdminCohorts';
+import AdminTeachers from './components/AdminTeachers'
+import Registration from './Pages/Registration';
+import TopNavbar from './components/TopNavbar';
+
+>>>>>>> e8375ef523d4e4de42b00335da08a38e533347cc
 
 // Pages
 import Login from './Pages/Login';
 import Home from './Pages/Home';
+import NewHome from './Pages/philHome';
 import NewCohort from './Pages/NewCohort';
-import EmailConfirmation from './components/UserConfirmation';
 import Verify from './Pages/Verify';
-import Landing from './Pages/Landing'; 
+import LandingPage from './Pages/Landing'; 
+import SubmitVerify from './Pages/SubmitVerify';
+import PhoneNumberContext from './context/phoneNumberContext';
+import Settings from './Pages/Settings';
+import ChangePassword from './Pages/ChangePassword';
+import UpdateEmail from './Pages/UpdateEmail';
+import UpdateUserProfile from './Pages/UpdateUserProfile';
+import ConfirmEmail from './Pages/ConfirmEmail';
+import EditCohort from './components/EditCohort';
+import CohortFiles from './components/CohortFiles';
+import StudentClasses from './components/StudentClasses';
+
+
 
 const App = () => {
 <<<<<<< HEAD
@@ -69,7 +99,12 @@ const App = () => {
   };
 =======
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
+<<<<<<< HEAD
 >>>>>>> a9cf4d2a8fdeec2b8eee623d4f9ae2e2b669f8d8
+=======
+  const [phoneNumber, setPhoneNumber] = useState('');
+
+>>>>>>> e8375ef523d4e4de42b00335da08a38e533347cc
 
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
@@ -79,17 +114,35 @@ const App = () => {
   };
 
   return (
+    <PhoneNumberContext.Provider value={{ phoneNumber, setPhoneNumber }}>
     <BrowserRouter>
       {handiCapToolbar()}
       <Routes>
         <Route path="/">
           <Route index element={<Registration />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/Verify" element={<Verify />} />
-          <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-          <Route path='/newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
-          <Route path='/confirmation/:token' element={<EmailConfirmation />} />
-          <Route path="/landing" element={<Landing />} />
+          <Route path="login" element={<Login />} />
+          <Route path="home" element={<ProtectedRoute><Home /></ProtectedRoute>}>
+            <Route path="admindashboard" element={<AdminDashboard />}/>  
+            <Route path="adminstudents" element={<AdminStudents />}/>
+            <Route path="adminsteachers" element={<AdminTeachers />}/>
+            <Route path="admincohorts" element={<AdminCohorts />}/>
+            <Route path="editCohort" element={<EditCohort />}/>
+            <Route path="cohortfiles" element={<CohortFiles />}/>
+            <Route path="studentclasses" element={<StudentClasses />}/>
+          </Route>
+          <Route path="landing" element={<LandingPage />} />
+          <Route path='confirmation/:token' element={<EmailConfirmation />} />
+          <Route path='verify' element={<ProtectedRoute><Verify /></ProtectedRoute>} />
+          <Route path='newCohort' element={<ProtectedRoute><NewCohort /></ProtectedRoute>} />
+          <Route path='philHome' element={<ProtectedRoute><NewHome /></ProtectedRoute>} />
+          <Route path="/TopNavbar" element={<TopNavbar />} />
+          <Route path="/SubmitVerify" element={<SubmitVerify />} />
+          <Route path="/Settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/ChangePassword" element={<ProtectedRoute><ChangePassword /></ProtectedRoute>} />
+          <Route path="/UpdateEmail" element={<ProtectedRoute><UpdateEmail /></ProtectedRoute>} />
+          <Route path="/UpdateUserProfile" element={<ProtectedRoute><UpdateUserProfile /></ProtectedRoute>} />
+          <Route path="/ConfirmEmail" element={<ProtectedRoute><ConfirmEmail /></ProtectedRoute>} />
+
         </Route>
       </Routes>
 
@@ -99,6 +152,7 @@ const App = () => {
       <button onClick={startVideoChat}>Start Video Chat</button>
       <button onClick={stopVideoChat}>Stop Video Chat</button>
     </BrowserRouter>
+    </PhoneNumberContext.Provider>
   );
 };
 

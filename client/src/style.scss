@@ -34,6 +34,18 @@ $body-background-color-end: #CAF0F8;
   }
 }
 
+@keyframes glowing {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
+}
+
+img{
+  object-fit: cover;
+}
+
+
+
 .formWrapper form {
   transition: height 0.5s, opacity 0.5s;
 }
@@ -124,6 +136,7 @@ body {
   flex-direction: column;
   justify-content: center;
   align-content: center;
+  overflow: scroll ;
 
   .login-button{
     margin-right: 20px;
@@ -143,59 +156,77 @@ body {
     height: 100vh;
     color: #ADE8F4;
     flex: 1;
-    margin: 0;
-    padding: 0;
     box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
     border-radius: 0px 0px 20px 20px;
+    padding-top: 10rem;
 
     .big-sphere {
       height: 5vh;
       margin-left: 20px;
+      padding-top: 3rem;
       animation: 
     bounce2 800ms
           alternate infinite
           cubic-bezier(.5, .5, .5, 0.5);
+    }
 
+    .app-title{
+      padding-bottom: 1rem;
     }
   }
 }
 
-  @include tablet {
-    .centeredContentLeft {
-      display: flex;
-      justify-content: center;
-      border-radius: 0px 0px 20px 20px;
-      margin-bottom: 20px;
-      box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
-      flex: 1;
-      flex-direction: row;
-      overflow: scroll;
-      
-      .big-sphere {
-        height: 3rem;
-        animation: 
-      bounce2 800ms
-            alternate infinite
-            cubic-bezier(.5, .5, .5, 0.5);
+.login-container .centeredContentLeft {
+  padding-top: 2rem;
+}
 
-      }
-      
-      .app-title {
-        font-size: 10vh;
-        font-size: 10vw;
-        padding: 10px;
-      }
-    }
-.formContainer {
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    position: absolute;
-    overflow: hidden;
-    right: -25px; 
-    overflow:hidden;
+@include tablet {
+  .register-container .login-container {
+     display: flex;
+     flex-direction: column;
+     background-color: #023E8A;
   }
+ 
+  .centeredContentLeft {
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
+     flex: 1;
+     width: 50%;
+     height: 100vh;
+  }
+
+  .register-container .centeredContentLeft .big-sphere {
+    height: 5rem;
+    width: 5rem;
+    padding-top: 0;
+    padding-bottom: 10rem;
+   }
+   .login-container .centeredContentLeft .big-sphere {
+    height: 5rem;
+    width: 5rem;
+    padding-top: 0;
+    padding-bottom: 10rem;
+   }
+ 
+  .app-title {
+     font-size: 8vw;
+  }
+ 
+  .formContainer {
+     height: 100vh;
+     display: flex;
+     align-items: center;
+     justify-content: end;
+     position: absolute;
+     overflow: scroll;
+     right: -10px;
+     flex: 2;
+  }
+ }
+ 
 
   @include mobile{
     .centeredContentLeft{
@@ -217,19 +248,18 @@ body {
       color: #023E8A;
     }
   }
-}
+
 
 form {
   max-width: 40vw;
-};
+}
 
-.formContainer {
+.formContainer, .settingsFormContainer {
     flex: 3;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #ADE8F4;
-    margin-top: 10px;
+    // background-color: white;
     padding: 0;
 
     button {
@@ -244,21 +274,76 @@ form {
     }
   };
 
+  .settings-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .setNumberEmail {
+    font-size: 1.5rem;
+    color: black;
+    border-bottom: 1px solid #004c96;
+    padding-left: 20px;
+  }
+
+  .settings-container-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 0;
+    width: 100vw;
+  }
+
+  .settings-logo {
+    font-size: 2rem;
+    padding-right: 2rem;
+    margin-top: 0;
+  }
+
+  .settings-nav {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-bottom: 15rem;
+    padding-left: .5rem;
+
+    button {
+      margin-bottom: 2rem;
+      margin-top: .5rem;
+      border-radius: 10px;
+      padding: .5rem;
+      border: none;
+      background-color: #023E8A;
+      color: #90E0EF;
+    }
+    button:hover {
+      border: 5px solid #004c96;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+
+
+
   .formWrapper {
-    // padding: 20px 90px;
     // margin-right: 100px;
-    // border-radius: 10px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
     justify-content: center;
+    // background-color: #011013;
   
-    .logo {
+    .form-message {
       color: $body-background-color-start;
       font-weight: bold;
       font-size: 45px;
-      margin-right: 20px
+      margin-right: 20px;
+      padding-bottom: 2rem;
+      padding-top: 2rem;
     };
   
     form {
@@ -280,8 +365,9 @@ form {
       }
 
   
-      .inputWrapper {
+      .inputWrapper, .setNumberEmail {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-content: center;
         gap: 10px;
@@ -290,7 +376,7 @@ form {
 
       .avatar-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         justify-content: center;
         align-content: center;
         position: relative;
@@ -298,11 +384,19 @@ form {
 
         .selected-avatar-image {
           border-radius: 50%;
+          margin-left: 4rem;
+          margin-right: 4rem;
+        }
+        .selected-avatar-image:hover {
+          width: 7rem;
+          height: 7rem;
+          cursor: pointer;
+          border: 5px solid #004c96;
+          box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .avatar-logo{
           cursor: pointer;
-          margin-right: 50px;
         };
       }
 
@@ -336,6 +430,11 @@ form {
         cursor: pointer;
       }
     }
+    button:hover {
+      font-weight: bolder;
+      border: 5px solid #004c96;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
   };
   
   .top-navbar {
@@ -347,8 +446,7 @@ form {
     padding: 0 20px;
     font-size: 20px;
     margin-top: -10px;
-    margin-left: -10px;
-    margin-right: -10px;
+    width: 100vw;
     .logo {
       flex: 1;
     }
@@ -358,178 +456,516 @@ form {
     .settings {
       cursor: pointer;
     }
+
+    button {
+      margin-left: 1rem;
+      border-radius: 10px;
+      background-color: #004c96;
+      color: white;
+      border: none;
+    }
+    button:hover {
+      font-weight: bolder;
+      border: 5px solid #004c96;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }
   }
   
-  .side-navbar {
-    background-color: #020b18;
-    color: #90E0EF;
-    width: 200px;
-    height: 100vh;
+
+/* Home container */
+.home-container {
+  height: 100vh;
+  width: 100vw;
+  background-image: radial-gradient(circle, #023e8a, #1c6baa, #4f98c4, #8ac4dd, #caf0f8);  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* Center vertically */
+  padding: 20px;
+  overflow: scroll;
+
+  .home-body {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.home {
+  height: 95vh;
+  width: 80vw;
+  background-color: white;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+/* Top navbar */
+.top-navbar {
+  width: 100%;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  background-color: white;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 1px 0px;
+  justify-content: space-between;
+
+  input {
+    margin: 20px;
+    width: 20vw;
+    border: none;
+    background-color: #f0f2f3;
+    border-radius: 10px;
+    height: 35px;
+  }
+
+  .nav-user-info {
+    display: flex;
+    background-color: #f0f2f3;
+    padding: 10px 15px;
+    border-radius: 40px;
+    gap: 5px;
     align-items: center;
-    padding-top: 20px;
-    margin-left: -10px;
-    ul {
-      list-style-type: none;
-      padding: 0;
-      li {
-        padding: 10px 0;
-        cursor: pointer;
-      }
+    margin-right: 20px;
 
-    }
+  .profile-photo {
+  height: 40px; /* Adjust height as needed */
+  width: 40px; /* Adjust width as needed */
+  border-radius: 50%;
+  }
 
-    .course-title {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
+  .notification-icon {
+    height: 25px;
+    width: 25px;
   }
 
 
+  }
 
-
-
-
-
-
-  .landing-page {
-    font-family: Arial, sans-serif;
-    overflow-y: auto; /* Couldn't Enable vertical scrolling maybe you can */
-    overflow-x: hidden; /*Tried horizontal scrollbar */
-    overflow: visible !important; /* It didn't override for some reason*/
+  .user-info {
+    display: flex;
+    flex-direction: column;
     
+    p{
+      padding: 0;
+      margin: 0;
+      font-size: 0.8em;
+    }
   }
-  
-  .header {
-    background-color: black;
-    color: #fff;
-    padding: 20px;
+}
+
+
+
+.logo,
+.profile-photo,
+.notification-icon {
+  height: 40px; /* Adjust height as needed */
+  width: 40px; /* Adjust width as needed */
+  border-radius: 50%;
+}
+
+.side-navbar {
+  height: 100vh;
+  width: 200px;
+  background-image: linear-gradient(to top, #023e8a, #004c96, #005aa2, #0069ac, #0077b6);  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+
+  .company {
+    font-size: 1.5rem;
+    margin: 0;
+    font-weight: bold;
+    color: white;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-right: -10px;
-    margin-left: -10px;
-    margin-top: -10px;
-  
-    .logo {
-      font-size: 24px;
-      font-weight: bold;
-    }
-  
-    nav {
-      ul {
-        list-style-type: none;
-        display: flex;
-        gap: 20px;
-  
-        li {
-          a {
-            color: #fff;
-            text-decoration: none;
-            &:hover {
-              text-decoration: underline;
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  .hero {
-    background-color: #023E8A;
-    color: #fff;
-    padding: 100px 20px;
-    text-align: center;
-    margin-right: -10px;
-  
-    h1 {
-      font-size: 36px;
-      margin-bottom: 20px;
-    }
-  
-    p {
-      font-size: 20px;
-      margin-bottom: 40px;
-    }
-  
-    button {
-      background-color: #90E0EF;
-      color: #023E8A;
-      padding: 15px 30px;
-      font-size: 20px;
-      font-weight: bold;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      &:hover {
-        background-color: #0570b0;
-      }
-    }
-  }
-  
-  .features {
-    background-color: #90E0EF;
-    padding: 100px 20px;
-    text-align: center;
-    margin-left: -10px;
-  
-    h2 {
-      font-size: 32px;
-      margin-bottom: 40px;
-    }
-  
-    .feature-list {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-  
-      .feature-item {
-        max-width: 300px;
-        text-align: left;
-  
-        h3 {
-          font-size: 24px;
-          margin-bottom: 10px;
-        }
-  
-        p {
-          font-size: 18px;
-        }
-      }
-    }
-  }
-  
-  .footer {
-    background-color: #011013;
-    color: #fff;
+    flex-direction: row;
+    justify-content: center;
     padding: 20px;
-    text-align: center;
   }
 
-
-
-
-  .search {
-    display: flex;
-    align-items: center;
-
-    input[type="text"] {
-      padding: 10px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
+    img{
+      height: 25px;
+      width: 25px;
       margin-right: 10px;
     }
 
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #023E8A;
-      color: #fff;
-      border: none;
+
+}
+
+.logout-btn {
+  color:#004c96;
+  padding: 10px;
+  margin-bottom: 20px; 
+  font-weight: bold;
+  border-radius: 9px;
+  border: none;
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 0.555);
+  position: absolute;
+  bottom: 40px;
+  width: 7rem;
+  display: flex;
+  justify-content: center;
+  gap: 2px;
+  
+  img {
+    height: 1.3rem;
+    width: 1.3rem;
+  }
+}
+
+
+//admin dashboard 
+
+.admin-dashboard-header{
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+
+  button{
+    margin: 0.5rem;
+    font-weight: bold;
+  }
+}
+
+
+.admin-dashboard-body .top-portion {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between; /* Distribute items evenly along the main axis */
+  gap: 0.5rem; /* Adjust the gap between items */
+}
+
+.admin-dashboard-body .statistics {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 20px;
+  box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+  padding: 20px;
+  text-wrap: wrap;
+}
+
+.admin-dashboard-body .stats-picture img {
+  max-width: 100%;
+}
+
+.admin-dashboard-body .statistics .info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-dashboard-body .statistics img {
+  height: 40px;
+  width: 40px;
+}
+
+.admin-dashboard-body .statistics p {
+  padding: 0;
+  margin: 0;
+}
+
+
+
+
+//admin students component 
+.student-container{
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: auto;
+  padding: 30px;
+  overflow: scroll;
+  
+  input {
+    height: 35px;
+    border: none;
+    width: 200px;
+    background-color: #dfdfdf;
+    border-radius: 9px;
+    text-align: center;
+  }
+
+  button {
+    height: 35px;
+    font-weight: bold;
+  }
+}
+
+.students-header{
+  display: flex;
+  justify-content: space-between;
+}
+
+.student {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center; /* Center the items vertically */
+  text-align: center;
+  
+  strong, p{
+    margin-top: 5px;
+    padding-right: 20px;
+    margin-left:5px;
+  }
+  
+  .student-img{
+    height: 40px;
+    width: 40px;
+    border-radius: 10px;
+  }
+  
+
+  .student-info{
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+  }
+}
+
+//modal styling
+
+/* Modal Container */
+.modal-container {
+  display: flex;
+  justify-content: center; /* Center the modal horizontally */
+  align-items: center; /* Center the modal vertically */
+  height: 100vh; /* Take the full height of the viewport */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  max-width: 500px; /* Set the maximum width of the modal */
+  width: 100%; /* Make the modal responsive */
+  gap:20px;
+}
+
+/* Modal Header */
+.modal-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 20px;
+}
+
+/* Modal Title */
+.modal-title {
+  font-size: 1.25rem;
+}
+
+/* Modal Body */
+.modal-body {
+  padding-bottom: 20px;
+}
+
+/* Modal Footer */
+.modal-footer {
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Close Button */
+.close-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #6c757d;
+}
+
+.close-button:hover {
+  color: #343a40;
+}
+
+/* Primary Button */
+.primary-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.primary-button:hover {
+  background-color: #0056b3;
+}
+
+/* Secondary Button */
+.secondary-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.secondary-button:hover {
+  background-color: #495057;
+}
+
+
+//admin cohort css
+
+.cohort {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center; 
+
+  p {
+
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100px;
+  }
+}
+
+
+//cohort files
+
+.files-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  gap: 2rem;
+
+  .files-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+
+  .users {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 1rem;
+    padding: 2rem;
+  
+    h3 {
+      display: inline;
+      margin: 0; /* Remove default margin */
+      padding: 0; /* Remove default padding */
+      text-align: center;
+  
+    }
+
+    .students {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 0.5rem;
+      overflow: scroll;
+      height: 60%; // Set the height of the .students div
+      padding-bottom: 1rem; // Add some padding to the bottom to make space for scrollbar
+      width: 50%;
       border-radius: 5px;
-      cursor: pointer;
+      box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+
+  
+      &::-webkit-scrollbar {
+        width: 12px;
+      }
+  
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+  
+      &::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 6px;
+      }
+  
+      &::-webkit-scrollbar-thumb:hover {
+        background: #555;
+      }
+    
+      
+    }
+
+    .teacher{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+      height: 60%;
+      width: auto;
+      box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+      border-radius: 5px;
+      
+      .instructor-photo{
+        height: 300px;
+        width: 300px;
+      }
+
     }
   }
+
+  .files {
+    display: flex;
+    flex-direction: column;
+    height: 15rem;
+    width: 15rem;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 0 2px 2px #004c96;
+    }
+  }
+
+  img {
+    height: 3.688rem;
+    width: 3.688rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .student {
+    display: flex;
+    flex-direction: row;
+    height: 4rem; // Set the height of each student element
+    width: auto;
+    align-items: center;
+    padding: 1.8rem;
+  }
+}
+
+
+
+
+
+
+

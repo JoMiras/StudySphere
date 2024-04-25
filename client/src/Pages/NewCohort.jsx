@@ -10,7 +10,7 @@ const NewCohort = () => {
 
     const [cohortInfo, setCohortInfo] = useState({
     cohortName: '',
-    cohortSubject: '',
+    cohortSubject: 'math',
     adminID: '',
     instructorID: '',
     dateRange: {
@@ -50,20 +50,13 @@ const NewCohort = () => {
       }))
   }, [currentUser._id])
 
-  useEffect(() => {
-    // Set the cohort subject
-    setCohortInfo(Arr => ({
-      ...Arr, cohortSubject: 'test'
-    }))
-  })
-    
 
-  const onSubmit = async e => {
+  const onSubmit = async (e) => {
     e.preventDefault();
       try {
         const res = await axios.post('http://localhost:4000/newCohort', cohortInfo);
         console.log(res.data); // Handle successful registration
-        navigate("/home"); // Go back home if cohort is created successfully
+        alert('Cohort was successfully created')
       } catch (err) {
         console.error('Cohort creation error:', err.response);
       }
@@ -86,10 +79,9 @@ const NewCohort = () => {
 
   return (
     <div className='new-cohort-container'>
-      <div className='formContainer'>
+      <div className='modal-content'>
         <div className='formWrapper'>
-          <img src={Sphere} alt="Sphere" className='register-logo'/>
-          <span className='logo'>New Cohort</span>
+          <span >New Cohort</span>
           <form onSubmit={e => onSubmit(e)}>
             <div className="cohort-info">
               <div className="inputWrapper">
@@ -131,7 +123,7 @@ const NewCohort = () => {
                 <label htmlFor="provider">Provider ID:</label>
                 <input type="text" id="providerID" name="providerID" value={providerID} onChange={e => onChange(e)} />
             </div>
-            <button type='submit'>Create Cohort</button>
+            <button className="btn btn-primary">Create Cohort</button>
           </form>
         </div>
       </div>

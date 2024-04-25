@@ -1,21 +1,13 @@
-// Home.js
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
-import { checkAndRenewToken } from '../utilities/checkToken';
-import axios from 'axios'
+import axios from 'axios';
 import Loading from '../components/Loading';
+import Navbar from '../components/Navbar';
+import AdminNavBar from '../components/AdminNavbar';
+import { Outlet } from 'react-router-dom';
 import UserModal from '../components/userModal';
-
-function TopNavBar() {
-  return (
-    <div className="top-navbar">
-      <div className="logo">Student Name?</div>
-      <div className="spacer"></div>
-      <div className="settings">Settings</div>
-    </div>
-  );
-}
+import TopNavbar from '../components/TopNavbar';
 
 
 function SideNavBar() {
@@ -42,8 +34,9 @@ function SideNavBar() {
 function Home() {
   const navigate = useNavigate();
   const { currentUser, setIsLoggedIn, setCurrentUser } = useContext(AuthContext);
-  const avatar = currentUser.profilePicture;
-  const [userRole, setUserRole] = useState(currentUser.role)
+  const [userRole, setUserRole] = useState(currentUser.role);
+  const [users, setUsers] = useState('');
+  const [refreshData, setRefreshData] = useState(0)
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const logout = () => {
@@ -57,7 +50,7 @@ function Home() {
   };
   console.log(userRole);
 
-  const[showToken, setShowToken] = useState('')
+  const [showToken, setShowToken] = useState('')
   const test = async () => {
     await checkAndRenewToken();
     const accessToken = localStorage.getItem('accessToken');
@@ -84,30 +77,60 @@ function Home() {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+  const [cohorts, setCohorts] = useState([]);
 
-  
+  console.log(cohorts);
 
-  console.log(localStorage.getItem("accessToken"))
+  useEffect(() => {
+    // Fetch cohorts data
+    const fetchCohorts = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/cohorts");
+        setCohorts(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchCohorts();
+  }, [refreshData]);
 
+  useEffect(() => {
+    // Fetch users data
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("http://localhost:4000/users");
+        setUsers(res.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchUsers();
+  }, [refreshData]);
+
+  const resetTheData = () => {
+    setRefreshData(refreshData + 1);
+  };
+
+  console.log(refreshData);
 
   return (
-    <>
-      <h1>
-        {currentUser ? `Welcome, ${currentUser.username}` : 'Welcome'}
-        {avatar == '' || avatar == null ? "" : <img  width={100} height={100} src={avatar}/>}
-      </h1>
-      <h3>Role: {currentUser.role}</h3>
-      <button className='log-out-btn' onClick={logout}> log out</button>
-      <button onClick={test}>test</button>
-      <button onClick={newCohort}>New Cohort</button>
-      <h3>accessToken: {showToken}</h3>
-      <TopNavBar />
-      <SideNavBar />
-      <div>
-      <button onClick={openModal}>Open User List Modal</button>
-      <UserModal isOpen={isModalOpen} onClose={closeModal} />
+    <div>
+      <TopNavbar />
+      <div className="home-container">
+        {userRole === "SuperAdmin" && (
+          <div className='home'>
+            {userRole === 'SuperAdmin' ? <AdminNavBar /> : null}
+            <div className="home-body">
+              <Navbar />
+              {userRole === 'SuperAdmin' && (
+                <button onClick={resetTheData} type="button" className="btn btn-primary" style={{ borderRadius: "0px", backgroundColor: "#0077B6", border: "none" }}>Refresh Data</button>
+              )}
+              <Outlet context={[users, refreshData, cohorts]} />
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-    </>
   );
 }
 
