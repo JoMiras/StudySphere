@@ -68,7 +68,7 @@ const NewAssignment = () => {
       <div className='modal-content'>
         <div className='formWrapper'>
           <span >New Assignment</span>
-          <form onSubmit={e => onSubmit(e)}>
+          <form >
             <div className="assignment-info">
               <div className="inputWrapper">
                 <label htmlFor="assignmentName">Assignment Title:</label>
