@@ -315,6 +315,39 @@ app.get('/cohorts', async (req, res) => {
   }
 });
 
+// Add a new assignment to a cohort
+app.post('/newAssignment', async (req, res) => {
+  const { cohortID, assignmentName, questions } = req.body;
+
+  console.log('Received data:', req.body);
+
+  try {
+    // Find the cohort by its ID and push the new assignment to the assignments array
+    const updatedCohort = await Cohort.findByIdAndUpdate(
+      cohortID,
+      {
+        $push: {
+          'cohortFiles.assignments': {
+            assignmentName: assignmentName,
+            questions: questions
+          }
+        }
+      },
+      { new: true} // Return the updated document and use the newer MongoDB driver method
+    );
+
+    if (!updatedCohort) {
+      return res.status(404).json({ message: 'Cohort not found.' });
+    }
+
+    res.status(200).json({ message: 'Assignment added successfully.', updatedCohort });
+  } catch (error) {
+    console.error('Error adding assignment:', error);
+    res.status(500).json({ message: 'Error adding assignment to the cohort.' });
+  }
+});
+
+
 // Refresh token endpoint
 app.post('/refresh-token', async (req, res) => {
     const { refreshToken } = req.body;
