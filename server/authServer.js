@@ -86,10 +86,68 @@ const CohortSchema = new mongoose.Schema({
   isLive: { // Check if cohort has been approved by us to be live for users
     type: Boolean, 
     default: false
-  } 
-})
+  },
+  students: [{
+    student: {
+      id:String,
+      profilePicture:String,
+      username:String
+    }
+  }]
+});
+
 
 const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the User model
+
+// add student to cohort 
+app.post("/add-to-class", async (req, res) => {
+  const { studentId, cohortId, profilePicture, username } = req.body;
+  try {
+    const cohort = await Cohort.findOne({ _id: cohortId });
+    if (cohort) {
+      await Cohort.updateOne(
+        { _id: cohortId },
+        {
+          $push: {
+            students: {
+              student: {
+                id: studentId,
+                profilePicture: profilePicture,
+                username: username
+              }
+            }
+          }
+        }
+      );
+      console.log(cohort);
+      res
+        .status(200)
+        .json({ success: true, message: "Student added to cohort successfully." });
+    } else {
+      res.status(404).json({ success: false, message: "Cohort not found." });
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "An error occurred while adding the student to the cohort." });
+  }
+});
+
+app.post('/get-teacher', async (req, res) => {
+  const { id } = req.body;
+  try {
+    const teacher = await User.findOne({ _id: id });
+    if (teacher) {
+      res.json(teacher);
+    } else {
+      res.status(404).json({ message: 'Teacher not found' });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 
 // User Registration
@@ -106,7 +164,7 @@ app.post('/register', async (req, res) => {
     }
     
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
-    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture, role, isEmailConfirmed}); // Create a new User document
+    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture, role, isEmailConfirmed:false}); // Create a new User document
     await newUser.save(); // Save the new user to the database
 
     // Setting up user for confirmation
@@ -214,6 +272,17 @@ app.post('/newCohort', async (req, res) => {
   } catch (error) {
     console.error('Error creating cohort:', error); // Log registration error
     res.status(500).send('Error creating cohort'); // Send error response
+  }
+});
+
+//Get cohort 
+app.get('/cohorts', async (req, res) => {
+  try {
+    const cohorts = await Cohort.find();
+    res.json(cohorts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -325,30 +394,115 @@ app.get('/users', async (req, res) => {
   }
 });
 
+app.get('/user/:userId', async (req, res) => {
+  try {
+     const user = await User.findById(req.params.userId);
+     if (!user) {
+       return res.status(404).json({ message: 'User not found' });
+     }
+     // Select only the fields you want to expose
+     const userInfo = {
+       username: user.username,
+       email: user.email,
+       phoneNumber: user.phoneNumber,
+       profilePicture: user.profilePicture,
+     };
+     res.json(userInfo);
+  } catch (error) {
+     console.error(error);
+     res.status(500).json({ message: 'Server error' });
+  }
+ });
+
+ // Example Express.js route for password verification
+app.post('/verify-password', async (req, res) => {
+  const { userId, password } = req.body;
+  try {
+     const user = await User.findById(userId);
+     if (!user) {
+       return res.status(404).json({ message: 'User not found' });
+     }
+     const isMatch = await bcrypt.compare(password, user.password);
+     if (!isMatch) {
+       return res.status(400).json({ message: 'Incorrect password' });
+     }
+     res.json({ message: 'Password is correct' });
+  } catch (error) {
+     console.error(error);
+     res.status(500).json({ message: 'Server error' });
+  }
+ }); 
+
  app.post('/update-user', async (req, res) => {
   try {
-     // Extract user ID and new data from the request body
      const { userId, newData } = req.body;
-
-     if (newData.password) {
-      newData.password = await bcrypt.hash(newData.password, 10); // Hash the new password
-    }
  
-     // Use findByIdAndUpdate to update the user's document
+     // Check if the user is trying to update their email
+     if (newData.email) {
+       // Generate a confirmation token
+       const emailToken = jwt.sign(
+         { userId, newEmail: newData.email },
+         EMAIL_SECRET,
+         { expiresIn: '1d' } // Token expires in 1 day
+       );
+ 
+       // Construct the confirmation URL
+       const confirmationUrl = `http://localhost:4000/confirm-email-update?token=${emailToken}`;
+ 
+       // Send the confirmation email
+       await transporter.sendMail({
+         from: 'fiendsauthentication@gmail.com',
+         to: newData.email,
+         subject: 'Confirm Your Email Update',
+         html: `Please confirm your email update by clicking the following link: <a href="${confirmationUrl}">${confirmationUrl}</a>`
+       });
+ 
+       // Respond with a message indicating that a confirmation email has been sent
+       return res.status(200).send('A confirmation email has been sent to your new email address. Please check your inbox and click the confirmation link.');
+     }
+ 
+     // If the user is not updating their email, proceed with the update
+     if (newData.password) {
+       newData.password = await bcrypt.hash(newData.password, 10); // Hash the new password
+     }
+ 
      const updatedUser = await User.findByIdAndUpdate(userId, newData, { new: true });
  
-     // Check if the user was found and updated
      if (!updatedUser) {
        return res.status(404).json({ error: 'User not found' });
      }
  
-     // Send the updated user data back to the client
      res.json(updatedUser);
   } catch (error) {
      console.error(error);
      res.status(500).json({ error: 'Internal Server Error' });
   }
  });
+
+ app.get('/confirm-email-update', async (req, res) => {
+ try {
+    const { token } = req.query;
+    if (!token) {
+      return res.status(400).send('Token is missing');
+    }
+
+    // Verify the token
+    const decoded = jwt.verify(token, EMAIL_SECRET);
+
+    // Update the user's email in the database
+    const updatedUser = await User.findByIdAndUpdate(decoded.userId, { email: decoded.newEmail }, { new: true });
+
+    if (!updatedUser) {
+      return res.status(404).send('User not found');
+    }
+
+    res.send('Your email has been updated successfully.');
+ } catch (error) {
+    console.error(error);
+    res.status(400).send('Invalid or expired token');
+ }
+});
+
 
 //this endpoint will allow us to pass in a user to make a super admin
 app.post('/make-super-admin', async (req, res) => {
@@ -384,6 +538,25 @@ app.post('/set-role', async (req, res) => {
   }
 });
 
+app.post("/delete-cohort", async(req, res) => {
+  console.log('ping')
+  const {id} = req.body;
+  try {
+    // Validate input: Check if ID is a valid ObjectId, if necessary
+
+    const cohort = await Cohort.findOne({ _id: id });
+    if (!cohort) {
+      return res.status(404).json({ error: "Cohort not found" });
+    }
+
+    await cohort.deleteOne();
+
+    return res.status(200).json({ message: "Cohort successfully deleted" });
+  } catch (error) {
+    console.error("Error deleting cohort:", error);
+    return res.status(500).json({ error: "An error occurred while deleting the cohort" });
+  }
+});
 
 app.post('/delete-user', async (req, res) => {
   const { email } = req.body;
@@ -405,6 +578,39 @@ app.post('/delete-user', async (req, res) => {
   }
 });
 
+//assigning teacher to cohort 
+app.post("/assign-teacher", async (req, res) => {
+  const { teacherID, cohortID } = req.body;
+  try {
+    const cohort = await Cohort.findOne({ _id: cohortID });
+    if (cohort) {
+      await Cohort.updateOne({ _id: cohortID }, { $set: { instructorID: teacherID } });
+      res.status(200).send("Teacher assigned successfully.");
+    } else {
+      res.status(404).send("Cohort not found.");
+    }
+  } catch (error) {
+    console.error("Error assigning teacher:", error);
+    res.status(500).send("Internal server error.");
+  }
+});
+
+
+app.post("/edit-cohort", async (req, res) => {
+  const { cohortName, cohortSubject, startDate, endDate, adminID, instructorID, providerID, isLive, cohortID } = req.body;
+  try {
+    const cohort = await Cohort.findById(cohortID);
+    if (cohort) {
+      await Cohort.updateMany({ _id: cohortID }, { $set: { cohortName, cohortSubject, adminID, instructorID, isLive, providerID, dateRange:{startDate, endDate}} });
+      res.status(200).json({ message: "Cohort updated successfully" });
+    } else {
+      res.status(404).json({ message: "Cohort not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 
 
