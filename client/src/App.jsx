@@ -15,18 +15,15 @@ import AdminTeachers from './components/AdminTeachers'
 import TopNavbar from './components/TopNavbar';
 import DisplayAssignments from './components/DisplayAssignments';
 import CohortInfo from './components/CohortInfo';
-import NewCohort from './Pages/NewCohort';
 import EditCohort from './components/EditCohort';
 import CohortFiles from './components/CohortFiles';
 import StudentProfile from './components/StudentProfile'
 import TeacherProfile from './components/TeacherProfile'
+// import StudentClasses from './components/StudentClasses';
 
 
 // Pages
 import Registration from './Pages/Registration';
-import TopNavbar from './components/TopNavbar';
-
-
 // Pages
 import Login from './Pages/Login';
 import Home from './Pages/Home';
@@ -36,17 +33,6 @@ import Verify from './Pages/Verify';
 import LandingPage from './Pages/Landing'; 
 import SubmitVerify from './Pages/SubmitVerify';
 import PhoneNumberContext from './context/phoneNumberContext';
-import Settings from './Pages/Settings';
-import ChangePassword from './Pages/ChangePassword';
-import UpdateEmail from './Pages/UpdateEmail';
-import UpdateUserProfile from './Pages/UpdateUserProfile';
-import ConfirmEmail from './Pages/ConfirmEmail';
-import EditCohort from './components/EditCohort';
-import CohortFiles from './components/CohortFiles';
-import StudentClasses from './components/StudentClasses';
-import Verify from './Pages/Verify';
-import SubmitVerify from './Pages/SubmitVerify';
-import LandingPage from './Pages/Landing'; 
 import Settings from './Pages/Settings';
 import ChangePassword from './Pages/ChangePassword';
 import UpdateEmail from './Pages/UpdateEmail';
