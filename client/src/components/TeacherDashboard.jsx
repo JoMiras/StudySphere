@@ -1,9 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import student from "../img/reading.png";
-import { useOutletContext } from "react-router-dom";
 import teacher from "../img/teacher.png";
 import cohort from "../img/teamwork.png";
-import event from "../img/event.png";
+import eventIcon from "../img/event.png";
 import LineGraphTeacher from './LineGraphTeacher';
 import CalendarModal from './CalendarModal';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
@@ -13,26 +12,28 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 const localizer = momentLocalizer(moment);
 
 function TeacherDashboard() {
-  const [users, refreshData] = useOutletContext();
-  const [showCalendar, setShowCalendar] = useState(false);
-
-  const students = users ? users.filter(user => user.role === "student") : [];
-  const gpa = users ? users.filter(user => user.role === "gpa") : [];
-  const timeSpent = users ? users.filter(user => user.role === "time") : [];
-  const Attendancetime = users ? users.filter(user => user.role === "Attendancetime") : [];
+  const [showCalendar, setShowCalendar] = useState(true); // big calendar
+  const [showSmallCalendarModal, setShowSmallCalendarModal] = useState(false); // the small edit calendar 
+  const [selectedDate, setSelectedDate] = useState(null); // store the selected date
+  const [events, setEvents] = useState([]);
 
   const handleToggleView = () => {
     setShowCalendar(!showCalendar);
   };
 
-  const events = [
-    {
-      title: 'Meeting with students',
-      start: new Date(),
-      end: new Date(),
-    },
-    
-  ];
+  const handleToggleSmallCalendarModal = () => {
+    setShowSmallCalendarModal(!showSmallCalendarModal);
+  };
+
+  const handleDayClick = (date) => {
+    setSelectedDate(date);
+    setShowSmallCalendarModal(true);
+  };
+
+  const handleAddEvent = (event) => {
+    setEvents([...events, event]);
+    setShowSmallCalendarModal(false);
+  };
 
   return (
     <div className="admin-dashboard">
@@ -43,12 +44,15 @@ function TeacherDashboard() {
         </button>
         <button type="button" className="btn btn-primary">Edit courses</button>
         <button type="button" className="btn btn-primary">View students</button>
+        <button type="button" className="btn btn-primary" onClick={handleToggleSmallCalendarModal}>
+          Edit Calendar Modal
+        </button>
       </div>
       <div className="admin-dashboard-body">
         <div className="top-portion">
           <div className="statistics">
             <div className="info">
-              <p>{students.length}</p>
+              <p>0</p>
               <p>Total Students</p>
             </div>
             <div className="stats-picture">
@@ -66,11 +70,11 @@ function TeacherDashboard() {
           </div>
           <div className="statistics">
             <div className="info">
-              <p>0</p>
+              <p>{events.length}</p>
               <p>Events</p>
             </div>
             <div className="stats-picture">
-              <img src={event} alt="" />
+              <img src={eventIcon} alt="" />
             </div>
           </div>
         </div>
@@ -83,16 +87,23 @@ function TeacherDashboard() {
             startAccessor="start"
             endAccessor="end"
             style={{ height: 500 }}
+            onSelectEvent={(event) => console.log(event)}
           />
         </div>
-      ) : (
+      ) : null}
+      {!showCalendar ? (
         <div className="middle-portion" style={{ width: '98%', height: '300px' }}>
-          <LineGraphTeacher refreshData={refreshData} />
+          <LineGraphTeacher />
         </div>
-      )}
+      ) : null}
       <div>
-        {/* Calendar modal */}
-        {showCalendar && <CalendarModal setShowCalendarModal={setShowCalendar} />}
+        {showSmallCalendarModal && (
+          <CalendarModal
+            selectedDate={selectedDate}
+            handleAddEvent={handleAddEvent}
+            setShowCalendarModal={setShowSmallCalendarModal}
+          />
+        )}
       </div>
     </div>
   );

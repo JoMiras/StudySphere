@@ -1,29 +1,56 @@
-import React from 'react';
-import { Modal } from 'react-bootstrap'; 
-import { Calendar as BigCalendar, momentLocalizer } from 'react-big-calendar';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import moment from 'moment';
+import React, { useState } from 'react';
+import { Modal, Button, Form } from 'react-bootstrap';
+import DatePicker from 'react-datepicker'; //Had to install, but now you can add events 
+import 'react-datepicker/dist/react-datepicker.css';
 
-const localizer = momentLocalizer(moment);
+function CalendarModal({ selectedDate, handleAddEvent, setShowCalendarModal }) {
+  const [title, setTitle] = useState('');
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
 
-function CalendarModal({ setShowCalendarModal }) {
-  
+  const handleSubmit = () => {
+    const newEvent = {
+      title,
+      start: startDate,
+      end: endDate,
+    };
+    handleAddEvent(newEvent);
+  };
 
   return (
     <Modal show onHide={() => setShowCalendarModal(false)}>
       <Modal.Header closeButton>
-        <Modal.Title>Calendar</Modal.Title>
+        <Modal.Title>Add Event</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <BigCalendar
-          localizer={localizer}
-          events={[]} // I have to go to work I will try to mess with this before we merge tomorrow 
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: 500 }}
-        />
+        <Form>
+          <Form.Group controlId="eventTitle">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter event title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group controlId="eventStartDate">
+            <Form.Label>Start Date</Form.Label>
+            <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} />
+          </Form.Group>
+          <Form.Group controlId="eventEndDate">
+            <Form.Label>End Date</Form.Label>
+            <DatePicker selected={endDate} onChange={(date) => setEndDate(date)} />
+          </Form.Group>
+        </Form>
       </Modal.Body>
-      {/* Additional modal footer or controls */}
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShowCalendarModal(false)}>
+          Cancel
+        </Button>
+        <Button variant="primary" onClick={handleSubmit}>
+          Add Event
+        </Button>
+      </Modal.Footer>
     </Modal>
   );
 }
