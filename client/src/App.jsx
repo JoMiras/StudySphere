@@ -10,6 +10,7 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import EmailConfirmation from './components/UserConfirmation';
 import AdminStudents from './components/AdminStudents';
 import AdminDashboard from './components/AdminDashboard';
+import TeacherDashboard from './components/TeacherDashboard';
 import AdminCohorts from './components/AdminCohorts';
 import AdminTeachers from './components/AdminTeachers'
 import TopNavbar from './components/TopNavbar';
@@ -41,6 +42,8 @@ import ConfirmEmail from './Pages/ConfirmEmail';
 
 
 
+
+
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -62,6 +65,7 @@ const App = () => {
           <Route path="login" element={<Login />} />
           <Route path="home" element={<ProtectedRoute><Home /></ProtectedRoute>}>
             <Route path="admindashboard" element={<AdminDashboard />}/>  
+            <Route path="teacherdashboard" element={<TeacherDashboard />}/> 
             <Route path="adminstudents" element={<AdminStudents />}/>
             <Route path="adminsteachers" element={<AdminTeachers />}/>
             <Route path="admincohorts" element={<AdminCohorts />}/>
@@ -72,7 +76,6 @@ const App = () => {
             </Route>
             <Route path="studentprofile" element={<StudentProfile />}/>
             <Route path="teacherprofile" element={<TeacherProfile />}/>
-
           </Route>
           <Route path="landing" element={<LandingPage />} />
           <Route path='confirmation/:token' element={<EmailConfirmation />} />
