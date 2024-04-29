@@ -88,40 +88,21 @@ const displayReadingMaterials = readingMaterials
 
 
   return (
-    <div className='home-content'>
-      <header className='files-header'>
-        <h1 style={{ textAlign: "center", marginTop: "20px" }}>{cohort.cohortName}</h1>
-        <button onClick={() => {Navigate(-1)}} className='btn btn-success btn-sm' style={{width:"100px", height:"35px",alignSelf:"center"}} >Done</button>
-      </header>
-      <div>
-        <Outlet context={[cohort]} />
-      </div>
-
-      {/* <div className='files-container'>
+      <div className='files-container'>
         <div className="files-wrapper">
           <div className='files reading-material'>
             <img src={books} alt="" />
-            <h4>Reading Material</h4>
+            <h4>Course Materials</h4>
             {displayReadingMaterials.length}
           </div>
-          <div className="files assignments">
+          <div onClick={() => Navigate('assignments')} className="files assignments">
             <img src={book} alt="" />
-            <h4>Assignments</h4>
+            <h4>Homework and Tests</h4>
             {displayAssignments.length}
-          </div>
-          <div className="files tests">
-            <img src={exam} alt="" />
-            <h4>Exams</h4>
-            {displayTests.length}
-          </div>
-          <div className="files quizzes">
-            <img src={quiz} alt="" />
-            <h4>Quizzes</h4>
-            0
           </div>
           <div className="files events">
             <img src={events} alt="" />
-            <h4>Events</h4>
+            <h4>Upcoming Events</h4>
             0
           </div>
         </div>
@@ -145,8 +126,7 @@ const displayReadingMaterials = readingMaterials
         )}
 
         </div>
-      </div> */}
-    </div>
+      </div>
   );
 }
 
