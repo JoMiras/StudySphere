@@ -50,6 +50,7 @@ const NewCohort = () => {
       }))
   }, [currentUser._id])
 
+    
 
   const onSubmit = async (e) => {
     e.preventDefault();

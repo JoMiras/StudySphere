@@ -1,13 +1,52 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./src/img/globe(2).png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudySphere</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Integration</title>
+</head>
+<body>
+    <h1>Webcam Integration</h1>
+    <div id="video-container">
+        <video id="webcam-video" autoplay playsinline></video>
+    </div>
+    <button id="start-webcam">Start Webcam</button>
+    <button id="stop-webcam">Stop Webcam</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+    <script>
+        const startButton = document.getElementById('start-webcam');
+        const stopButton = document.getElementById('stop-webcam');
+        const videoElement = document.getElementById('webcam-video');
+        let stream;
+
+        // Function to start webcam
+        async function startWebcam() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                videoElement.srcObject = stream;
+            } catch (error) {
+                console.error('Error accessing webcam:', error);
+            }
+        }
+
+        // Function to stop webcam
+        function stopWebcam() {
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                videoElement.srcObject = null;
+            }
+        }
+
+        // Event listeners for start/stop buttons
+        startButton.addEventListener('click', startWebcam);
+        stopButton.addEventListener('click', stopWebcam);
+
+        // Establish WebSocket connection
+        const socket = io(); // Assuming you have a WebSocket server running
+
+        // WebSocket event listeners and signaling logic can be implemented here
+    </script>
+</body>
 </html>
