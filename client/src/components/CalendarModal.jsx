@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
-import DatePicker from 'react-datepicker'; //Had to install, but now you can add events 
+import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
 function CalendarModal({ selectedDate, handleAddEvent, setShowCalendarModal }) {
@@ -34,12 +34,22 @@ function CalendarModal({ selectedDate, handleAddEvent, setShowCalendarModal }) {
             />
           </Form.Group>
           <Form.Group controlId="eventStartDate">
-            <Form.Label>Start Date</Form.Label>
-            <DatePicker selected={startDate} onChange={(date) => setStartDate(date)} />
+            <Form.Label>Start Date and Time</Form.Label>
+            <DatePicker
+              selected={startDate}
+              onChange={date => setStartDate(date)}
+              showTimeSelect
+              dateFormat="MMMM d, yyyy h:mm aa"
+            />
           </Form.Group>
           <Form.Group controlId="eventEndDate">
-            <Form.Label>End Date</Form.Label>
-            <DatePicker selected={endDate} onChange={(date) => setEndDate(date)} />
+            <Form.Label>End Date and Time</Form.Label>
+            <DatePicker
+              selected={endDate}
+              onChange={date => setEndDate(date)}
+              showTimeSelect
+              dateFormat="MMMM d, yyyy h:mm aa"
+            />
           </Form.Group>
         </Form>
       </Modal.Body>

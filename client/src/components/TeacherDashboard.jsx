@@ -8,13 +8,14 @@ import CalendarModal from './CalendarModal';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import { v4 as uuidv4 } from 'uuid'; 
 
 const localizer = momentLocalizer(moment);
 
 function TeacherDashboard() {
-  const [showCalendar, setShowCalendar] = useState(true); // big calendar
-  const [showSmallCalendarModal, setShowSmallCalendarModal] = useState(false); // the small edit calendar 
-  const [selectedDate, setSelectedDate] = useState(null); // store the selected date
+  const [showCalendar, setShowCalendar] = useState(true);
+  const [showSmallCalendarModal, setShowSmallCalendarModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [events, setEvents] = useState([]);
 
   const handleToggleView = () => {
@@ -31,9 +32,26 @@ function TeacherDashboard() {
   };
 
   const handleAddEvent = (event) => {
-    setEvents([...events, event]);
+    // Generate a unique ID for the new event using uuid
+    const newEvent = { ...event, id: uuidv4() };
+    setEvents([...events, newEvent]);
     setShowSmallCalendarModal(false);
   };
+
+  const handleDeleteEvent = (eventId) => {
+    const updatedEvents = events.filter(event => event.id !== eventId);
+    setEvents(updatedEvents);
+  };
+
+  const eventComponents = events.map(event => ({
+    ...event,
+    title: (
+      <div>
+        <span>{event.title}</span>
+        <button onClick={() => handleDeleteEvent(event.id)}>Delete</button>
+      </div>
+    )
+  }));
 
   return (
     <div className="admin-dashboard">
@@ -83,7 +101,7 @@ function TeacherDashboard() {
         <div className="middle-portion" style={{ width: '98%', height: '300px' }}>
           <Calendar
             localizer={localizer}
-            events={events}
+            events={eventComponents}
             startAccessor="start"
             endAccessor="end"
             style={{ height: 500 }}
