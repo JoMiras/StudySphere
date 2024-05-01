@@ -136,7 +136,6 @@ body {
   flex-direction: column;
   justify-content: center;
   align-content: center;
-  overflow: scroll ;
 
   .login-button{
     margin-right: 20px;
@@ -156,77 +155,59 @@ body {
     height: 100vh;
     color: #ADE8F4;
     flex: 1;
+    margin: 0;
+    padding: 0;
     box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
     border-radius: 0px 0px 20px 20px;
-    padding-top: 10rem;
+
+
 
     .big-sphere {
       height: 5vh;
       margin-left: 20px;
-      padding-top: 3rem;
       animation: 
     bounce2 800ms
           alternate infinite
           cubic-bezier(.5, .5, .5, 0.5);
+
     }
 
-    .app-title{
-      padding-bottom: 1rem;
+}
+
+  @include tablet {
+    overflow: scroll;
+
+    .centeredContentLeft {
+      display: flex;
+      justify-content: center;
+      border-radius: 0px 0px 20px 20px;
+      margin-bottom: 20px;
+      box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
+      flex: 1;
+      flex-direction: row;
+      
+      .big-sphere {
+        height: 3rem;
+        animation: 
+      bounce2 800ms
+            alternate infinite
+            cubic-bezier(.5, .5, .5, 0.5);
+
+      }
+      
+      .app-title {
+        font-size: 10vh;
+        font-size: 10vw;
+        padding: 10px;
+      }
+    }
+
+    .formContainer {
+      flex: 3;
+      width: 100%;
+
     }
   }
-}
-
-.login-container .centeredContentLeft {
-  padding-top: 2rem;
-}
-
-@include tablet {
-  .register-container .login-container {
-     display: flex;
-     flex-direction: column;
-     background-color: #023E8A;
-  }
- 
-  .centeredContentLeft {
-     display: flex;
-     flex-direction: column;
-     justify-content: center;
-     align-items: center;
-     box-shadow: rgba(0, 0, 0, 0.18) 0px 5px 10px;
-     flex: 1;
-     width: 50%;
-     height: 100vh;
-  }
-
-  .register-container .centeredContentLeft .big-sphere {
-    height: 5rem;
-    width: 5rem;
-    padding-top: 0;
-    padding-bottom: 10rem;
-   }
-   .login-container .centeredContentLeft .big-sphere {
-    height: 5rem;
-    width: 5rem;
-    padding-top: 0;
-    padding-bottom: 10rem;
-   }
- 
-  .app-title {
-     font-size: 8vw;
-  }
- 
-  .formContainer {
-     height: 100vh;
-     display: flex;
-     align-items: center;
-     justify-content: end;
-     position: absolute;
-     overflow: scroll;
-     right: -10px;
-     flex: 2;
-  }
- }
- 
 
   @include mobile{
     .centeredContentLeft{
@@ -248,18 +229,19 @@ body {
       color: #023E8A;
     }
   }
-
+}
 
 form {
   max-width: 40vw;
 }
 
-.formContainer, .settingsFormContainer {
+.formContainer {
     flex: 3;
     display: flex;
     align-items: center;
     justify-content: center;
-    // background-color: white;
+    background-color: #ADE8F4;
+    margin-top: 10px;
     padding: 0;
 
     button {
@@ -272,78 +254,22 @@ form {
       cursor: pointer;
       min-width: 250px;
     }
-  };
-
-  .settings-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .setNumberEmail {
-    font-size: 1.5rem;
-    color: black;
-    border-bottom: 1px solid #004c96;
-    padding-left: 20px;
-  }
-
-  .settings-container-content {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 0;
-    width: 100vw;
-  }
-
-  .settings-logo {
-    font-size: 2rem;
-    padding-right: 2rem;
-    margin-top: 0;
-  }
-
-  .settings-nav {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-bottom: 15rem;
-    padding-left: .5rem;
-
-    button {
-      margin-bottom: 2rem;
-      margin-top: .5rem;
-      border-radius: 10px;
-      padding: .5rem;
-      border: none;
-      background-color: #023E8A;
-      color: #90E0EF;
-    }
-    button:hover {
-      border: 5px solid #004c96;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    }
-  }
-
-
-
-
+  }  
   .formWrapper {
+    // padding: 20px 90px;
     // margin-right: 100px;
-    border-radius: 10px;
+    // border-radius: 10px;
     display: flex;
     flex-direction: column;
     gap: 10px;
     align-items: center;
     justify-content: center;
-    // background-color: #011013;
   
     .form-message {
       color: $body-background-color-start;
       font-weight: bold;
       font-size: 45px;
-      margin-right: 20px;
-      padding-bottom: 2rem;
-      padding-top: 2rem;
+      margin-right: 20px
     };
   
     form {
@@ -365,18 +291,19 @@ form {
       }
 
   
-      .inputWrapper, .setNumberEmail {
+      .inputWrapper {
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-content: center;
         gap: 10px;
         padding-right: 20px;
+
+        
       };
 
       .avatar-container {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: center;
         align-content: center;
         position: relative;
@@ -384,19 +311,11 @@ form {
 
         .selected-avatar-image {
           border-radius: 50%;
-          margin-left: 4rem;
-          margin-right: 4rem;
-        }
-        .selected-avatar-image:hover {
-          width: 7rem;
-          height: 7rem;
-          cursor: pointer;
-          border: 5px solid #004c96;
-          box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
         }
 
         .avatar-logo{
           cursor: pointer;
+          margin-right: 50px;
         };
       }
 
@@ -413,6 +332,7 @@ form {
           font-weight: bold;
         }
       }
+      
     }
   
     p {
@@ -430,45 +350,6 @@ form {
         cursor: pointer;
       }
     }
-    button:hover {
-      font-weight: bolder;
-      border: 5px solid #004c96;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    }
-  };
-  
-  .top-navbar {
-    background-color: #011013;
-    color: #90E0EF;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    padding: 0 20px;
-    font-size: 20px;
-    margin-top: -10px;
-    width: 100vw;
-    .logo {
-      flex: 1;
-    }
-    .spacer {
-      flex: 2;
-    }
-    .settings {
-      cursor: pointer;
-    }
-
-    button {
-      margin-left: 1rem;
-      border-radius: 10px;
-      background-color: #004c96;
-      color: white;
-      border: none;
-    }
-    button:hover {
-      font-weight: bolder;
-      border: 5px solid #004c96;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-    }
   }
   
 
@@ -476,12 +357,10 @@ form {
 .home-container {
   height: 100vh;
   width: 100vw;
-  background-image: radial-gradient(circle, #023e8a, #1c6baa, #4f98c4, #8ac4dd, #caf0f8);  
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center; /* Center vertically */
-  padding: 20px;
+  
   overflow: scroll;
 
   .home-body {
@@ -494,13 +373,12 @@ form {
 }
 
 .home {
-  height: 95vh;
-  width: 80vw;
+  height: 100vh;
+  width: 100vw;
   background-color: white;
   display: flex;
   flex-direction: row;
   overflow: hidden;
-  border-radius: 20px;
 }
 
 /* Top navbar */
@@ -846,6 +724,21 @@ form {
 
 
 //cohort files
+.files-header {
+  display: flex;
+  justify-content: space-between; /* Aligns items with space between them */
+  padding: 20px;
+}
+
+.files-header h1 {
+  margin: 0;
+}
+
+.files-header button {
+  align-self: center; /* Aligns button vertically in the center */
+}
+
+
 
 .files-container {
   display: flex;
@@ -853,12 +746,15 @@ form {
   height: 100vh;
   width: 100%;
   gap: 2rem;
+  overflow: scroll;
+
 
   .files-wrapper {
     display: flex;
     justify-content: center;
     gap: 1.25rem;
     flex-wrap: wrap;
+    padding: 10px;
   }
 
 
@@ -868,12 +764,17 @@ form {
     width: 100%;
     gap: 1rem;
     padding: 2rem;
+    height: 80%;
   
     h3 {
       display: inline;
       margin: 0; /* Remove default margin */
       padding: 0; /* Remove default padding */
       text-align: center;
+
+      .done-button{
+        flex-direction: column;
+      }
   
     }
 
@@ -889,6 +790,19 @@ form {
       width: 50%;
       border-radius: 5px;
       box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+      padding: 20px;
+
+      .cohort-students {
+        height: 200px;
+        width: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+        padding: 20px;
+        margin: 0;
+        gap: 2px;
+      }
 
   
       &::-webkit-scrollbar {
@@ -916,7 +830,7 @@ form {
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      flex: 1;
+      flex: 2;
       height: 60%;
       width: auto;
       box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
@@ -930,11 +844,13 @@ form {
     }
   }
 
+  
+
   .files {
     display: flex;
     flex-direction: column;
-    height: 15rem;
-    width: 15rem;
+    height: 12rem;
+    width: 12rem;
     box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
     justify-content: center;
     align-items: center;
@@ -960,12 +876,307 @@ form {
     width: auto;
     align-items: center;
     padding: 1.8rem;
-  }
+  }  
 }
 
 
 
+//student profile
+
+.student-profile-container, .teacher-profile-container {
+  height: 100vh;
+  width: 100%;
+  padding: 45px 5px 45px 45px;
+  display: flex;
+  gap: 40px;
+
+  .student-information, .teacher-information {
+    height: 80vh;
+    width: 37%;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow: auto;
+    
+
+    .top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20PX;
+    }
+
+    .cohorts, .bottom {
+      display: flex;
+      flex-direction: column;
+      justify-self: flex-start;
+      width: 100%;
+      margin-top: 10px;
+
+      p{
+        text-wrap: wrap;
+      }
+
+    }
+
+    img{
+      height: 150px;
+      width: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    p{
+      text-wrap: nowrap;
+      padding: 0;
+      margin: 0;
+      color: grey;
+    }
+
+    .add-to-cohort{
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
+      height: 100%;
+      
+      button {
+        height: 45px;
+        align-self: flex-end;
+      }
+    }
+
+  }
+
+  .academic-stats {
+    height: 80vh;
+    width: 100%;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+    border-radius: 5px;
+    margin-right: 20px;
+    overflow-y: auto;
+    overflow-x:hidden;
+
+    h1{
+      text-align: center;
+    }
+  }
+}
 
 
+//teacher profile 
+
+.display-cohorts {
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 1em;
+  margin-left: 20px;
+  text-align: center;
+  justify-content: flex-start;
+  justify-content: space-evenly;
+
+
+  .my-cohort {
+    height: 25vh;
+    width: auto;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+    align-content: center;
+    border-radius: 5px;
+    padding: 1em;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    img {
+      height: 15vh;
+      width: auto;
+    }
+  }
+}
+
+//discussion board
+.discussion-container{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 4rem;
+  height: 100vh;
+  padding: 1rem;
+
+  .discussion-wrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 2rem;
+    height: 100vh;
+    width: 100%;
+    
+  }
+
+  .post-wrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 75vh;
+    flex: 2;
+    overflow: scroll;
+    padding: 10px;
+    -ms-overflow-style: none; 
+    scrollbar-width: none;  
+
+    .no-posts {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      gap: 30px;
+    }
+
+    .empty-image {
+      height: 20vh;
+      width: 20vw;
+      object-fit: contain;
+    }
+    
+  }
+
+  .post-wrapper::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+}
+
+  .posts{
+    display: flex;
+    padding: 2rem;
+    height: 10vh;
+    width: 100%;
+    box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    cursor: pointer;
+    &:hover {
+      box-shadow: 0 0 2px 2px #004c96;
+    }
+  }
+
+  .post-preview{
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-wrap: wrap;
+    h3{
+      padding: 0;
+      margin-bottom: 10px;
+    }
+    p{
+      padding: 0;
+      margin: 0;
+      text-wrap: wrap;
+      color: gray;
+    }
+  }
+
+  .posts-owner {
+    flex: 1;
+    height: auto;
+    width: auto;
+    align-self: center;
+  }
+
+  .owner-photo {
+    border-radius: 50%;
+  }
+
+  .replies-preview{
+    align-self: center;
+  }
+
+  .owner-photo{
+   height: 100px;
+   width: 100px;
+  }
+
+  .make-post{
+    flex: 1;
+    text-align: center;
+  }
+}
+
+
+.selected-post-wrapper {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  hr {
+    margin: 0;
+    padding: 0;
+  }
+
+  h1 {
+    padding: 0;
+    margin: 0;
+  }
+
+  .text-area {
+    width: 40%;
+  }
+
+  .owner-of-post {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align content at the top */
+    border-radius: 5px;
+    padding: 20px;
+    margin-top: 0; /* Adjusted margin-top to remove any space */
+    margin-bottom: 20px; /* Add margin to separate from comments */
+    flex: 0 0 auto; /* Fixed height */
+    height: auto; /* Optional: Allow height to adjust based on content */
+  
+    img {
+      border-radius: 50%;
+    }
+  }
+
+  .comments-container {
+    flex: 1; /* Occupy remaining space */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    overflow-y: auto; /* Allow scrolling if content exceeds container */
+    max-height: 50vh; /* Limit maximum height */
+
+    .comment {
+      width: 80%; /* Adjust as needed */
+      display: flex;
+      align-items: center;
+      box-shadow: rgba(0, 0, 0, 0.18) 0px 2px 4px;
+      border-radius: 5px;
+      padding: 20px;
+
+      img {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+      }
+    }
+  }
+}
 
 

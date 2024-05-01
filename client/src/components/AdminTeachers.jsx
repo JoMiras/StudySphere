@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { useOutletContext } from "react-router-dom";
 import defaultPhoto from '../img/shark.png'
+import { TeacherContext } from '../context/teacherContext';
+import { useNavigate } from 'react-router-dom';
+
 
 function AdminTeachers() {
     const [users] = useOutletContext();
@@ -19,6 +22,8 @@ function AdminTeachers() {
 
     const teachers = users ? users.filter(user => user.role === "teacher") : [];
     const { username, email, password, role } = formData;
+    const Navigate = useNavigate();
+    const {setTeacher} = useContext(TeacherContext)
 
     const toggleModal = (teacher) => {
         setShowModal(!showModal);
@@ -36,7 +41,7 @@ function AdminTeachers() {
     const addTeacher = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:4000/register", { username, email, password, role });
+            const res = await axios.post("http://localhost:4000/register-admin", { username, email, password, role });
             alert(`Teacher ${res.data.username} was added`);
         } catch (error) {
             if (error.response) {
@@ -53,7 +58,7 @@ function AdminTeachers() {
         const confirmed = window.confirm(`Are you sure you want to delete the user with email: ${email}?`);
         if (confirmed) {
             try {
-                const res = await axios.post("http://localhost:4000/delete-user", { email });
+                const res = await axios.delete("http://localhost:4000/delete-user", { data:{email} });
                 setShowModal(false);
                 console.log('User has been deleted:', res.data);
             } catch (error) {
@@ -62,6 +67,12 @@ function AdminTeachers() {
         } else {
             console.log('Deletion cancelled by user.');
         }
+    };
+
+    const teachersPage = (selectedTeacher) => {
+        setTeacher(selectedTeacher)
+        localStorage.setItem('teacher', JSON.stringify(selectedTeacher));
+        Navigate("../teacherprofile")
     };
 
     const filteredTeachers = teachers.filter(teacher =>
@@ -120,8 +131,7 @@ function AdminTeachers() {
                         </>
                     )}
                     <div className="modal-footer">
-                        <Button variant="primary">Edit</Button>
-                        <Button variant="primary">View Cohorts</Button>
+                        <Button onClick={() => teachersPage(selectedTeacher)} variant="primary">View Profile</Button>
                         <Button variant="primary">Message</Button>
                         <Button onClick={() => deleteUser(selectedTeacher.email)} variant="danger">Delete</Button>
                     </div>

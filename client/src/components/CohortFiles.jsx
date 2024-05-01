@@ -3,23 +3,90 @@ import { CohortContext } from '../context/cohortContext';
 import axios from 'axios';
 import exam from "../img/exam.png"
 import book from "../img/book.png"
-import books from "../img/books.png"
+import books from "../img/network.png"
 import quiz from "../img/megaphone.png"
 import events from "../img/upcoming.png"
 import defaultPhoto from "../img/shark.png"
-
+import { useNavigate } from 'react-router-dom';
+import { StudentContext } from '../context/studentContext';
+import { TeacherContext } from '../context/teacherContext';
 
 
 function CohortFiles() {
-  const { cohort } = useContext(CohortContext);
-  const [teacher, setTeacher] = useState(null);
+  const { cohort, setCohort } = useContext(CohortContext);
+  const [teacher, _setTeacher] = useState(null);
+  const Navigate = useNavigate();
+  const [refresh, setRefresh] = useState(false)
+  const {setStudent} = useContext(StudentContext);
+  const {setTeacher} = useContext(TeacherContext)
 
   const readingMaterials = cohort ? cohort.cohortFiles.readingMaterial : null;
   const readingAssignments = cohort ? cohort.cohortFiles.assignments : null;
   const tests = cohort ? cohort.cohortFiles.tests : null;
   const teacherID = cohort ? cohort.instructorID : null;
 
-  const displayReadingMaterials = readingMaterials
+
+  useEffect(() => {
+    const fetchTeacher = async () => {
+      try {
+        const response = await axios.post("http://localhost:4000/get-teacher", { id: teacherID });
+        _setTeacher(response.data);
+      } catch (error) {
+        console.error("Error fetching teacher:", error);
+      }
+    };
+    if (teacherID) {
+      fetchTeacher();
+    }
+  }, [teacherID]);
+
+
+  const removeFromCohort = async (id, cohortID) => {
+    try {
+      const response = await axios.delete("http://localhost:4000/remove-user", { data: { id, cohortID } });
+      localStorage.removeItem('cohort');
+      setCohort(response.data.cohort);
+      localStorage.setItem('cohort', JSON.stringify(response.data.cohort));
+    } catch (error) {
+      console.error(error);
+    }
+  };
+  
+
+  const goToProfile = async (id) => {
+    try {
+        const res = await axios.get("http://localhost:4000/get-user", {
+            params: {
+                id: id
+            }
+        });
+        setStudent(res.data);
+        localStorage.setItem('student', JSON.stringify(res.data));
+        Navigate('../studentprofile');
+    } catch (error) {
+        // Handle errors
+        console.error(error);
+    }
+}
+
+const teachersProfile = async(id) => {
+  localStorage.removeItem('teacher')
+  try {
+    const res = await axios.get("http://localhost:4000/get-user", {
+        params: {
+            id: id
+        }
+    });
+    setTeacher(res.data);
+    localStorage.setItem('teacher', JSON.stringify(res.data));
+    Navigate('../teacherprofile');
+} catch (error) {
+    // Handle errors
+    console.error(error);
+}
+}
+
+const displayReadingMaterials = readingMaterials
     ? readingMaterials.map((material, index) => <p key={index}>{material}</p>)
     : null;
 
@@ -34,53 +101,41 @@ function CohortFiles() {
   const displayStudents = cohort.students
     ? cohort.students.map((student, index) => (
       <>
-      <div className='student' key={student.id}>
+      <div className='cohort-students' key={student.id}>
           <img src={student.student.profilePicture || defaultPhoto} alt={`Student ${index + 1}`} />
           <strong>{student.student.username}</strong>
-          <button className='btn btn-primary btn-sm'>Profile</button>
+          <button onClick={() => goToProfile(student.student.id)} className='btn btn-primary btn-sm'>Profile</button>
+          <button onClick={() => removeFromCohort(student.student.id, cohort._id)} className='btn btn-danger btn-sm' >Remove</button>
         </div>
-        <hr />
       </>
       ))
     : null;
 
-  useEffect(() => {
-    const fetchTeacher = async () => {
-      try {
-        const response = await axios.post("http://localhost:4000/get-teacher", { id: teacherID });
-        setTeacher(response.data);
-      } catch (error) {
-        console.error("Error fetching teacher:", error);
-      }
-    };
-    if (teacherID) {
-      fetchTeacher();
-    }
-  }, [teacherID]);
-
-  console.log(teacher)
 
   return (
     <div>
-      <header>
+      <header className='files-header'>
         <h1 style={{ textAlign: "center", marginTop: "20px" }}>{cohort.cohortName}</h1>
+        <button onClick={() => {Navigate(-1)}} className='btn btn-success btn-sm' style={{width:"100px", height:"35px",alignSelf:"center"}} >Done</button>
       </header>
       <div className='files-container'>
         <div className="files-wrapper">
-          <div className='files reading-material'>
+          <div className='files reading-material' onClick={()=>{
+            console.log('hello')
+            Navigate('../discussionboard')}}>
             <img src={books} alt="" />
-            <h4>Reading Material</h4>
-            {displayReadingMaterials}
+            <h4>Discussion Board</h4>
+            {displayReadingMaterials.length}
           </div>
           <div className="files assignments">
             <img src={book} alt="" />
             <h4>Assignments</h4>
-            {displayAssignments}
+            {displayAssignments.length}
           </div>
           <div className="files tests">
             <img src={exam} alt="" />
             <h4>Exams</h4>
-            {displayTests}
+            {displayTests.length}
           </div>
           <div className="files quizzes">
             <img src={quiz} alt="" />
@@ -95,9 +150,9 @@ function CohortFiles() {
         </div>
         <div className='users'>
         <div className="students">
-        <h3>Students</h3>
-        <hr />
-          {displayStudents}
+          <h3 style={{color:""}}>Students</h3>
+          <hr style={{width:"95%", textAlign:"center"}}/>
+            {displayStudents}
         </div>
         {teacher && (
           <div className='teacher'>
@@ -108,9 +163,10 @@ function CohortFiles() {
               <p>Email:{teacher.email}</p>
               <p>Phone:{teacher.phoneNumber}</p>
             </div>
-            <button className='btn btn-primary'>Profile</button>
+            <button onClick={() => teachersProfile(teacher._id)} className='btn btn-primary'>Profile</button>
           </div>
         )}
+
         </div>
       </div>
     </div>

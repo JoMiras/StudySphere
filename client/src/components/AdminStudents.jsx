@@ -36,8 +36,9 @@ function AdminStudents() {
 
     const addStudent = async (e) => {
         e.preventDefault();
+        console.log('hello')
         try {
-            const res = await axios.post("http://localhost:4000/register", { username, email, password });
+            const res = await axios.post("http://localhost:4000/register-admin", { username, email, password });
             alert(`Student ${res.data.username} was added`);
         } catch (error) {
             if (error.response) {
@@ -58,7 +59,7 @@ function AdminStudents() {
         const confirmed = window.confirm(`Are you sure you want to delete the user with email: ${email}?`);
         if (confirmed) {
             try {
-                const res = await axios.post("http://localhost:4000/delete-user", { email });
+                const res = await axios.delete("http://localhost:4000/delete-user", { data:{email} });
                 setShowModal(false);
                 console.log('User has been deleted:', res.data);
             } catch (error) {
@@ -127,11 +128,11 @@ function AdminStudents() {
                         </>
                     )}
                     <div className="modal-footer">
-                        <Button variant="primary">Edit</Button>
                         <Button onClick={() => {
-                            Navigate('../studentclasses')
+                            Navigate('../studentprofile')
+                            localStorage.setItem('student', JSON.stringify(selectedStudent))
                             setStudent(selectedStudent)
-                            }} variant="primary">View Cohorts</Button>
+                            }} variant="primary">View Profile</Button>
                         <Button variant="primary">Message</Button>
                         <Button onClick={() => deleteUser(selectedStudent.email)} variant="danger">Delete</Button>
                     </div>
