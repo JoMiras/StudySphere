@@ -35,17 +35,28 @@ import ChangePassword from './Pages/ChangePassword';
 import UpdateEmail from './Pages/UpdateEmail';
 import UpdateUserProfile from './Pages/UpdateUserProfile';
 import ConfirmEmail from './Pages/ConfirmEmail';
+import DiscussionBoard from './components/DiscussionBoard';
+import Post from './components/Post';
 
 
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
+  //localStorage.clear()
+  console.log(currentUser.role)
 
   const ProtectedRoute = ({ children }) => {
     if (!currentUser) {
       return <Navigate to="/login" />;
     }
     return children;
+  };
+
+  const SuperAdminRoute = ({ children }) => {
+    if(currentUser.role !== 'SuperAdmin'){
+      return <Navigate to="/login"/>;
+    }
+    return children
   };
 
   return (
@@ -55,10 +66,10 @@ const App = () => {
           <Route index element={<Registration />} />
           <Route path="login" element={<Login />} />
           <Route path="home" element={<ProtectedRoute><Home /></ProtectedRoute>}>
-            <Route path="admindashboard" element={<AdminDashboard />}/>  
-            <Route path="adminstudents" element={<AdminStudents />}/>
-            <Route path="adminsteachers" element={<AdminTeachers />}/>
-            <Route path="admincohorts" element={<AdminCohorts />}/>
+            <Route path="admindashboard" element={<SuperAdminRoute> <AdminDashboard /> </SuperAdminRoute>}/>  
+            <Route path="adminstudents" element={<SuperAdminRoute><AdminStudents /></SuperAdminRoute>}/>
+            <Route path="adminsteachers" element={<SuperAdminRoute><AdminTeachers /></SuperAdminRoute>}/>
+            <Route path="admincohorts" element={<SuperAdminRoute><AdminCohorts /></SuperAdminRoute>}/>
             <Route path="editCohort" element={<EditCohort />}/>
             <Route path="cohortfiles" element={<CohortFiles />}>
               <Route path='' element={<CohortInfo />} />
@@ -66,7 +77,10 @@ const App = () => {
             </Route>
             <Route path="studentprofile" element={<StudentProfile />}/>
             <Route path="teacherprofile" element={<TeacherProfile />}/>
-
+            <Route path="teacherprofile" element={<TeacherProfile />}/>
+            <Route path="cohortfiles" element={<CohortFiles />}/>
+            <Route path='discussionboard' element={<DiscussionBoard />}/> 
+            <Route path='post' element={<Post />}/> 
           </Route>
           <Route path="landing" element={<LandingPage />} />
           <Route path='confirmation/:token' element={<EmailConfirmation />} />

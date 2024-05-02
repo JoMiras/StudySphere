@@ -7,7 +7,31 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose'); // Importing Mongoose for MongoDB interactions
 const nodemailer = require('nodemailer');
 const twilio = require('twilio');
+const multer = require('multer');
 require('dotenv').config();
+
+const cloudinary = require('cloudinary').v2;
+          
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET 
+});
+
+// Create multer instance with configured storage
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/') // Specify the directory where uploaded files will be stored
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname) // Rename the uploaded file to avoid naming conflicts
+  }
+});
+
+// Create multer instance with configured storage
+const upload = multer({ storage: storage });
+
+
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const verifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
@@ -22,6 +46,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS
   }
 })
+
+
 
 const EMAIL_SECRET = process.env.EMAIL_SECRET;
 
@@ -93,8 +119,41 @@ const CohortSchema = new mongoose.Schema({
   }]
 });
 
-
 const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the User model
+
+const discussionPostSchema = new mongoose.Schema({
+  title: String,
+  ownerName: String,
+  content: String,
+  ownerPicture:String,
+  postType: String,
+  comments: [{
+    ownerPicture: String,
+    ownerName: String,
+    content: String
+  }],
+  cohort: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Cohort' // Reference to the Cohort model
+  }
+});
+
+const DiscussionPost = mongoose.model('DiscussionPost', discussionPostSchema);
+
+
+const photoSchema = new mongoose.Schema({
+  photoPath: String
+});
+
+const Photo = mongoose.model('Photo', photoSchema);
+
+
+
+
+
+
+
+
 
 // add student to cohort 
 app.post("/add-to-class", async (req, res) => {
@@ -150,8 +209,9 @@ app.post('/get-teacher', async (req, res) => {
 });
 
 //delete user from cohort based on id
-app.post('/remove-user', async (req, res) => {
-  const { id, cohortID } = req.body; // Extracting id and cohortID from request body
+app.delete('/remove-user', async (req, res) => {
+  const { id, cohortID } = req.body; // Extracting id and cohortID from query parameters
+  console.log()
   try {
     // Use $pull to remove the student from the students array based on their ID
     const updatedCohort = await Cohort.findByIdAndUpdate(cohortID, { $pull: { students: { 'student.id': id } } }, { new: true });
@@ -170,27 +230,45 @@ app.post('/remove-user', async (req, res) => {
 });
 
 //get student data 
-app.post("/get-student", async (req, res) => {
-  console.log('ping')
-  const { id } = req.body;
+app.get("/get-user", async (req, res) => {
+  const { id } = req.query;
+  if (!id) {
+    return res.status(400).json({ success: false, message: "ID parameter is missing." });
+  }
+
   try {
     const student = await User.findOne({ _id: id });
     if (!student) {
-      return res.status(404).json({ success: false, message: "Student not found." });
+      return res.status(404).json({ success: false, message: "user not found." });
     }
     res.json(student);
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ success: false, message: "An error occurred while fetching the student." });
+    res.status(500).json({ success: false, message: "An error occurred while fetching the user." });
   }
 });
 
 
 
-// User Registration
-app.post('/register', async (req, res) => {
+app.post('/upload', upload.single('profilePicture'), async (req, res) => {
   try {
-    const { username, email,  phoneNumber, password, refreshToken, profilePicture, role} = req.body;
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const photo = new Photo({ photoPath: result.secure_url });
+    await photo.save();
+    res.status(201).json({ message: 'Photo uploaded successfully', photo });
+  } catch (error) {
+    console.error('Error uploading photo:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// User Registration
+app.post('/register', upload.single('profilePicture'), async (req, res) => {
+  console.log('ping')
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path);
+    const { username, email,  phoneNumber, password, refreshToken, role, profilePicture} = req.body;
     const existingUser = await User.findOne({
       $or: [
           { username: username },
@@ -209,7 +287,57 @@ app.post('/register', async (req, res) => {
   
     
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
-    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture, role, isEmailConfirmed:false}); // Create a new User document
+    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture:result.secure_url, role, isEmailConfirmed:false}); // Create a new User document
+    await newUser.save(); // Save the new user to the database
+
+    // Setting up user for confirmation
+    jwt.sign(
+      {userId: newUser._id.toString()},
+      EMAIL_SECRET,
+      {expiresIn: '1d'}, // Token that expires in a day, special to each user
+      (err, emailToken) =>{
+
+        const url = `http://localhost:5173/confirmation/${emailToken}`; //Creating individualized url for confirmation with custom emailToken
+    
+        transporter.sendMail({
+          to: newUser.email,
+          subject: 'Welcome to Study Sphere!',
+          html: `Click the following link to activate your account to use: <a href='${url}'>${url}</a>`
+        });
+      }
+    );
+
+    res.status(201).send('User registered successfully'); // Send success response
+  } catch (error) {
+    console.error('Error registering user:', error); // Log registration error
+    res.status(500).send('Error registering user'); // Send error response
+  }
+});
+
+//admin student add shortcut
+app.post('/register-admin', async (req, res) => {
+  console.log('ping')
+  try {
+    const { username, email,  phoneNumber, password, refreshToken, role} = req.body;
+    const existingUser = await User.findOne({
+      $or: [
+          { username: username },
+          { email: email }
+      ]
+  });
+  
+  // Check if the username or email is already in use
+  if (existingUser) {
+    if(existingUser.username === username) {
+      return res.status(400).send('Username is already in use.')}
+    if (existingUser.email === email) { // If user already exists, return error
+      return res.status(400).send('Email is already in use.');
+    }
+  }
+  
+    
+    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
+    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken,  role, isEmailConfirmed:true}); // Create a new User document
     await newUser.save(); // Save the new user to the database
 
     // Setting up user for confirmation
@@ -489,12 +617,11 @@ app.post('/set-role', async (req, res) => {
   }
 });
 
-app.post("/delete-cohort", async(req, res) => {
+app.delete("/delete-cohort", async(req, res) => {
   console.log('ping')
   const {id} = req.body;
   try {
     // Validate input: Check if ID is a valid ObjectId, if necessary
-
     const cohort = await Cohort.findOne({ _id: id });
     if (!cohort) {
       return res.status(404).json({ error: "Cohort not found" });
@@ -509,7 +636,7 @@ app.post("/delete-cohort", async(req, res) => {
   }
 });
 
-app.post('/delete-user', async (req, res) => {
+app.delete('/delete-user', async (req, res) => {
   const { email } = req.body;
   try {
     // Find the user by email
@@ -547,7 +674,7 @@ app.post("/assign-teacher", async (req, res) => {
 });
 
 
-app.post("/edit-cohort", async (req, res) => {
+app.put("/edit-cohort", async (req, res) => {
   const { cohortName, cohortSubject, startDate, endDate, adminID, instructorID, providerID, isLive, cohortID } = req.body;
   try {
     const cohort = await Cohort.findById(cohortID);
@@ -562,6 +689,96 @@ app.post("/edit-cohort", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+
+//add post to discussion db but also passing in cohort id
+app.post('/discussion-post', async (req, res) => {
+  const { ownerOfPost, cohortId, postTitle, postContent, ownerOfPostPhoto, postType } = req.body;
+
+  try {
+    // Check if the cohort exists
+    const cohort = await Cohort.findById(cohortId);
+    if (!cohort) {
+      return res.status(404).json({ error: 'Cohort not found' });
+    }
+
+    // Create a new discussion post
+    const newPost = new DiscussionPost({
+      title: postTitle,
+      ownerName: ownerOfPost,
+      content: postContent,
+      cohort: cohortId, // Set the cohort reference
+      ownerPicture: ownerOfPostPhoto,
+      postType: postType
+    });
+   
+    // Save the new pdsfost to the database
+    await newPost.save();
+
+    res.status(201).json({ message: 'Post created successfully', post: newPost });
+  } catch (error) {
+    console.error('Error creating post:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+//adds a post to the discussion board of a given cohort
+
+app.get('/discussion-posts', async (req, res) => {
+  const { cohortId } = req.query; // Use req.query to access query parameters
+  
+  try {
+    // Find all discussion posts belonging to the specified cohort
+    const posts = await DiscussionPost.find({ cohort: cohortId });
+
+    if (!posts || posts.length === 0) {
+      return res.status(404).json({ message: 'No posts found for this cohort' });
+    }
+
+    res.status(200).json({ posts });
+  } catch (error) {
+    console.error('Error retrieving posts:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//getting a post 
+app.get('/get-post', async (req, res) => {
+  const {_id} = req.query;
+  try {
+    const post = await DiscussionPost.findById({_id});
+
+    if(post){
+      res.status(200).json({post})
+    }
+  } catch (error) {
+    console.error('Error retrieving posts:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.post("/add-comment", async (req, res) => {
+  const { _id, comment, profilePicture, username } = req.body;
+  try {
+    const post = await DiscussionPost.findById(_id);
+    console.log(post)
+    if (post) {
+      await DiscussionPost.updateOne(
+        { _id },
+        { $push: { comments: { content: comment, ownerName: username, ownerPicture:profilePicture } } }
+      );
+      res.status(200).json({post});
+    } else {
+      res.status(404).json({ message: "Post not found" });
+    }
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
 
 
 
