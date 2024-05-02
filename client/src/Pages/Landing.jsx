@@ -1,17 +1,12 @@
-
-
-
-
-
-
 import React from 'react';
-import Sphere from "../img/icons8-sphere-51.png"
+import Globe from "../img/globe (2).png"
+
 
 const LandingPage = () => {
   return (
     <div className="landing-page">
-      <header className="header">
-        <div className="logo"> <img src={Sphere} alt="Sphere"/> </div>
+      <header className="lheader">
+        <div className="logo"> <img src={Globe} alt="Globe"/> </div>
         <nav>
           <ul>
             <li><a href="#">My Courses</a></li>
@@ -19,7 +14,7 @@ const LandingPage = () => {
             <li><a href="#">About</a></li>
           </ul>
         </nav>
-        <div className="search">
+        <div className="lsearch">
           <input type="text" placeholder="Search courses..." />
           <button>Search</button>
         </div>

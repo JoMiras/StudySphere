@@ -23,6 +23,7 @@ import SubmitVerify from './Pages/SubmitVerify';
 import PhoneNumberContext from './context/phoneNumberContext';
 import Settings from './Pages/Settings';
 import TopNavbar from './components/TopNavbar';
+import PageNotFound from './components/PageNotFound';
 
 
 
@@ -61,6 +62,7 @@ const App = () => {
           <Route path="/TopNavbar" element={<TopNavbar />} />
           <Route path="/SubmitVerify" element={<SubmitVerify />} />
           <Route path="/Settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="*" element={<PageNotFound />} /> {/*Should be 404page */}
         </Route>
       </Routes>
     </BrowserRouter>

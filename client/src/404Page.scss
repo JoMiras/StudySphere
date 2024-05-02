@@ -1,0 +1,49 @@
+
+.error-container {
+    text-align: center;
+    width: 100vw;
+    height: 100vh; 
+    background: linear-gradient(to right, grey 50%, white 50%);
+}
+
+@keyframes rotate-and-roll {
+    0% {
+        transform: translate3d(10%, 10%, 0) rotate(0deg); 
+    }
+    100% {
+        transform: translate3d(350%, 0%, 0) rotate(360deg); 
+    }
+}
+
+.sphere {
+    width: 25vw;
+    height: 35vw;
+    background: url('lightbulb.png') no-repeat center center;
+    background-size: contain;
+    animation: rotate-and-roll 4s linear infinite alternate; 
+    
+}
+
+
+.sorry {
+    
+    width: 10%;
+   background-color:black;
+   color: #90E0EF;
+    animation: bounce 7s linear infinite; 
+    margin-left: auto; 
+    margin-right: auto; 
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0); 
+    }
+    50% {
+        transform: translateY(-20px); 
+    }
+}
+
+.pnfh{
+    margin-bottom: 2%;
+}
