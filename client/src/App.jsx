@@ -22,7 +22,7 @@ import StudentProfile from './components/StudentProfile';
 import TeacherProfile from './components/TeacherProfile';
 import DiscussionBoard from './components/DiscussionBoard';
 import Post from './components/Post';
-
+import Messages from './components/Messages';
 
 
 const App = () => {
@@ -59,7 +59,7 @@ const App = () => {
             <Route path="cohortfiles" element={<CohortFiles />}/>
             <Route path='discussionboard' element={<DiscussionBoard />}/> 
             <Route path='post' element={<Post />}/> 
-            <Route path='messages'/> 
+            <Route path='messages' element={<Messages />} /> 
           </Route>
           <Route path="landing" element={<LandingPage />} />
           <Route path='confirmation/:token' element={<EmailConfirmation />} />
