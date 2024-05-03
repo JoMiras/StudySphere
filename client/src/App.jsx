@@ -59,6 +59,7 @@ const App = () => {
             <Route path="cohortfiles" element={<CohortFiles />}/>
             <Route path='discussionboard' element={<DiscussionBoard />}/> 
             <Route path='post' element={<Post />}/> 
+            <Route path='messages'/> 
           </Route>
           <Route path="landing" element={<LandingPage />} />
           <Route path='confirmation/:token' element={<EmailConfirmation />} />
