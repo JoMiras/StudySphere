@@ -1771,3 +1771,67 @@ margin: 0;
 .btn-danger{
   border: none;
 }
+
+// messages.scss
+.message-container {
+  max-width: 600px;
+  margin: 0 auto;
+
+  .message-list {
+    list-style: none;
+    padding: 0;
+
+    .message-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: $body-background-color-5;
+
+      button {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .message-form {
+    margin-top: 20px;
+
+    input[type="text"] {
+      width: 70%;
+      padding: 8px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: $body-background-color-1;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $body-background-color-2;
+      }
+    }
+  }
+
+  /* Modal styles */
+  .modal-header {
+    background-color: $body-background-color-5;
+    color: #fff;
+  }
+
+  .modal-footer {
+    justify-content: flex-end;
+  }
+
+  .modal-body textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+}
