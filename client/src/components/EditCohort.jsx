@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 function EditCohort() {
   const { cohort } = useContext(CohortContext);  
+  console.log(cohort)
 
   const [formValues, setFormValues] = useState({
     cohortName: cohort.cohortName || '',
@@ -52,7 +53,7 @@ function EditCohort() {
 
 
   return (
-    <div className="container">
+    <div className="edit-cohort-container">
       <h2>Edit Cohort</h2>
       <form onSubmit={submit}>
         <div className="mb-2">

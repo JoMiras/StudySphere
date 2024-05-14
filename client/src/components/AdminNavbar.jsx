@@ -7,9 +7,8 @@ import dashboard2 from "../img/dashboards(2).png"
 import student from "../img/graduation.png"
 import teachers from "../img/seminar.png"
 import cohort from "../img/multiple-users-silhouette.png"
-import messaging from "../img/messaging.png";
 import { NavLink } from 'react-router-dom';
-
+import messaging from '../img/messaging.png';
 
 
 function AdminNavBar() {
@@ -25,6 +24,7 @@ function AdminNavBar() {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('currentUser')
+    localStorage.clear()
   };
 
   const activeStyles = {

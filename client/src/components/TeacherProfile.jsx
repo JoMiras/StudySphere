@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useOutletContext } from 'react-router-dom'
 import defaultCohortPhoto from "../img/teamwork(1).png"
 import { CohortContext } from '../context/cohortContext'
+import { AuthContext } from '../context/authContext'
 
 function TeacherProfile() {
     const [users, refreshData, cohorts] = useOutletContext();
@@ -12,6 +13,7 @@ function TeacherProfile() {
     console.log(teacher)
     const Navigate = useNavigate();
     const {setCohort} = useContext(CohortContext);
+    const {currentUser} = useContext(AuthContext);
 
     const myCourses= cohorts ? cohorts.filter(cohort => cohort.instructorID === teacher._id) : null;
     console.log(myCourses)
@@ -44,13 +46,13 @@ function TeacherProfile() {
             <hr style={{width:"99%"}}/>
         </div>
         <div className="cohorts">
-            <strong>Classes</strong>
+            <strong>Courses</strong>
             <strong style={{marginTop:"20px"}}>Institute</strong>
             <p>BVT</p>
             <hr style={{width:"99%"}}/>
         </div>
         <div className="bottom">
-            <strong>CURRENT ADDRESS</strong>
+            <strong>Office</strong>
             {/* Dummy data */}
             <p>987 Emmett Tunnel, West Kristopher, IL 70661</p>
             <strong style={{marginTop:"20px"}}>PHONE NUMBER</strong>
@@ -59,7 +61,7 @@ function TeacherProfile() {
             <p>{teacher.email}</p>
         </div>
         <div style={{marginTop:"20px"}} className="add-to-cohort">
-            <button className='btn btn-secondary'>Edit</button>
+            {currentUser._id === teacher._id  || currentUser.role === "SuperAdmin" && <button onClick={() => Navigate('../edit-teacher')} className='btn btn-secondary'>Edit</button>}
             <button onClick={() => {
                 localStorage.removeItem('teacher')
                 Navigate(-1)}} 
@@ -67,7 +69,7 @@ function TeacherProfile() {
         </div>
     </div>
     <div className="academic-stats">
-        <h1>Cohorts</h1>
+        <h1>Courses</h1>
         <div className='display-cohorts'>
             {displayMyCourses}
         </div>

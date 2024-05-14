@@ -1,31 +1,9 @@
-// import React, { useContext, useState, useEffect } from 'react';
-
-
-// function Messages () {
-
-//     const {cohort, setCohort} = useContext(CohortContext);
-
-
-//     return (
-//         <div>
-//             <h1>hello</h1>
-//         </div>
-//     );
-// }
-
-// export default Messages;
-
-
-
-
 import React, { useState, useContext } from 'react';
 // import React, { useContext, useState, useEffect } from 'react';
 // import { MessageContext } from '../context/messageContext';
 import { MessageContext } from '../context/messageContext';
 // import { Modal, Button } from 'react-bootstrap';
 import { AuthContext } from '../context/authContext';
-
-
 
 
 function Messages() {
@@ -72,3 +50,21 @@ function Messages() {
 
 
 export default Messages;
+
+
+// import React, { useContext, useState, useEffect } from 'react';
+
+
+// function Messages () {
+
+//     const {cohort, setCohort} = useContext(CohortContext);
+
+
+//     return (
+//         <div>
+//             <h1>hello</h1>
+//         </div>
+//     );
+// }
+
+// export default Messages;

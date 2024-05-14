@@ -8,7 +8,7 @@ import { MessageContextProvider } from './context/messageContext.jsx';
 import { StudentContextProvider } from './context/studentContext.jsx';
 import { TeacherContextProvider } from './context/teacherContext.jsx';
 import { PostContextProvider } from './context/postContext';
-// import MessageContext from './context/messageContext.jsx';
+import './login.scss'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -18,13 +18,12 @@ createRoot(document.getElementById('root')).render(
           <StudentContextProvider>
             <TeacherContextProvider>
               <PostContextProvider>
-                <App />
+                  <App />
               </PostContextProvider>
-          </TeacherContextProvider>
-        </StudentContextProvider>
+            </TeacherContextProvider>
+          </StudentContextProvider>
         </CohortContextProvider>
       </MessageContextProvider>
     </AuthProvider>
-    
   </React.StrictMode>
 );
