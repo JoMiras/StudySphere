@@ -15,13 +15,13 @@ import NewAssignment from './NewAssignment';
 
 
 export default function DisplayAssignments() {
-    const [newAssignmentModal, setNewAssignmentModal] = useState(false);
+    const [newAssignmentPanel, setNewAssignmentPanel] = useState(false);
     const { cohort } = useContext(CohortContext);
     const navigate = useNavigate();
   
     
-    const toggleNewAssignmentModal = () => {
-        setNewAssignmentModal(!newAssignmentModal);
+    const toggleNewAssignmentPanel = () => {
+        setNewAssignmentPanel(!newAssignmentPanel);
     };
 console.log(cohort)
   
@@ -29,31 +29,44 @@ console.log(cohort)
         console.log(assignment);  // This will log each assignment to the console.
         const questionCount = assignment.questions ? Object.keys(assignment.questions).length : 0;
         return (
-            <>
-            <div className="assignment" key={index}>  
-                <p><strong>Name: </strong>{assignment.assignmentName}</p>
-                <p><strong>Length: </strong>{questionCount}</p>
-            </div>
-            <hr />
-            </>
+            <React.Fragment key={index}>
+                <div className="assignment">
+                    <div className='name-and-type'>
+                        <div className='name'>
+                            <p><strong>{assignment.assignmentName}</strong></p>
+                        </div>
+                        <div className='type'>
+                            <p>Type: </p>
+                            <p>FILLER TEXT</p>
+                        </div>
+                    </div>
+                    <div className='content'>
+                        <div className='questions'>
+                            <p><strong># of Questions: </strong>{questionCount}</p>
+                        </div>
+                        <div className='student-submissions'>
+                            <p><strong>Students Submitted: </strong> FILLER TEXT</p>
+                        </div>
+                    </div>
+                </div>
+                <hr />
+            </React.Fragment>
         );
     });
 
     return (
-        <>
-                            <button type="button" className="btn btn-outline-primary btn-sm" onClick={toggleNewAssignmentModal}>New Assignment</button>
         <div className='assignments'>
-            {displayCohort}
-        </div>
-            <Modal className="modal-container" show={newAssignmentModal} onHide={toggleNewAssignmentModal}>
-            <Modal.Header closeButton>
-                <Modal.Title>Create New Assignment</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+            <button type="button" className="btn btn-outline-primary btn-sm" onClick={toggleNewAssignmentPanel}>New Assignment</button>
+            <div>
+                {displayCohort}
+            </div>
+            <div className={`overlay ${newAssignmentPanel ? 'show' : ''}`} onClick={toggleNewAssignmentPanel}></div>
+            <div className={`panel ${newAssignmentPanel ? 'open' : ''}`}>
+                <button className="close-btn" onClick={toggleNewAssignmentPanel}>&times;</button>
+                <h2>Create New Assignment</h2>
                 <NewAssignment />
-            </Modal.Body>
-        </Modal>
-</>
+            </div>
+        </div>
     );
 }
   
