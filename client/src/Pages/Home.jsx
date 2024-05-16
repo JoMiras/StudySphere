@@ -5,6 +5,7 @@ import Loading from '../components/Loading';
 import Navbar from '../components/Navbar';
 import AdminNavBar from '../components/AdminNavbar';
 import { Outlet } from 'react-router-dom';
+import UserNavbar from '../components/UserNavbar';
 
 function Home() {
   const { currentUser, setIsLoggedIn, setCurrentUser } = useContext(AuthContext);
@@ -13,9 +14,9 @@ function Home() {
   const [refreshData, setRefreshData] = useState(0);
   const [cohorts, setCohorts] = useState([]);
 
-  console.log(cohorts);
+  console.log(refreshData);
 
-  //localStorage.clear();
+  
   useEffect(() => {
     // Fetch cohorts data
     const fetchCohorts = async () => {
@@ -42,19 +43,16 @@ function Home() {
     fetchUsers();
   }, [refreshData]);
 
-  const resetTheData = () => {
-    setRefreshData(refreshData + 1);
-  };
-
+  console.log(currentUser.role)
 
   return (
     <div className="home-container">
       <div className='home'>
-        <AdminNavBar />
+        {currentUser.role == "SuperAdmin" && <AdminNavBar />}
+        {currentUser.role === "student"  && <UserNavbar />}
         <div className="home-body">
           <Navbar />
-          <button onClick={resetTheData} type="button" className="btn btn-primary" style={{borderRadius:"0px", backgroundColor:"#0077B6", border:"none"}}>Refresh Data</button>
-          <Outlet context={[users, refreshData, cohorts]} />
+          <Outlet context={[users, setRefreshData, cohorts]} />
         </div>
       </div>
     </div>

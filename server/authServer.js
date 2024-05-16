@@ -6,8 +6,8 @@ const express = require('express'); // Importing Express.js framework
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose'); // Importing Mongoose for MongoDB interactions
 const nodemailer = require('nodemailer');
-const twilio = require('twilio');
 const multer = require('multer');
+const { ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const cloudinary = require('cloudinary').v2;
@@ -31,12 +31,6 @@ const storage = multer.diskStorage({
 // Create multer instance with configured storage
 const upload = multer({ storage: storage });
 
-
-
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const verifySid = process.env.TWILIO_VERIFY_SERVICE_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = new twilio(accountSid, authToken);
 
 // Setting up email to send for email verification
 const transporter = nodemailer.createTransport({
@@ -66,6 +60,10 @@ mongoose.connect(process.env.MONGO_LINK, {
 
 // Define User Schema
 const UserSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  dob: String,
+  address: String,
   username: String,
   password: String,
   refreshToken: { 
@@ -95,7 +93,12 @@ const CohortSchema = new mongoose.Schema({
   cohortName: String,
   cohortSubject: String,
   adminID: String, // Auto set to _id of current user
+  cohortPhoto: String,
   instructorID: String,
+  instructorName: String,
+  instructorProfilePhoto: String,
+  description: String,
+  tags: Array,
   dateRange: {
     startDate: Date,
     endDate: Date
@@ -130,7 +133,12 @@ const discussionPostSchema = new mongoose.Schema({
   comments: [{
     ownerPicture: String,
     ownerName: String,
-    content: String
+    content: String,
+    replies: [{
+      ownerPicture: String,
+      ownerName: String,
+      content: String
+    }]
   }],
   cohort: {
     type: mongoose.Schema.Types.ObjectId,
@@ -211,7 +219,6 @@ app.post('/get-teacher', async (req, res) => {
 //delete user from cohort based on id
 app.delete('/remove-user', async (req, res) => {
   const { id, cohortID } = req.body; // Extracting id and cohortID from query parameters
-  console.log()
   try {
     // Use $pull to remove the student from the students array based on their ID
     const updatedCohort = await Cohort.findByIdAndUpdate(cohortID, { $pull: { students: { 'student.id': id } } }, { new: true });
@@ -265,7 +272,6 @@ app.post('/upload', upload.single('profilePicture'), async (req, res) => {
 
 // User Registration
 app.post('/register', upload.single('profilePicture'), async (req, res) => {
-  console.log('ping')
   try {
     const result = await cloudinary.uploader.upload(req.file.path);
     const { username, email,  phoneNumber, password, refreshToken, role, profilePicture} = req.body;
@@ -335,7 +341,6 @@ app.post('/register-admin', async (req, res) => {
     }
   }
   
-    
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
     const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken,  role, isEmailConfirmed:true}); // Create a new User document
     await newUser.save(); // Save the new user to the database
@@ -418,12 +423,12 @@ app.post('/login', async (req, res) => {
 // Creating a cohort in the database
 app.post('/newCohort', async (req, res) => {
   try {
-    const { cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive} = req.body;
+    const { cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive, description, tags} = req.body;
     const existingCohort = await Cohort.findOne({ cohortName }); // Check if user already exists in the database
     if (existingCohort) { // If cohort already exists, return error
       return res.status(400).send('Cohort already exists');
     }
-    const newCohort = new Cohort({ cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive}); // Create a new User document
+    const newCohort = new Cohort({ cohortName, cohortSubject, adminID, instructorID, dateRange, cohortFiles, providerID, isLive, description, tags}); // Create a new User document
     await newCohort.save(); // Save the new cohort to the database
     res.status(201).send('Cohort successfully created'); // Send success response
   } catch (error) {
@@ -514,46 +519,6 @@ app.post('/confirmation', async (req, res) => {
   }
 });
 
-app.post('/verify/start', async (req, res) => {
-  const { to } = req.body; // Extract the phone number from the request body
- 
-  try {
-     // Initiate the verification process using Twilio's Verify API
-     const verification = await client.verify.v2.services(verifySid)
-       .verifications.create({ to, channel: 'sms' });
- 
-     // Log the verification object for debugging purposes
-     console.log('Verification object:', verification);
-       // Respond to the client with a success message
-       res.status(200).send({ message: 'Verification code sent.', status: 'success' });
-     } catch (error) {
-     // Log the error for debugging purposes
-     console.error('Error sending verification code:', error);
- 
-     // Respond to the client with an error message
-     res.status(500).send({ message: 'Error sending verification code', error: error.message });
-  }
- });
-
- app.post('/verify/check', async (req, res) => {
-  const { to, code } = req.body;
-  try {
-    const verificationCheck = await client.verify.v2.services(verifySid)
-      .verificationChecks
-      .create({ to, code });
-
-    if (verificationCheck.status === 'approved') {
-      // Verification was successful
-      res.status(200).send({ success: true, message: 'Verification successful' });
-    } else {
-      // Verification failed
-      res.status(400).send({ success: false, message: 'Verification failed. Please try again.' });
-    }
-  } catch (error) {
-    console.error('Verification error:', error);
-    res.status(500).send({ success: false, message: 'Internal server error' });
-  }
- });
 
 //check username availability 
 app.post('/checkUsername', async (req, res) => {
@@ -658,11 +623,12 @@ app.delete('/delete-user', async (req, res) => {
 
 //assigning teacher to cohort 
 app.post("/assign-teacher", async (req, res) => {
-  const { teacherID, cohortID } = req.body;
+  const { teacherID, cohortID} = req.body;
   try {
+    const user = await User.findById({_id:teacherID})
     const cohort = await Cohort.findOne({ _id: cohortID });
     if (cohort) {
-      await Cohort.updateOne({ _id: cohortID }, { $set: { instructorID: teacherID } });
+      await Cohort.updateOne({ _id: cohortID }, { $set: { instructorID: teacherID, instructorName:user.username, instructorProfilePhoto:user.profilePicture} });
       res.status(200).send("Teacher assigned successfully.");
     } else {
       res.status(404).send("Cohort not found.");
@@ -674,7 +640,7 @@ app.post("/assign-teacher", async (req, res) => {
 });
 
 
-app.put("/edit-cohort", async (req, res) => {
+app.put("/edit-cohort", upload.single('profilePicture'), async (req, res) => {
   const { cohortName, cohortSubject, startDate, endDate, adminID, instructorID, providerID, isLive, cohortID } = req.body;
   try {
     const cohort = await Cohort.findById(cohortID);
@@ -684,6 +650,74 @@ app.put("/edit-cohort", async (req, res) => {
     } else {
       res.status(404).json({ message: "Cohort not found" });
     }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+//edit users information 
+
+app.put('/edit-user', upload.single('profilePicture'), async (req, res) => {
+  const { firstName, lastName, dob, email, phoneNumber, address, role, id, profilePicture} = req.body;
+  try {
+    // Check if the user exists
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Upload profile picture to Cloudinary
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    // Update user information
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: id },
+      { 
+        firstName, 
+        lastName, 
+        dob, 
+        email, 
+        phoneNumber, 
+        address, 
+        profilePicture: result.secure_url, 
+        role 
+      },
+      { new: true } // Return the updated user
+    );
+
+    res.status(200).json({ message: "User was successfully updated", user: updatedUser });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+//handle user-edit if no image is being uploaded
+app.put('/edit-user-no-photo', async (req, res) => {
+  const { firstName, lastName, dob, email, phoneNumber, address, role, id} = req.body;
+  console.log(id)
+  try {
+    // Check if the user exists
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    // Update user information
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: id },
+      { 
+        firstName, 
+        lastName, 
+        dob, 
+        email, 
+        phoneNumber, 
+        address, 
+        role 
+      },
+      { new: true } // Return the updated user
+    );
+    res.status(200).json({ message: "User was successfully updated", user: updatedUser });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -761,7 +795,6 @@ app.post("/add-comment", async (req, res) => {
   const { _id, comment, profilePicture, username } = req.body;
   try {
     const post = await DiscussionPost.findById(_id);
-    console.log(post)
     if (post) {
       await DiscussionPost.updateOne(
         { _id },
@@ -777,7 +810,124 @@ app.post("/add-comment", async (req, res) => {
   }
 });
 
+//delte comment
+app.delete("/delete-comment", async (req, res) => {
+  const { _id, comment} = req.body;
+  try {
+      const updatedPost = await DiscussionPost.findByIdAndUpdate(
+          _id,
+          { $pull: { comments: { _id:comment } } },
+          { new: true }
+      );
+      if (updatedPost) {
+          res.status(200).json({ message: "Comment deleted", post: updatedPost });
+      } else {
+          res.status(404).json({ message: "Post not found" });
+      }
+  } catch (error) {
+      console.error('Error deleting comment:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
+//edit comment 
+app.post("/edit-comment", async (req, res) => {
+  const { _id, commentID, content } = req.body;
+  try {
+    const updatedPost = await DiscussionPost.findByIdAndUpdate(
+      _id,
+      { $set: { "comments.$[elem].content": content } },
+      { new: true, arrayFilters: [{ "elem._id": commentID }] }
+    );
+
+    if (updatedPost) {
+      res.status(200).json({ message: "Comment successfully edited", post: updatedPost });
+    } else {
+      res.status(404).json({ error: "Post or comment not found" });
+    }
+  } catch (error) {
+    console.error('Error editing comment:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+
+//add a reply to comment
+app.post("/reply", async (req, res) => {
+  const { replierName, replierPicture, _id, commentID, replyContent } = req.body;
+  try {
+    const post = await DiscussionPost.findById(_id);
+    if (post) {
+      // Find the index of the comment within the comments array
+      const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentID);
+      if (commentIndex !== -1) {
+        // Push the new reply into the replies array of the found comment
+        post.comments[commentIndex].replies.push({ ownerName: replierName, ownerPicture: replierPicture, content:replyContent });
+        // Save the updated post
+        await post.save();
+        res.status(200).json({ post });
+      } else {
+        res.status(404).json({ message: "Comment not found" });
+      }
+    } else {
+      res.status(404).json({ message: "Post not found" });
+    }
+  } catch (error) {
+    console.error('Error adding reply:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//delete a reply to a comment
+app.post("/delete-reply", async (req, res) => {
+  const { postId, commentId, replyId } = req.body;
+  try {
+    const post = await DiscussionPost.findById(postId);
+    if (post) {
+      const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentId);
+      if (commentIndex !== -1) {
+        const replyIndex = post.comments[commentIndex].replies.findIndex(reply => reply._id.toString() === replyId);
+        if (replyIndex !== -1) {
+          // Remove the reply from the replies array of the comment
+          post.comments[commentIndex].replies.splice(replyIndex, 1);
+          // Save the updated post
+          await post.save();
+          res.status(200).json({ message: "Reply deleted successfully" });
+        } else {
+          res.status(404).json({ message: "Reply not found" });
+        }
+      } else {
+        res.status(404).json({ message: "Comment not found" });
+      }
+    } else {
+      res.status(404).json({ message: "Post not found" });
+    }
+  } catch (error) {
+    console.error('Error deleting reply:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+//delete a post from discussion board
+app.delete("/delete-post", async (req, res) => {
+  const { _id, cohortId } = req.body;
+  try {
+      const deletedPost = await DiscussionPost.findOneAndDelete({ _id });
+      if (deletedPost) {
+          const updatedPosts = await DiscussionPost.find({cohort: cohortId});
+          res.status(200).json({ message: "Deleted post", posts: updatedPosts });
+      } else {
+          res.status(404).json({ message: "Post not found" });
+      }
+  } catch (error) {
+      res.status(500).json({ message: "Server error" });
+  }
+});
 
 
 

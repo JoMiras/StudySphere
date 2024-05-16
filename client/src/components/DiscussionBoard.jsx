@@ -14,6 +14,8 @@ import spotlight from "../img/spotlight.png"
 import introductions from "../img/Introductions.png"
 import announcements from "../img/announcements.png"
 import Feedback from 'react-bootstrap/esm/Feedback';
+import { useOutletContext } from 'react-router-dom';
+import { Prev } from 'react-bootstrap/esm/PageItem';
 
 
 function DiscussionBoard() {
@@ -28,7 +30,7 @@ function DiscussionBoard() {
     const [posts, setPosts] = useState([]);
     const [refresh, setRefresh] = useState(0);
     const {setPost } = useContext(PostContext);
-    const [postType, setPostType] = useState('faq');
+    const [postType, setPostType] = useState('General');
     const Navigate = useNavigate()
 
 
@@ -67,6 +69,20 @@ function DiscussionBoard() {
         Navigate('../post')
     };
 
+    const deletePost = async (event, _id, cohortId) => {
+        console.log(cohortId)
+        event.stopPropagation();
+        const res  = await axios.delete("http://localhost:4000/delete-post", {data : {_id, cohortId} });
+        try {
+            const updatedPosts = res.data.posts;
+            console.log(updatedPosts)
+            setPosts(updatedPosts)
+        } catch (error) {
+            
+        }
+    };
+    
+
     const displayPosts = posts.length > 0 ? posts.map((post, index) => {
         return (
               <div key={index} className='posts' onClick={() => showPost(post)}>
@@ -82,7 +98,7 @@ function DiscussionBoard() {
                         <div className='post-type'>
                         {post.postType === "FAQ's" && <img className='type-tag' src={faq} />}
                         {post.postType === "Feedback" && <img src={feedback} />}
-                        {post.postType === "Off-Topic" && <img src={offTopic} />}
+                        {post.postType === "Off-Topic " && <img src={offTopic} />}
                         {post.postType === "Introductions" && <img src={introductions} />}
                         {post.postType === "Announcements" && <img src={announcements} />}
                         {post.postType === "Member Spotlight" && <img src={spotlight} />}
@@ -100,6 +116,14 @@ function DiscussionBoard() {
                         <div className="comments-count">
                             {post.comments.length} comments
                         </div>
+                        {currentUser.profilePicture === post.ownerPicture && (
+                        <button
+                            onClick={(event) => deletePost(event, post._id, cohortId)}
+                            className='btn btn-danger btn-sm'
+                        >
+                            Delete
+                        </button>
+                    )}
                     </div>
                 </div>
         )
@@ -111,16 +135,15 @@ function DiscussionBoard() {
         </div>
     </>
 
-    const handlePostSubmit = async () => {
-        const res = await axios.post('http://localhost:4000/discussion-post', {ownerOfPost, cohortId, ownerOfPostPhoto, postTitle, postContent, postType})
-        console.log(res.data)
-        setRefresh(refresh + 1)
-        setPostTitle('');
-        setPostContent('');
-        setShowModal(false);
-    };
+const handlePostSubmit = async () => {
+    const res = await axios.post('http://localhost:4000/discussion-post', {ownerOfPost, cohortId, ownerOfPostPhoto, postTitle, postContent, postType})
+    setRefresh(refresh + 1)
+    setPostTitle('');
+    setPostContent('');
+    setShowModal(false);
+};
 
-    console.log(postType)
+console.log(ownerOfPostPhoto)
 
   return (
     <div className='discussion-container'>
@@ -200,7 +223,7 @@ function DiscussionBoard() {
                     value={postType}
                     onChange={(e) => setPostType(e.target.value)}
                 >
-                    <option value="">--Pick a post type--</option>
+                    <option value="">-- Pick a post type --</option>
                     <option value="FAQ's">FAQ's</option>
                     <option value="Off-Topic ">Off-Topic Conversation</option>
                     <option value="Feedback">Feedback</option>
