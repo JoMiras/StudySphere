@@ -12,15 +12,17 @@ import './login.scss'
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      <CohortContextProvider> {/* Wrap the App component with CohortContextProvider */}
-      <StudentContextProvider>
-        <TeacherContextProvider>
-          <PostContextProvider>
-            <App />
-          </PostContextProvider>
-        </TeacherContextProvider>
-      </StudentContextProvider>
-      </CohortContextProvider>
+      <MessageContextProvider>
+        <CohortContextProvider> {/* Wrap the App component with CohortContextProvider */}
+          <StudentContextProvider>
+            <TeacherContextProvider>
+              <PostContextProvider>
+                  <App />
+              </PostContextProvider>
+            </TeacherContextProvider>
+          </StudentContextProvider>
+        </CohortContextProvider>
+      </MessageContextProvider>
     </AuthProvider>
   </React.StrictMode>
 );

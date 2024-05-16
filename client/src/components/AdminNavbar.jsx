@@ -8,6 +8,7 @@ import student from "../img/graduation.png"
 import teachers from "../img/seminar.png"
 import cohort from "../img/multiple-users-silhouette.png"
 import { NavLink } from 'react-router-dom';
+import messaging from '../img/messaging.png';
 
 
 function AdminNavBar() {
@@ -76,6 +77,9 @@ function AdminNavBar() {
        </div>
        <div className="cohorts">
           <NavLink to={"admincohorts"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={cohort} alt="" />Cohorts</NavLink>
+       </div>
+       <div className="messages">
+          <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={messaging} alt="" />Messages</NavLink>
        </div>
        <button className='logout-btn' onClick={() => logout()}> <img src={logoutIcon} alt="" />Logout</button>
     </nav>

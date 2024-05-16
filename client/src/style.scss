@@ -1772,4 +1772,1141 @@ margin: 0;
 }
 .btn-danger{
   border: none;
+}//admin cohort css
+
+.cohort {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center; 
+
+  p {
+
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    width: 100px;
+  }
+}
+
+
+//cohort files
+.files-header {
+  display: flex;
+  justify-content: space-between; /* Aligns items with space between them */
+  padding: 20px;
+}
+
+.files-header h1 {
+  margin: 0;
+}
+
+.files-header button {
+  align-self: center; /* Aligns button vertically in the center */
+}
+
+
+
+.files-container {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+  overflow: scroll;
+
+
+  .files-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    padding: 10px;
+  }
+
+
+  .users {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 1rem;
+    padding: 2rem;
+    height: auto;
+  
+    h3 {
+      display: inline;
+      margin: 0; /* Remove default margin */
+      padding: 0; /* Remove default padding */
+      text-align: center;
+
+      .done-button{
+        flex-direction: column;
+      }
+  
+    }
+
+    .students {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 0.5rem;
+      overflow: scroll;
+      height: 50vh; // Set the height of the .students div
+      padding-bottom: 1rem; // Add some padding to the bottom to make space for scrollbar
+      width: 50%;
+      border-radius: 5px;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+      padding: 20px;
+
+      .cohort-students {
+        height: auto;
+        width: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;        
+        padding: 1vh;
+        margin: 0;
+        gap: 2px;
+
+        img{
+          border-radius: 50%;
+          width: 5vh;
+        }
+      }
+
+
+    
+      
+    }
+
+    .teacher{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex: 2;
+      height: 50vh;
+      width: auto;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;      
+      border-radius: 5px;
+      
+      .instructor-photo{
+        height: 150px;
+        width: 150px;
+        border-radius: 50%;
+      }
+
+    }
+  }
+
+  
+
+  .files {
+    display: flex;
+    flex-direction: column;
+    height: 15vh;
+    width: 15vw;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;    
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 0 2px 2px #004c96;
+    }
+  }
+
+  img {
+    height: 5vh;
+    width: auto;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .student {
+    display: flex;
+    flex-direction: row;
+    height: 4rem; // Set the height of each student element
+    width: auto;
+    align-items: center;
+    padding: 1.8rem;
+  }  
+}
+
+
+
+//student profile
+
+.student-profile-container, .teacher-profile-container {
+  height: auto;
+  width: 100%;
+  padding: 45px 5px 45px 45px;
+  display: flex;
+  gap: 40px;
+
+  .student-information, .teacher-information {
+    height: auto;
+    width: auto;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    
+
+    .top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20PX;
+    }
+
+    .cohorts, .bottom {
+      display: flex;
+      flex-direction: column;
+      justify-self: flex-start;
+      width: 100%;
+      margin-top: 10px;
+
+      p{
+        text-wrap: wrap;
+      }
+
+    }
+
+    img{
+      height: 150px;
+      width: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    p{
+      text-wrap: nowrap;
+      padding: 0;
+      margin: 0;
+      color: grey;
+    }
+
+    .add-to-cohort {
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
+      height: 100%;
+      align-items: flex-end; 
+    
+      button {
+        height: 50px;
+        font-size: 0.9em;
+        padding: 5px;
+        min-width: 55px;
+      }
+    }
+    
+
+  }
+
+  .academic-stats {
+    height: 80vh;
+    width: 100%;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;    
+    border-radius: 5px;
+    margin-right: 20px;
+    overflow-y: auto;
+    overflow-x:hidden;
+
+    h1{
+      text-align: center;
+    }
+  }
+}
+
+
+//teacher profile 
+
+.display-cohorts {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding: 1em;
+  margin-left: 20px;
+  text-align: center;
+  justify-content: flex-start;
+  gap: 1vh;
+
+
+  .my-cohort {
+    height: auto;
+    width: 30vh;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;    
+    border-radius: 5px;
+    padding: 1em;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-wrap: wrap;
+    
+
+    img {
+      height: 15vh;
+      width: 100%;
+      align-self: center;
+      object-fit: contain;
+    }
+  }
+}
+
+//discussion board
+.discussion-container{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 4rem;
+  height: 100vh;
+  padding: 1rem;
+
+  .discussion-wrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 2rem;
+    height: 100vh;
+    width: 100%;
+    
+  }
+
+  .post-wrapper{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 3;
+    overflow: scroll;
+    padding: 20px;
+    -ms-overflow-style: none; 
+    scrollbar-width: none; 
+    height: 60vh;
+    margin-bottom: 50px;
+
+    .no-posts {
+      flex: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      gap: 30px;
+    }
+
+    .empty-image {
+      height: 20vh;
+      width: 20vw;
+      object-fit: contain;
+    }
+    
+  }
+
+  .post-wrapper::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
+  }
+
+  .posts{
+    display: flex;
+    padding: 2rem;
+    height: auto;
+    width: 100%;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;    
+    border-radius: 10px;
+    padding: 50px;
+    margin-bottom: 10px;
+    justify-content: space-between;
+    cursor: pointer;
+    position: relative;
+    text-wrap: pretty;
+    &:hover {
+      background-color: rgb(252, 252, 252);
+     .post-type {
+      background-color: #004c96;
+      p{
+        color: white;
+      }
+     }
+    }
+
+
+    .user-photos{
+      display: flex;
+      
+
+      img{
+        height: 40px;
+        width: 40px;
+        border-radius: 30%;
+        border: solid white 1px;
+        
+      }
+    }
+  }
+
+  .post-preview{
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-wrap: wrap;
+    h3 {
+      padding: 0;
+      margin-bottom: 10px;
+      text-wrap: pretty;
+  }
+  
+    p{
+      padding: 0;
+      margin: 0;
+      text-wrap: wrap;
+      color: gray;
+    }
+  }
+
+  .posts-owner {
+    flex: 1;
+    height: auto;
+    width: auto;
+    align-self: center;
+  }
+
+  .owner-photo {
+    border-radius: 50%;
+    height: 2%;
+    width: 2vw;
+  }
+
+  .replies-preview{
+    display: flex;
+    align-self: center;
+    flex-direction: column;
+    flex: 1;
+    align-items: flex-end;
+
+   .post-type{
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    text-align: center;
+    top: -10px;
+    width: 150px;
+    max-height:25px;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;    
+    border-radius: 5px;
+    background-color: white;
+    text-wrap: nowrap;
+    gap: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+
+    p{
+      margin: 0;
+      padding: 0;
+      font-size: 0.9em;
+      color: gray;
+      font-weight: 400;
+    }
+
+    img {
+      height: 20px;
+      width: 20px;
+    }
+   }
+
+   button{
+    z-index: 1;
+   }
+  }
+
+  .owner-photo{
+   height: 15vh;
+   width: 15vh;
+   border-radius: 20%;
+  }
+
+  .make-post{
+    flex: 1;
+    text-align: center;
+  }
+
+  .discussion-type {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+    gap: 20px;
+
+    .type {
+      display: flex;
+      align-content: center;
+      padding: 5px;
+      gap: 5px;
+    }
+    P{
+      padding: 0;
+      margin: 0;
+    }
+    
+    img{
+      height: 1.5rem;
+      width: 1.5rem;
+    }
+  }
+
+}
+
+.selected-post-container {
+  height: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+
+  p{
+    font-size: 1vw;
+  }
+
+
+  .selected-post-wrapper {
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: scroll; /* Use auto to show scrollbar only when necessary */
+    margin: 0;
+    overflow-x: hidden;
+
+    hr {
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      padding: 0;
+      margin: 0;
+    }
+
+    .text-area {
+      width: 40%;
+    }
+
+    .owner-of-post {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start; /* Align content at the top */
+      border-radius: 5px;
+      padding: 20px;
+      height: auto;
+
+      img {
+        height: 20vh;
+        width: auto;
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
+.comments-container {
+  width: 100%;
+  height: auto;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 2vh;
+  margin-bottom: auto;
+  flex:2;
+  gap: 1vh;
+ 
+
+
+  .comment-wrapper {
+    width: auto;
+    height: auto; /* Adjust height to grow as content increases */
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    border-radius: 5px;
+  
+    .comment {
+      display: flex;
+      flex-direction: column;
+      padding: 10px; /* Add padding for spacing between comments */
+
+      .comment-owner-info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        position: relative;
+      
+        .reply-btn {
+          background-color: transparent;
+          border: none;
+          &:hover {
+            background-color: #004c96;
+            color: white;
+            border-radius: 20px;
+          }
+        }
+      
+        .comment-content {
+          word-wrap: break-word; /* Wrap long words to prevent horizontal overflow */
+          padding-left: 60px;
+          padding-right: 30px;
+          text-align: justify;
+          span {
+            font-weight: bold;
+          }
+
+          .selected-comment {
+            color: #004c96;
+            animation: 
+            bounce2 200ms
+                  alternate 4
+                  cubic-bezier(.5, .5, .5, 0.5);
+        }
+        
+      
+          .more {
+            height: 20px;
+            width: 20px;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            cursor: pointer;
+            margin-left: 1vh;
+          }
+
+          .more-options{
+            flex-direction: column;
+            border-radius: 10px;
+            box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;            
+            justify-content: center;
+            position: absolute;
+            right: 0;
+            background-color: #ffffff;
+            height: auto;
+            z-index: 1;
+            top: 30%;
+
+
+            .more-options-delete, .more-options-edit, .flag-option{
+              height: 50px;
+              width: 150px;
+              align-content: center;
+              text-align: center;
+            }
+
+            .more-options-edit:hover, .more-options-delete:hover{
+              cursor: pointer;
+              background-color: #004c96;
+              color: white;
+              border-radius: 10px 10px 0px 0px ;
+            }
+
+            .more-options-delete:hover{
+              border-radius: 0px 0px 10px 10px 
+            }
+
+            .flag-option:hover{
+              background-color: #004c96;
+              border-radius: 10px;
+              color: white;
+            }
+          }
+        }
+      }
+      
+
+      button {
+        height: 35px;
+        width: 100px;
+      }
+
+      img {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        position: absolute;
+        top: 0;
+      }
+    }
+
+    .replies {
+      display: flex;
+      flex-direction: column;
+      margin-left: 30px;
+      padding: 0;
+      width: 100%;
+      gap: 1vh;
+
+
+      .replies-toggle{
+        color: #004c96;
+        width: 20px;
+        &:hover{
+          cursor: pointer;
+        }
+      }
+
+
+    }
+
+    .reply {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: auto;
+
+      .reply-owner-info {
+        display: flex;
+        flex-direction: column;
+        padding-left: 10px;
+        
+        p{
+          margin: 0;
+        }
+      }
+
+    
+
+      img {
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
+//student courses 
+
+.student-courses-container {
+  display: flex;
+  flex-direction: row;
+  height: auto;
+  width: 100%;
+
+  .left-side {
+    height: 100%;
+    max-width: 70%; /* Specify a maximum width */
+    flex: 1; /* Adjust flex property */
+    display: flex;
+    flex-direction: column;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+    hr{
+      margin: 0;
+      padding: 0;
+    }
+
+    .courses-filter {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      justify-content: flex-start;
+      padding-left: 2vh;
+      padding-right: 2vh;
+      cursor: pointer;
+      overflow-x: auto; /* Allow horizontal scrolling for overflow */
+      white-space: nowrap; /* Prevent wrapping of tags */
+      gap: 1vh;
+      align-content: center;
+      p {
+        height: auto;
+        padding: 1vh;
+        border-radius: 5px;
+        margin-right: 1vh; /* Adjust margin for spacing between tags */
+      }
+
+      .selected-tag {
+        padding: 1vh;
+        color: #004c96;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+    }
+
+    .courses {
+      flex: 1; /* Adjust flex property */
+      padding: 2vh;
+      height: auto;
+
+      .my-course {
+        height: auto;
+        width: 100%;
+        box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;        
+        padding: 20px;
+        display: flex;
+        gap: 5vh;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        position: relative;
+
+        .course-description{
+          min-width: 100%;
+          
+        }
+
+        .right {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+        }
+
+        .course-footers {
+          display: flex;
+          width: 100%;
+          justify-content: space-between;
+
+
+          .course-tags {
+            display: flex;
+            gap: 1vh;
+            flex-wrap: wrap;
+
+            .tags {
+              height: auto;
+              padding: 1vh;
+              background-color: #b6b5b5;
+              color: white;
+              border-radius: 5px;
+            }
+          }
+
+          button {
+            height: 43px;
+            width: auto;
+            position: absolute;
+            bottom: 35px;
+            right: 10px;
+
+            img {
+              height: 25px;
+              width: auto;
+            }
+          }
+        }
+
+        img {
+          height: 20vh;
+          width: auto;
+          border-radius: 10px;
+        }
+      }
+    }
+  }
+
+  .right-side {
+    flex: 1;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 50px;
+    gap: 2vh;
+
+    h1 {
+      text-align: c;
+    }
+
+    .calender {
+      flex: 1;
+      height: auto;
+      width: 100%;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;      
+      border-radius: 20px;
+    }
+
+    .teachers {
+      flex: 2;
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;      
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      padding: 50px;
+      width: 100%;
+      align-items: center;
+
+      hr {
+        width: 100%;
+        padding: 0;
+        margin: 5px;
+        margin-left: 50px;
+      }
+
+      .instructor {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 2vh;
+        justify-content: flex-start;
+        width: 100%;
+
+        img {
+          height: 50px;
+          width: 50px;
+          border-radius: 50%;
+        }
+      }
+    }
+
+    .learning-progress {
+      box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;      
+      border-radius: 20px;
+      width: 100%;
+      height: auto;
+
+      .course-progress {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+
+        strong {
+          margin-bottom: 10px;
+        }
+      }
+    }
+  }
+
+  /* Add these styles to your CSS file */
+.react-calendar {
+  box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;  
+  width: 100%;
+  max-width: 300px; /* Adjust the maximum width as needed */
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+  border: none;
+}
+
+.react-calendar__tile {
+  padding: 0.5rem;
+}
+
+.react-calendar__tile--now {
+  background-color: #eaf5ff; /* Highlight today's date */
+}
+
+.react-calendar__tile--active {
+  background-color: #b3d9ff; /* Highlight selected date */
+}
+
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #ccc; /* Dim neighboring month's days */
+}
+
+.react-calendar__month-view__weekdays__weekday {
+  color: #666; /* Weekday labels color */
+}
+
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f5f5f5; /* Navigation background color */
+  border-bottom: 1px solid #ccc;
+}
+
+.react-calendar__navigation__label {
+  font-weight: bold;
+}
+
+.react-calendar__navigation__arrow {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.react-calendar__navigation__arrow:hover {
+  color: #004c96; /* Hover color for navigation arrows */
+}
+}
+
+.edit-student-container {
+  height: auto;
+  width: 100%;
+  padding: 20px;
+
+  
+
+  .edit-student-wrapper {
+    display: flex;
+    height: auto;
+    padding: 50px;
+    border-radius: 20px;
+    justify-content: center;
+    position: relative;
+    @include tablet {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn-success{
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 35px;
+      width: 75px;
+    }
+
+    
+
+    .add-photo{
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      flex: 1;
+      justify-content: center;
+      align-items: center;
+      height: 40vh;
+      border-radius: 5px;
+      
+
+      button{
+        margin: 5px;
+      }
+    }
+    
+
+    img{
+      height: 200px;
+      width: 200px;
+      border-radius: 20px;
+    }
+
+    #file{
+      display: none;
+    }
+
+    .transferring{
+      height: 300px;
+      width: auto;
+      align-self: center;
+      justify-self: center;
+    }
+  }
+
+  .input-container{
+    height: auto;
+    flex: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    button{
+      height: 50px;
+      width: 100px;
+      align-self: center;
+      margin-top: 1vh;
+    }
+    
+    #address{
+      height: 20vh;
+      width: 25vw;
+    }
+    
+    input{
+      padding: 10px;
+      width: 25vw;
+    }
+  }
+  
+}
+
+
+.edit-cohort-container {
+  padding: 10px;
+  
+  form{
+    padding: 50px;
+  }
+}
+
+.btn-primary{
+  background-color: #0077b6;
+  border: none
+}
+.btn-secondary{
+  background-color: rgb(100, 100, 100);
+  border: none;
+}
+.btn-danger{
+  border: none;
+}
+
+// messages.jsx section
+.message-container {
+  max-width: 600px;
+  margin: 0 auto;
+
+  .message-list {
+    list-style: none;
+    padding: 0;
+
+    .message-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: $body-background-color-5;
+
+      button {
+        margin-left: 10px;
+      }
+    }
+  }
+
+  .message-form {
+    margin-top: 20px;
+
+    input[type="text"] {
+      width: 70%;
+      padding: 8px;
+      margin-right: 10px;
+    }
+
+    button {
+      padding: 8px 16px;
+      background-color: $body-background-color-1;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $body-background-color-2;
+      }
+    }
+  }
+
+  /* Modal styles */
+  .modal-header {
+    background-color: $body-background-color-5;
+    color: #fff;
+  }
+
+  .modal-footer {
+    justify-content: flex-end;
+  }
+
+  .modal-body textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+}
+.picture-button {
+  width: 50px;
+  height: 50px;
 }
