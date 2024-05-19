@@ -8,8 +8,6 @@ import AdminStudents from './components/AdminStudents';
 import AdminDashboard from './components/AdminDashboard';
 import AdminCohorts from './components/AdminCohorts';
 import AdminTeachers from './components/AdminTeachers'
-import Registration from './Pages/Registration';
-import Login from './Pages/Login';
 import Home from './Pages/Home';
 import EditCohort from './components/EditCohort';
 import CohortFiles from './components/CohortFiles';

@@ -71,7 +71,7 @@ function UserNavbar() {
             <NavLink to={"courses"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Courses</NavLink>
          </div>
          <div className="messages">
-            <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Courses</NavLink>
+            <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Messages</NavLink>
          </div>
          <button className='logout-btn' onClick={() => logout()}> <img src={logoutIcon} alt="" />Logout</button>
       </nav>

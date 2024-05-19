@@ -23,21 +23,56 @@ const io = require('socket.io')(server, {
   }
 });
 
+//setting up sockets
 
 
-//setting up websockets for messaging
-io.on('connection', (socket) => {
-  console.log('A user connected');
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-
-  socket.on('message', (msg) => {
-    console.log('Message received: ' + msg);
-    io.emit('message', msg);
-  });
+const MessageSchema = new mongoose.Schema({
+  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  receiverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  content: { type: String, required: true },
+  timestamp: { type: Date, default: Date.now },
+  status: { type: String, default: 'sent' },
 });
 
+const Message  = mongoose.model('Message', MessageSchema);
+
+const clients = new Map();
+
+
+io.on('connection', (socket) => {
+    console.log('New client connected:', socket.id);
+
+    socket.on('register', (userId) => {
+        clients.set(userId, socket);
+        console.log(`User ${userId} registered with socket ID ${socket.id}`);
+    });
+
+    socket.on('message', async (messageData) => {
+        const { senderId, receiverId, content } = messageData;
+
+        const newMessage = new Message({
+            senderId,
+            receiverId,
+            content,
+        });
+        await newMessage.save();
+
+        const receiverSocket = clients.get(receiverId);
+        if (receiverSocket) {
+            receiverSocket.emit('message', newMessage);
+        }
+    });
+
+    socket.on('disconnect', () => {
+        for (const [userId, clientSocket] of clients.entries()) {
+            if (clientSocket.id === socket.id) {
+                clients.delete(userId);
+                console.log(`User ${userId} disconnected`);
+                break;
+            }
+        }
+    });
+});
 
 
 
@@ -175,6 +210,8 @@ const discussionPostSchema = new mongoose.Schema({
   }
 });
 
+
+
 const DiscussionPost = mongoose.model('DiscussionPost', discussionPostSchema);
 
 
@@ -183,12 +220,6 @@ const photoSchema = new mongoose.Schema({
 });
 
 const Photo = mongoose.model('Photo', photoSchema);
-
-
-
-
-
-
 
 
 
@@ -929,7 +960,7 @@ app.delete("/delete-post", async (req, res) => {
 
 
 const PORT = process.env.PORT || 4000; // Define port for the server to listen on
-io.listen(5000);
+io.listen(3000)
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // Log server start message
 });

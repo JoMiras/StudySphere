@@ -78,6 +78,9 @@ function AdminNavBar() {
           <NavLink to={"admincohorts"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={cohort} alt="" />Cohorts</NavLink>
        </div>
        <button className='logout-btn' onClick={() => logout()}> <img src={logoutIcon} alt="" />Logout</button>
+       <div className="messages">
+            <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Messages</NavLink>
+         </div>
     </nav>
   )
 };

@@ -7,16 +7,20 @@ import './style.scss';
 import { StudentContextProvider } from './context/studentContext.jsx';
 import { TeacherContextProvider } from './context/teacherContext.jsx';
 import { PostContextProvider } from './context/postContext';
+import { SocketProvider } from './context/socketContext';
+
 import './login.scss'
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <AuthProvider>
-      <CohortContextProvider> {/* Wrap the App component with CohortContextProvider */}
+      <CohortContextProvider>
       <StudentContextProvider>
         <TeacherContextProvider>
           <PostContextProvider>
-            <App />
+            <SocketProvider>
+             <App />
+            </SocketProvider>
           </PostContextProvider>
         </TeacherContextProvider>
       </StudentContextProvider>
