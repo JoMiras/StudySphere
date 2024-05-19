@@ -9,40 +9,7 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const { ObjectId } = require('mongodb');
 require('dotenv').config();
-const { Server } = require('socket.io');
-const { createServer } = require('node:http');
 
-
-const app = express(); // Creating an Express application
-app.use(cors()); // Using CORS middleware to enable cross-origin requests
-app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
-const server = createServer(app);
-const io = require('socket.io')(server, {
-  cors: {
-    origin: '*',
-  }
-});
-
-
-
-//setting up websockets for messaging
-io.on('connection', (socket) => {
-  console.log('A user connected');
-  socket.on('disconnect', () => {
-    console.log('User disconnected');
-  });
-
-  socket.on('message', (msg) => {
-    console.log('Message received: ' + msg);
-    io.emit('message', msg);
-  });
-});
-
-
-
-
-
-//cloudinary for users to upload photos of themselves
 const cloudinary = require('cloudinary').v2;
           
 cloudinary.config({ 
@@ -78,6 +45,10 @@ const transporter = nodemailer.createTransport({
 
 const EMAIL_SECRET = process.env.EMAIL_SECRET;
 
+
+const app = express(); // Creating an Express application
+app.use(cors()); // Using CORS middleware to enable cross-origin requests
+app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
 
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_LINK, {
@@ -929,7 +900,6 @@ app.delete("/delete-post", async (req, res) => {
 
 
 const PORT = process.env.PORT || 4000; // Define port for the server to listen on
-io.listen(5000);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // Log server start message
 });

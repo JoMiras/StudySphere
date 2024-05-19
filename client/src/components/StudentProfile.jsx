@@ -83,7 +83,7 @@ function StudentProfile() {
         console.log(course)
     }
 
-    console.log(student._id === currentUser._id)
+    console.log(student)
   
     
     return (
@@ -91,8 +91,7 @@ function StudentProfile() {
             <div className="student-information">
                 <div className="top">
                     <img src={student.profilePicture} alt="" />
-                    <h1>{student.username}</h1>
-                    <p style={{color:"gray"}}>ID: {student._id}</p>
+                    <h1>{student.firstName} {student.lastName}</h1>
                     <hr style={{width:"99%"}}/>
                 </div>
                 <div className="cohorts">
@@ -103,7 +102,7 @@ function StudentProfile() {
                 <div className="bottom">
                     <strong>CURRENT ADDRESS</strong>
                     {/* Dummy data */}
-                    <p>987 Emmett Tunnel, West Kristopher, IL 70661</p>
+                    <p>{student.address}</p>
                     <strong style={{marginTop:"20px"}}>PHONE NUMBER</strong>
                     <p>{student.phoneNumber}</p>
                     <strong style={{marginTop:"20px"}}>Email</strong>

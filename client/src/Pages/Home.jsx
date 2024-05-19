@@ -1,11 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../context/authContext';
 import axios from 'axios';
-import Loading from '../components/Loading';
 import Navbar from '../components/Navbar';
 import AdminNavBar from '../components/AdminNavbar';
 import { Outlet } from 'react-router-dom';
 import UserNavbar from '../components/UserNavbar';
+
+
 
 function Home() {
   const { currentUser, setIsLoggedIn, setCurrentUser } = useContext(AuthContext);
@@ -13,10 +14,10 @@ function Home() {
   const [users, setUsers] = useState('');
   const [refreshData, setRefreshData] = useState(0);
   const [cohorts, setCohorts] = useState([]);
-
-  console.log(refreshData);
-
   
+
+
+
   useEffect(() => {
     // Fetch cohorts data
     const fetchCohorts = async () => {

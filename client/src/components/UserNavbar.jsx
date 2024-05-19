@@ -8,6 +8,7 @@ import student from "../img/graduation.png"
 import teachers from "../img/seminar.png"
 import cohort from "../img/multiple-users-silhouette.png"
 import { NavLink } from 'react-router-dom';
+import Messages from './Messages';
 
 function UserNavbar() {
     const {setCurrentUser, setIsLoggedIn} = useContext(AuthContext)
@@ -68,6 +69,9 @@ function UserNavbar() {
          </div>
          <div className="courses">
             <NavLink to={"courses"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Courses</NavLink>
+         </div>
+         <div className="messages">
+            <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Courses</NavLink>
          </div>
          <button className='logout-btn' onClick={() => logout()}> <img src={logoutIcon} alt="" />Logout</button>
       </nav>
