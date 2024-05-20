@@ -5,32 +5,14 @@ import Navbar from '../components/Navbar';
 import AdminNavBar from '../components/AdminNavbar';
 import { Outlet } from 'react-router-dom';
 import UserNavbar from '../components/UserNavbar';
-import { useSocket } from '../context/socketContext';
 
 function Home() {
   const { currentUser } = useContext(AuthContext);
   const [users, setUsers] = useState('');
   const [refreshData, setRefreshData] = useState(0);
   const [cohorts, setCohorts] = useState([]);
-  const socket = useSocket();
   const [messages, setMessages] = useState([]);
 
-  useEffect(() => {
-    if (socket) {
-      socket.on('message', (data) => {
-        setMessages((prevData) => [...prevData, data]);
-      });
-
-      // Register user
-      const userId = currentUser._id; // Replace with actual user ID
-      socket.emit('register', userId);
-
-      // Clean up the socket connection when the component unmounts
-      return () => {
-        socket.off('message');
-      };
-    }
-  }, [socket]);
 
   useEffect(() => {
     // Fetch cohorts data
@@ -65,7 +47,7 @@ function Home() {
         {currentUser.role === "student" && <UserNavbar />}
         <div className="home-body">
           <Navbar />
-          <Outlet context={[users, setRefreshData, cohorts, messages]} />
+          <Outlet context={[users, setRefreshData, cohorts]} />
         </div>
       </div>
     </div>

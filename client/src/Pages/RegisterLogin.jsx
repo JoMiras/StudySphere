@@ -5,7 +5,6 @@ import Loading from '../components/Loading';
 import { AuthContext } from '../context/authContext';
 import Globe from "../img/globe(2).png"
 import loader from "../img/world-book-day.gif"
-import { useSocket } from '../context/socketContext';
 
 const LoginRegistration = () => {
   const { setIsLoggedIn } = React.useContext(AuthContext);

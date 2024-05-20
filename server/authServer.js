@@ -11,68 +11,13 @@ const { ObjectId } = require('mongodb');
 require('dotenv').config();
 const { Server } = require('socket.io');
 const { createServer } = require('node:http');
+const { time } = require('node:console');
 
 
 const app = express(); // Creating an Express application
 app.use(cors()); // Using CORS middleware to enable cross-origin requests
 app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
 const server = createServer(app);
-const io = require('socket.io')(server, {
-  cors: {
-    origin: '*',
-  }
-});
-
-//setting up sockets
-
-
-const MessageSchema = new mongoose.Schema({
-  senderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  receiverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  content: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now },
-  status: { type: String, default: 'sent' },
-});
-
-const Message  = mongoose.model('Message', MessageSchema);
-
-const clients = new Map();
-
-
-io.on('connection', (socket) => {
-    console.log('New client connected:', socket.id);
-
-    socket.on('register', (userId) => {
-        clients.set(userId, socket);
-        console.log(`User ${userId} registered with socket ID ${socket.id}`);
-    });
-
-    socket.on('message', async (messageData) => {
-        const { senderId, receiverId, content } = messageData;
-
-        const newMessage = new Message({
-            senderId,
-            receiverId,
-            content,
-        });
-        await newMessage.save();
-
-        const receiverSocket = clients.get(receiverId);
-        if (receiverSocket) {
-            receiverSocket.emit('message', newMessage);
-        }
-    });
-
-    socket.on('disconnect', () => {
-        for (const [userId, clientSocket] of clients.entries()) {
-            if (clientSocket.id === socket.id) {
-                clients.delete(userId);
-                console.log(`User ${userId} disconnected`);
-                break;
-            }
-        }
-    });
-});
 
 
 
@@ -220,6 +165,85 @@ const photoSchema = new mongoose.Schema({
 });
 
 const Photo = mongoose.model('Photo', photoSchema);
+
+
+
+// Define the chat schema with messages embedded directly
+const chatSchema = new mongoose.Schema({
+  participants: [String], // Array of strings for participants
+  title: String, // String for the chat title
+  messages: [{
+    sender: String, // String for the sender
+    content: String, // String for the content of the message
+    timestamp: { type: Date, default: Date.now } // Date with a default value of the current date and time
+  }]
+}, { timestamps: true }); // Automatically add createdAt and updatedAt fields
+
+// Create the Chat model
+const Chat = mongoose.model('Chat', chatSchema);
+
+
+//making a chat
+app.post("/make-chat", async (req, res) => {
+  const { senderId, receiverId } = req.body;
+
+  if (!senderId || !receiverId) {
+    return res.status(400).json({ error: 'Sender ID and Receiver ID are required.' });
+  }
+
+  try {
+    // Check if a chat already exists with the same participants
+    const existingChat = await Chat.findOne({ participants: { $all: [senderId, receiverId] } });
+
+    if (existingChat) {
+      return res.status(400).json({ error: 'Chat already exists for these participants.' });
+    }
+
+    // Create a new chat if one doesn't already exist
+    const newChat = new Chat({ participants: [senderId, receiverId] });
+    await newChat.save();
+    res.status(201).json(newChat); // Send back the newly created chat
+  } catch (error) {
+    console.error('Error creating chat:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+//get chats
+app.get('/get-chats', async (req, res) => {
+  try {
+    const { senderId } = req.query;
+    // Query the Chat model to find chats involving the specified senderId
+    const chats = await Chat.find({ participants: senderId });
+    res.json(chats);
+  } catch (error) {
+    console.error('Error fetching chats:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+//update message 
+app.put('/send-message', async (req, res) => {
+  try {
+    const { chatId, senderId, content } = req.body; // Extract chatId, senderId, and content from request body
+
+    // Find the chat where both senderId and receiverId are participants
+    let chat = await Chat.findById(chatId); // Corrected to findById and use chatId
+
+    // Add the message to the chat
+    chat.messages.push({ sender: senderId, content });
+
+    // Save the updated chat
+    await chat.save();
+
+    res.json({ success: true, message: 'Message sent successfully' });
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 
 
@@ -382,7 +406,6 @@ app.post('/register', upload.single('profilePicture'), async (req, res) => {
 
 //admin student add shortcut
 app.post('/register-admin', async (req, res) => {
-  console.log('ping')
   try {
     const { username, email,  phoneNumber, password, refreshToken, role} = req.body;
     const existingUser = await User.findOne({
@@ -960,7 +983,6 @@ app.delete("/delete-post", async (req, res) => {
 
 
 const PORT = process.env.PORT || 4000; // Define port for the server to listen on
-io.listen(3000)
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // Log server start message
 });

@@ -1,70 +1,74 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { useSocket } from '../context/socketContext';
 import { AuthContext } from '../context/authContext';
+import { ChatContext } from '../context/chatContext';
 import axios from 'axios';
+import Chat from './Chat';
 
 function Messages() {
-  const [users, setRefreshData, cohorts, messages] = useOutletContext();
+  const [users, setRefreshData, cohorts] = useOutletContext();
   const [content, setContent] = useState('');
   const { currentUser } = useContext(AuthContext);
-  const socket = useSocket();
-  const [receiverID, setReceiverID] = useState('');
-  const [messageSent, setMessageSent] = useState(false);
+  const [receiverId, setReceiverId] = useState('');
+  const senderId =currentUser._id;
+  const [myChats, setMyChats] = useState([]);
+  const {setChat} = useContext(ChatContext);
 
-  const handleSendMessage = () => {
-    const senderId = currentUser._id; // Replace with actual sender ID
-    const receiverId = receiverID; // Replace with actual receiver ID
 
-    if (content.trim() === '') return; // Prevent sending empty messages
-
-    const messageData = {
-      senderId,
-      receiverId,
-      content,
+  useEffect(() => {
+    const fetchChats = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/get-chats', {
+          params: { senderId }
+        });
+        setMyChats(response.data);
+      } catch (error) {
+        console.error('Error fetching chats:', error);
+      }
     };
 
-    socket.emit('message', messageData, (response) => {
-      if (response.success) {
-        setMessageSent(true);
-        setContent('');
-        setReceiverID('');
-      } else {
-        // Handle message sending failure
-        console.error('Failed to send message:', response.error);
-      }
-    });
-  };
+    fetchChats();
+  }, []);
+
+  const startChat = async (id) => {
+    setReceiverId(id);
+    console.log(senderId, receiverId)
+    await axios.post('http://localhost:4000/make-chat', {senderId, receiverId});
+  }
 
   const displayUsers = users
     ? users.map((user, index) => {
         if (currentUser._id === user._id) return null;
         return (
           <div key={index}>
-            <p>{user.username}</p>
-            <p onClick={() => setReceiverID(user._id)}>{user._id}</p>
+            <img style={{height:"5vh"}} src={user.profilePicture}  onClick={() => startChat(user._id)}/>
           </div>
         );
       })
     : null;
 
+
+    const openChat = (chat) => {
+      setChat(chat)
+    };
+
+    const showMyChats = myChats ? myChats.map((chat, index) => {
+      return (
+        <p onClick={() => openChat(chat)} >{chat._id}</p>
+      )
+    }) :null
     
-
-
   return (
-    <div>
-      {messages.map((message, index) => (
-        <div key={index}>{message.content}</div>
-      ))}
-      <input
-        onChange={(e) => setContent(e.target.value)}
-        value={content}
-        type="text"
-        placeholder="Type your message here"
-      />
-      <button onClick={handleSendMessage}>Send message</button>
-      {messageSent && <p>Message sent successfully!</p>}
+    <div className='message-container'>
       {displayUsers}
+      <div className="chat">
+        <input 
+        onChange={(e) => setContent(e.target.value)}
+        type="text" />
+      </div>
+      <button onClick={() => sendMessage(content, senderId, receiverId)} >Send</button>
+      {showMyChats}
+      <Chat />
     </div>
   );
 }

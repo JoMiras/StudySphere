@@ -7,8 +7,7 @@ import './style.scss';
 import { StudentContextProvider } from './context/studentContext.jsx';
 import { TeacherContextProvider } from './context/teacherContext.jsx';
 import { PostContextProvider } from './context/postContext';
-import { SocketProvider } from './context/socketContext';
-
+import { ChatContextProvider } from './context/chatContext.jsx';
 import './login.scss'
 
 createRoot(document.getElementById('root')).render(
@@ -18,9 +17,9 @@ createRoot(document.getElementById('root')).render(
       <StudentContextProvider>
         <TeacherContextProvider>
           <PostContextProvider>
-            <SocketProvider>
+            <ChatContextProvider>
              <App />
-            </SocketProvider>
+            </ChatContextProvider>
           </PostContextProvider>
         </TeacherContextProvider>
       </StudentContextProvider>
