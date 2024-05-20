@@ -20,8 +20,8 @@ function CohortFiles() {
   const {setStudent} = useContext(StudentContext);
   const {setTeacher} = useContext(TeacherContext)
   const [users, refreshData, cohorts] = useOutletContext();
-  const {currentUser} = useContext(AuthContext);
-
+  const {currentUser, setRefreshUserData} = useContext(AuthContext);
+  const userId = currentUser._id;
 
   const readingMaterials = cohort ? cohort.cohortFiles.readingMaterial : null;
   const readingAssignments = cohort ? cohort.cohortFiles.assignments : null;
@@ -94,6 +94,24 @@ const teachersProfile = async(id) => {
 }
 }
 
+
+const setAsContact = async (student, userId) => {
+  const id = student._id;
+  const picture = student.student.profilePicture;
+  setRefreshUserData(prev => prev + 1)
+  refreshData(prev => prev + 1)
+  Navigate('../messages')
+  
+
+  try {
+    const res = await axios.put('http://localhost:4000/add-contact', { id, picture, userId });
+    console.log('Contact added successfully:', res.data);
+  } catch (error) {
+    console.error('Error adding contact:', error.response ? error.response.data : error.message);
+  }
+};
+
+
 const displayReadingMaterials = readingMaterials
     ? readingMaterials.map((material, index) => <p key={index}>{material}</p>)
     : null;
@@ -114,10 +132,13 @@ const displayReadingMaterials = readingMaterials
           <strong>{student.student.username}</strong>
           <button onClick={() => goToProfile(student.student.id)} className='btn btn-primary btn-sm'>Profile</button>
           {currentUser.role === "SuperAdmin" && <button onClick={() => removeFromCohort(student.student.id, cohort._id)} className='btn btn-danger btn-sm' >Remove</button>}
+          <button onClick={() => setAsContact(student, userId)} className='btn btn-success btn-sm'>Message</button>
         </div>
       </>
       ))
     : null;
+
+    console.log(currentUser)
 
 
   return (

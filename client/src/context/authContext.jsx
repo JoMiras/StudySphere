@@ -10,10 +10,12 @@ const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(existingUser ? JSON.parse(existingUser) : null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const localRefreshToken = localStorage.getItem('refreshToken');
+  const [refreshUserData, setRefreshUserData ] = useState(0);
 
   
   useEffect(() => {
     const fetchData = async () => {
+      console.log('fetched user data again')
       if (currentUser !== null) {
         setIsLoggedIn(true);
       } else {
@@ -25,6 +27,7 @@ const AuthProvider = ({ children }) => {
               Authorization: `Bearer ${accessToken}`
             }
           });
+          localStorage.removeItem('currentUser')
           setCurrentUser(res.data);
           localStorage.setItem('currentUser', JSON.stringify(res.data));
           setIsLoggedIn(true);
@@ -35,12 +38,12 @@ const AuthProvider = ({ children }) => {
     };
 
     fetchData();
-  }, [existingUser]);
+  }, [existingUser, refreshUserData]);
 
-  console.log(currentUser)
+  console.log(refreshUserData)
 
   return (
-    <AuthContext.Provider value={{ currentUser, setCurrentUser, setIsLoggedIn }}>
+    <AuthContext.Provider value={{ currentUser, setCurrentUser, setIsLoggedIn, setRefreshUserData }}>
       {children}
     </AuthContext.Provider>
   );

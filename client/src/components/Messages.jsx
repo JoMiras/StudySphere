@@ -4,6 +4,7 @@ import { AuthContext } from '../context/authContext';
 import { ChatContext } from '../context/chatContext';
 import axios from 'axios';
 import Chat from './Chat';
+import add from "../img/add.png"
 
 function Messages() {
   const [users, setRefreshData, cohorts] = useOutletContext();
@@ -13,6 +14,12 @@ function Messages() {
   const senderId =currentUser._id;
   const [myChats, setMyChats] = useState([]);
   const {setChat} = useContext(ChatContext);
+  const [showAllUsers, setShowAllUsers] = useState(false);
+
+
+  const toggleShowAllUsers = () => {
+    setShowAllUsers(!showAllUsers);
+  };
 
 
   useEffect(() => {
@@ -37,15 +44,15 @@ function Messages() {
   }
 
   const displayUsers = users
-    ? users.map((user, index) => {
-        if (currentUser._id === user._id) return null;
-        return (
-          <div key={index}>
-            <img style={{height:"5vh"}} src={user.profilePicture}  onClick={() => startChat(user._id)}/>
-          </div>
-        );
-      })
-    : null;
+  ? users.slice(0, showAllUsers ? users.length : 8).map((user, index) => {
+      if (currentUser._id === user._id) return null;
+      return (
+        <div key={index}>
+          <img style={{height:"5vh"}} src={user.profilePicture} onClick={() => startChat(user._id)} />
+        </div>
+      );
+    })
+  : null;
 
 
     const openChat = (chat) => {
@@ -57,20 +64,49 @@ function Messages() {
         <p onClick={() => openChat(chat)} >{chat._id}</p>
       )
     }) :null
+
+    const displayContacts = currentUser.contacts.length > 0 ? currentUser.contacts.map(contact => {return (
+     <img className='contact-photo' src={contact.contact.photo}/>
+    )}) : null;
+
+    // <p onClick={toggleShowAllUsers} style={{ cursor: 'pointer' }}>
+    //             {showAllUsers ? 'Show Less' : 'View All'}
+    //           </p>
+   
+    console.log(currentUser)
     
-  return (
-    <div className='message-container'>
-      {displayUsers}
-      <div className="chat">
-        <input 
-        onChange={(e) => setContent(e.target.value)}
-        type="text" />
+    return (
+      <div className="message-container">
+        <div className="left-side">
+          <div className="search-conversation">
+            <input placeholder='Search here...' type="text" />
+            <img src={add} alt="" />
+          </div>
+          <div className="contacts">
+            <div className="header">
+              <h3>Contacts</h3>
+            </div>
+            <div className="users">
+              {displayContacts}
+            </div>
+          </div>
+          <div className="group-chats">
+            <div className="header">
+              <h3>Groups</h3>
+            </div>
+          </div>
+          <div className="chats">
+            <div className="header">
+              <h3>Chats</h3>
+              {showMyChats}
+            </div>
+          </div>
+        </div>
+        <div className="right-side">
+          <Chat />
+        </div>
       </div>
-      <button onClick={() => sendMessage(content, senderId, receiverId)} >Send</button>
-      {showMyChats}
-      <Chat />
-    </div>
-  );
+    );    
 }
 
 export default Messages;

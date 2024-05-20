@@ -92,7 +92,13 @@ const UserSchema = new mongoose.Schema({
   isEmailConfirmed: { // Whether or not the user has verified their email
     type: Boolean,
     default: false
-  }
+  },
+  contacts: [{
+    contact:{
+      id: String,
+      photo: String,
+    }
+  }]
 });
 
 const User = mongoose.model('User', UserSchema); // Creating a User model based on the UserSchema
@@ -168,6 +174,7 @@ const Photo = mongoose.model('Photo', photoSchema);
 
 
 
+
 // Define the chat schema with messages embedded directly
 const chatSchema = new mongoose.Schema({
   participants: [String], // Array of strings for participants
@@ -224,25 +231,34 @@ app.get('/get-chats', async (req, res) => {
 });
 
 //update message 
-app.put('/send-message', async (req, res) => {
+app.put('/add-contact', async (req, res) => {
+  const { id, picture, userId } = req.body;
+
+  if (!userId || !id || !picture) {
+    return res.status(400).send('Invalid request body');
+  }
+
   try {
-    const { chatId, senderId, content } = req.body; // Extract chatId, senderId, and content from request body
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
 
-    // Find the chat where both senderId and receiverId are participants
-    let chat = await Chat.findById(chatId); // Corrected to findById and use chatId
+    // Check if the contact already exists
+    const contactExists = user.contacts.some(contact => contact.contact.id === id);
+    if (contactExists) {
+      return res.status(400).send('Contact already exists');
+    }
 
-    // Add the message to the chat
-    chat.messages.push({ sender: senderId, content });
-
-    // Save the updated chat
-    await chat.save();
-
-    res.json({ success: true, message: 'Message sent successfully' });
+    user.contacts.push({ contact: { id, photo: picture } });
+    await user.save();
+    res.status(200).send('Contact added successfully');
   } catch (error) {
-    console.error('Error sending message:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).send('Internal Server Error');
   }
 });
+
+
 
 
 
@@ -976,6 +992,26 @@ app.delete("/delete-post", async (req, res) => {
       }
   } catch (error) {
       res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+//messaging 
+app.put('/add-contact', async (req, res) => {
+  const userId = req.params.userId;
+  const { id, photo } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    user.contacts.push({ contact: { id, photo } });
+    await user.save();
+    res.status(200).send('Contact added successfully');
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
   }
 });
 
