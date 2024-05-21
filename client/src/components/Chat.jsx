@@ -22,7 +22,7 @@ const Chat = () => {
         }
     };
 
-    console.log(chat)
+    
 
     return (
         <div className='chat-container'>

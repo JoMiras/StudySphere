@@ -97,6 +97,8 @@ const UserSchema = new mongoose.Schema({
     contact:{
       id: String,
       photo: String,
+      firstName: String, 
+      lastName: String
     }
   }]
 });
@@ -131,6 +133,8 @@ const CohortSchema = new mongoose.Schema({
   students: [{
     student: {
       id:String,
+      firstName: String,
+      lastName: String,
       profilePicture:String,
       username:String
     }
@@ -180,6 +184,8 @@ const chatSchema = new mongoose.Schema({
   participants: [{
     id: String,
     picture: String,
+    firstName: String,
+    lastName: String
   }], // Array of strings for participants
   title: String, // String for the chat title
   messages: [{
@@ -194,33 +200,31 @@ const Chat = mongoose.model('Chat', chatSchema);
 
 
 //making a chat
-app.post("/make-chat", async (req, res) => {
-  const { senderId, receiverId, senderPhoto, receiverPhoto } = req.body;
+app.post('/make-chat', async (req, res) => {
+  const { senderId, receiverId, senderPhoto, receiverPhoto, receiverFirstName, receiverLastName, senderFirstName, senderLastName } = req.body;
 
   if (!senderId || !receiverId) {
     return res.status(400).json({ error: 'Sender ID and Receiver ID are required.' });
   }
 
   try {
-    // Check if a chat already exists with the same participants
-    const existingChat = await Chat.findOne({ 
-      participants: { $all: [
-        { id: senderId, picture: senderPhoto }, 
-        { id: receiverId, picture: receiverPhoto }
-      ]}
-    });
+    // // Check if a chat already exists with the same participants
+    // const existingChat = await Chat.findOne({ 
+    //   participants: { $all: [senderId, receiverId] }
+    // });
 
-    if (existingChat) {
-      return res.status(200).json(existingChat); // Return existing chat instead of error
-    }
+    // if (existingChat) {
+    //   return res.status(200).json(existingChat); // Return existing chat instead of error
+    // }
 
     // Create a new chat if one doesn't already exist
     const newChat = new Chat({ 
       participants: [
-        { id: senderId, picture: senderPhoto }, 
-        { id: receiverId, picture: receiverPhoto }
+        { id: senderId, picture: senderPhoto, firstName:senderFirstName, lastName:senderLastName }, 
+        { id: receiverId, picture: receiverPhoto, firstName:receiverFirstName, lastName:receiverLastName }
       ]
     });
+
     await newChat.save();
     res.status(201).json(newChat); // Send back the newly created chat
   } catch (error) {
@@ -231,12 +235,19 @@ app.post("/make-chat", async (req, res) => {
 
 
 
+
 //get chats
 app.get('/get-chats', async (req, res) => {
   try {
     const { senderId } = req.query;
+
+    if (!senderId) {
+      return res.status(400).json({ error: 'Sender ID is required.' });
+    }
+
     // Query the Chat model to find chats involving the specified senderId
-    const chats = await Chat.find({ participants: senderId });
+    const chats = await Chat.find({ 'participants.id': senderId });
+
     res.json(chats);
   } catch (error) {
     console.error('Error fetching chats:', error);
@@ -246,7 +257,7 @@ app.get('/get-chats', async (req, res) => {
 
 //update message 
 app.put('/add-contact', async (req, res) => {
-  const { id, picture, userId } = req.body;
+  const { id, picture, userId, lastName, firstName} = req.body;
 
   if (!userId || !id || !picture) {
     return res.status(400).send('Invalid request body');
@@ -259,12 +270,12 @@ app.put('/add-contact', async (req, res) => {
     }
 
     // Check if the contact already exists
-    const contactExists = user.contacts.some(contact => contact.contact.id === id);
-    if (contactExists) {
-      return res.status(400).send('Contact already exists');
-    }
+    // const contactExists = user.contacts.some(contact => contact.contact.id === id);
+    // if (contactExists) {
+    //   return res.status(400).send('Contact already exists');
+    // }
 
-    user.contacts.push({ contact: { id, photo: picture } });
+    user.contacts.push({ contact: { id, photo: picture, lastName, firstName } });
     await user.save();
     res.status(200).send(user);
   } catch (error) {
@@ -279,7 +290,7 @@ app.put('/add-contact', async (req, res) => {
 
 // add student to cohort 
 app.post("/add-to-class", async (req, res) => {
-  const { studentId, cohortId, profilePicture, username } = req.body;
+  const { studentId, cohortId, profilePicture, username, firstName, lastName } = req.body;
   try {
     const cohort = await Cohort.findOne({ _id: cohortId });
     if (!cohort) {
@@ -299,7 +310,9 @@ app.post("/add-to-class", async (req, res) => {
             student: {
               id: studentId,
               profilePicture: profilePicture,
-              username: username
+              username: username,
+              firstName,
+              lastName
             }
           }
         }
@@ -388,7 +401,7 @@ app.post('/upload', upload.single('profilePicture'), async (req, res) => {
 app.post('/register', upload.single('profilePicture'), async (req, res) => {
   try {
     const result = await cloudinary.uploader.upload(req.file.path);
-    const { username, email,  phoneNumber, password, refreshToken, role, profilePicture} = req.body;
+    const { username, email,  phoneNumber, password, refreshToken, role, profilePicture, firstName, lastName} = req.body;
     const existingUser = await User.findOne({
       $or: [
           { username: username },
@@ -407,7 +420,7 @@ app.post('/register', upload.single('profilePicture'), async (req, res) => {
   
     
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
-    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture:result.secure_url, role, isEmailConfirmed:false}); // Create a new User document
+    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture:result.secure_url, role, isEmailConfirmed:false, firstName, lastName}); // Create a new User document
     await newUser.save(); // Save the new user to the database
 
     // Setting up user for confirmation

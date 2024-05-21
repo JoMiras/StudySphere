@@ -15,6 +15,8 @@ function StudentProfile() {
     const id = student._id;
     const profilePicture = student.profilePicture;
     const username = student.username;
+    const firstName = student.firstName;
+    const lastName = student.lastName;
     const Navigate = useNavigate();
     const [selectedCohort, setSelectedCohort] = useState(null);
     const {setCohort} = useContext(CohortContext);
@@ -35,7 +37,9 @@ function StudentProfile() {
                 studentId: id,
                 cohortId: selectedCohort,
                 profilePicture,
-                username
+                username,
+                firstName,
+                lastName
             });
             console.log("Response:", res.data);
             refreshData(prev => prev + 1)
@@ -83,8 +87,7 @@ function StudentProfile() {
         console.log(course)
     }
 
-    console.log(student)
-  
+    
     
     return (
         <div className='student-profile-container'>

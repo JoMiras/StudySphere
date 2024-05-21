@@ -96,10 +96,12 @@ const teachersProfile = async(id) => {
 
 
 const setAsContact = async (student, userId) => {
-  const id = student._id;
+  const id = student.student.id;
   const picture = student.student.profilePicture;
+  const firstName = student.student.firstName
+  const lastName = student.student.lastName
   try {
-    const res = await axios.put('http://localhost:4000/add-contact', { id, picture, userId });
+    const res = await axios.put('http://localhost:4000/add-contact', { id, picture, userId, firstName, lastName });
     localStorage.removeItem('currentUser')
     setCurrentUser(res.data);
     localStorage.setItem('currentUser', JSON.stringify(res.data));
@@ -137,7 +139,7 @@ const displayReadingMaterials = readingMaterials
       ))
     : null;
 
-    console.log(currentUser)
+    console.log(cohort.students)
 
 
   return (

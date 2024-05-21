@@ -13,6 +13,8 @@ function Messages() {
   const [receiverId, setReceiverId] = useState('');
   const senderId =currentUser._id;
   const senderPhoto = currentUser.profilePicture;
+  const senderFirstName = currentUser.firstName;
+  const senderLastName = currentUser.lastName;
   const [myChats, setMyChats] = useState([]);
   const {setChat} = useContext(ChatContext);
   const [showAllUsers, setShowAllUsers] = useState(false);
@@ -40,7 +42,9 @@ function Messages() {
 
   const startChat = async (contact) => {
     const contactId = contact.id;
-    const receiverPhoto = contact.photo; 
+    const receiverPhoto = contact.photo;
+    const receiverFirstName = contact.firstName;
+    const receiverLastName = contact.lastName;
     console.log(contactId, receiverPhoto, senderPhoto);
     
     try {
@@ -48,7 +52,11 @@ function Messages() {
         senderId,
         senderPhoto,
         receiverId: contactId, 
-        receiverPhoto
+        receiverPhoto,
+        receiverFirstName,
+        receiverLastName,
+        senderFirstName,
+        senderLastName
       });
     } catch (error) {
       console.error('Error starting chat:', error);
@@ -73,20 +81,29 @@ function Messages() {
     };
 
     const showMyChats = myChats ? myChats.map((chat, index) => {
+      // Find the other participant
+      const otherParticipant = chat.participants.find(p => p.id !== currentUser._id);
+  
+      // Get the first and last message
+      const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].text : 'No messages yet';
+  
       return (
-        <p onClick={() => openChat(chat)} >{chat._id}</p>
-      )
-    }) :null
+        <div key={index} onClick={() => openChat(chat)} className="chat-item">
+          <img src={otherParticipant.picture} alt={`${otherParticipant.firstName} ${otherParticipant.lastName}'s profile`} className="participant-photo" />
+          <div className="chat-info">
+            <p className="participant-name">{`${otherParticipant.firstName} ${otherParticipant.lastName}`}</p>
+            <p className="last-message">{lastMessage}</p>
+          </div>
+        </div>
+      );
+    }) : null;
+  
 
     const displayContacts = currentUser.contacts && currentUser.contacts.length > 0 ? currentUser.contacts.map(contact => {return (
      <img onClick={() => startChat(contact.contact)} className='contact-photo' src={contact.contact.photo}/>
     )}) : null;
 
-    // <p onClick={toggleShowAllUsers} style={{ cursor: 'pointer' }}>
-    //             {showAllUsers ? 'Show Less' : 'View All'}
-    //           </p>
-   
-    console.log(myChats)
+   console.log(currentUser._id)
     
     return (
       <div className="message-container">
@@ -101,11 +118,6 @@ function Messages() {
             </div>
             <div className="users">
               {displayContacts}
-            </div>
-          </div>
-          <div className="group-chats">
-            <div className="header">
-              <h3>Groups</h3>
             </div>
           </div>
           <div className="chats">
