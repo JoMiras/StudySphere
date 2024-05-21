@@ -20,7 +20,7 @@ function CohortFiles() {
   const {setStudent} = useContext(StudentContext);
   const {setTeacher} = useContext(TeacherContext)
   const [users, refreshData, cohorts] = useOutletContext();
-  const {currentUser, setRefreshUserData} = useContext(AuthContext);
+  const {currentUser, setCurrentUser} = useContext(AuthContext);
   const userId = currentUser._id;
 
   const readingMaterials = cohort ? cohort.cohortFiles.readingMaterial : null;
@@ -98,13 +98,12 @@ const teachersProfile = async(id) => {
 const setAsContact = async (student, userId) => {
   const id = student._id;
   const picture = student.student.profilePicture;
-  setRefreshUserData(prev => prev + 1)
-  refreshData(prev => prev + 1)
-  Navigate('../messages')
-  
-
   try {
     const res = await axios.put('http://localhost:4000/add-contact', { id, picture, userId });
+    localStorage.removeItem('currentUser')
+    setCurrentUser(res.data);
+    localStorage.setItem('currentUser', JSON.stringify(res.data));
+    Navigate('../messages')
     console.log('Contact added successfully:', res.data);
   } catch (error) {
     console.error('Error adding contact:', error.response ? error.response.data : error.message);

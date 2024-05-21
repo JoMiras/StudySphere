@@ -177,7 +177,10 @@ const Photo = mongoose.model('Photo', photoSchema);
 
 // Define the chat schema with messages embedded directly
 const chatSchema = new mongoose.Schema({
-  participants: [String], // Array of strings for participants
+  participants: [{
+    id: String,
+    picture: String,
+  }], // Array of strings for participants
   title: String, // String for the chat title
   messages: [{
     sender: String, // String for the sender
@@ -192,7 +195,7 @@ const Chat = mongoose.model('Chat', chatSchema);
 
 //making a chat
 app.post("/make-chat", async (req, res) => {
-  const { senderId, receiverId } = req.body;
+  const { senderId, receiverId, senderPhoto, receiverPhoto } = req.body;
 
   if (!senderId || !receiverId) {
     return res.status(400).json({ error: 'Sender ID and Receiver ID are required.' });
@@ -200,14 +203,24 @@ app.post("/make-chat", async (req, res) => {
 
   try {
     // Check if a chat already exists with the same participants
-    const existingChat = await Chat.findOne({ participants: { $all: [senderId, receiverId] } });
+    const existingChat = await Chat.findOne({ 
+      participants: { $all: [
+        { id: senderId, picture: senderPhoto }, 
+        { id: receiverId, picture: receiverPhoto }
+      ]}
+    });
 
     if (existingChat) {
-      return res.status(400).json({ error: 'Chat already exists for these participants.' });
+      return res.status(200).json(existingChat); // Return existing chat instead of error
     }
 
     // Create a new chat if one doesn't already exist
-    const newChat = new Chat({ participants: [senderId, receiverId] });
+    const newChat = new Chat({ 
+      participants: [
+        { id: senderId, picture: senderPhoto }, 
+        { id: receiverId, picture: receiverPhoto }
+      ]
+    });
     await newChat.save();
     res.status(201).json(newChat); // Send back the newly created chat
   } catch (error) {
@@ -215,6 +228,7 @@ app.post("/make-chat", async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 //get chats
@@ -252,7 +266,7 @@ app.put('/add-contact', async (req, res) => {
 
     user.contacts.push({ contact: { id, photo: picture } });
     await user.save();
-    res.status(200).send('Contact added successfully');
+    res.status(200).send(user);
   } catch (error) {
     res.status(500).send('Internal Server Error');
   }

@@ -12,6 +12,7 @@ function Messages() {
   const { currentUser } = useContext(AuthContext);
   const [receiverId, setReceiverId] = useState('');
   const senderId =currentUser._id;
+  const senderPhoto = currentUser.profilePicture;
   const [myChats, setMyChats] = useState([]);
   const {setChat} = useContext(ChatContext);
   const [showAllUsers, setShowAllUsers] = useState(false);
@@ -37,11 +38,23 @@ function Messages() {
     fetchChats();
   }, []);
 
-  const startChat = async (id) => {
-    setReceiverId(id);
-    console.log(senderId, receiverId)
-    await axios.post('http://localhost:4000/make-chat', {senderId, receiverId});
-  }
+  const startChat = async (contact) => {
+    const contactId = contact.id;
+    const receiverPhoto = contact.photo; 
+    console.log(contactId, receiverPhoto, senderPhoto);
+    
+    try {
+      await axios.post('http://localhost:4000/make-chat', {
+        senderId,
+        senderPhoto,
+        receiverId: contactId, 
+        receiverPhoto
+      });
+    } catch (error) {
+      console.error('Error starting chat:', error);
+    }
+  };
+  
 
   const displayUsers = users
   ? users.slice(0, showAllUsers ? users.length : 8).map((user, index) => {
@@ -65,15 +78,15 @@ function Messages() {
       )
     }) :null
 
-    const displayContacts = currentUser.contacts.length > 0 ? currentUser.contacts.map(contact => {return (
-     <img className='contact-photo' src={contact.contact.photo}/>
+    const displayContacts = currentUser.contacts && currentUser.contacts.length > 0 ? currentUser.contacts.map(contact => {return (
+     <img onClick={() => startChat(contact.contact)} className='contact-photo' src={contact.contact.photo}/>
     )}) : null;
 
     // <p onClick={toggleShowAllUsers} style={{ cursor: 'pointer' }}>
     //             {showAllUsers ? 'Show Less' : 'View All'}
     //           </p>
    
-    console.log(currentUser)
+    console.log(myChats)
     
     return (
       <div className="message-container">
