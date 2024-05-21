@@ -2021,16 +2021,16 @@ margin: 0;
 
 //messaging
 
-.message-container{
+.message-container {
   display: flex;
   height: auto;
   width: 100%;
 
-  h3{
+  h3 {
     color: #0056b3;
   }
 
-  .left-side{
+  .left-side {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -2038,17 +2038,13 @@ margin: 0;
     gap: 2vh;
     height: 100vh;
     overflow: hidden;
-    
 
-    .search-conversation{
+    .search-conversation {
       display: flex;
       flex: 1;
-      display: flex;
       align-items: center;
-      
 
-
-      input{
+      input {
         height: 4vh;
         width: 100%;
         border-radius: 5px;
@@ -2056,90 +2052,175 @@ margin: 0;
         padding: 1vh;
       }
 
-      input:focus{
+      input:focus {
         outline: none;
       }
 
       img {
         height: 6vh;
         width: 6vh;
-
       }
     }
 
-    .contacts{
+    .contacts {
       height: auto;
       overflow: hidden;
-      
-      .header{
+
+      .header {
         display: flex;
         justify-content: space-between;
 
-        p{
+        p {
           color: rgb(90, 88, 88);
         }
       }
 
-      .users{
+      .users {
         display: flex;
         flex-wrap: wrap;
         overflow: hidden;
         gap: 1vh;
         height: auto;
-        
+
         .contact-photo {
           height: 6vh;
           width: 6vh;
           border-radius: 5px;
         }
       }
-
     }
 
-    .group-chats{
-      flex: 5;
-      
-    }
 
-    .chats{
+    .chats {
       flex: 5;
+      display: flex;
+      flex-direction: column;
+      gap: 1vh;
 
       .chat-item {
         display: flex;
         align-items: center;
         cursor: pointer;
         padding: 10px;
-        border-bottom: 1px solid #ddd;
+        border-radius: 5px;
+        box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
+
+        &.selected {
+          background-color: rgb(232, 232, 232);
+        }
       }
-      
+
       .participant-photo {
         width: 50px;
         height: 50px;
         border-radius: 50%;
         margin-right: 10px;
       }
-      
+
       .chat-info {
         display: flex;
         flex-direction: column;
       }
-      
+
       .participant-name {
         font-weight: bold;
       }
-      
+
       .first-message, .last-message {
         font-size: 0.9em;
         color: #666;
       }
-      
     }
-
   }
 
-  .right-side{
+  .right-side {
     flex: 2;
     width: 100%;
+    height: 100vh;
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 
+    .chat-container {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      position: relative;
+
+      hr {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+
+      .chat-header {
+        display: flex;
+        align-items: center;
+        height: 10vh;
+        padding: 1vh;
+        gap: 1vh;
+
+        img {
+          height: 6vh;
+          width: 6vh;
+          border-radius: 5px;
+        }
+      }
+
+      .chat-wrapper{
+        display: flex;
+        flex-direction: column;
+        overflow: scroll;
+        padding: 1vh;
+        height: 80vh;
+
+        .message-owner{
+          align-self: flex-end;
+
+          img {
+            height: 5vh;
+            width: 5vh;
+          }
+        }
+
+        .recieved-message{
+          align-self: flex-start;
+
+          img{
+            height: 5vh;
+            width: 5vh;
+          }
+        }
+      }
+
+      .message-input {
+        width: 100%;
+        padding: 1vh;
+        position: absolute;
+        bottom: 0;
+        display: flex;
+        align-items: center;
+
+        input {
+          width: 100%; /* Adjust width to make space for button */
+          height: 10vh; /* Adjusted height */
+          padding: 0.5vh; /* Add padding for better look */
+          border-radius: 5px; /* Add border radius for better look */
+          border: 1px solid rgb(194, 190, 190); /* Add border */
+        }
+
+        button {
+          border: none; 
+          border-radius: 5px; 
+          color: white; 
+          cursor: pointer;
+          position: absolute;
+          right: 2vh
+        }
+
+        button:hover {
+          background-color: #0056b3; /* Add hover effect */
+        }
+      }
+    }
   }
 }

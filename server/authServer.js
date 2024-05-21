@@ -284,6 +284,35 @@ app.put('/add-contact', async (req, res) => {
 });
 
 
+//making a message 
+app.put('/send-message', async (req, res) => {
+  try {
+    const { chatId, senderId, content } = req.body;
+
+    // Validate input
+    if (!chatId || !senderId || !content) {
+      return res.status(400).json({ error: 'Chat ID, Sender ID, and content are required.' });
+    }
+
+    // Find the chat by ID
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat not found.' });
+    }
+
+    // Add the new message to the chat
+    chat.messages.push({ sender: senderId, content, timestamp: new Date() });
+
+    // Save the updated chat document
+    await chat.save();
+
+    // Respond with success
+    res.status(200).json({chat});
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 
