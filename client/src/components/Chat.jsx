@@ -3,13 +3,15 @@ import { ChatContext } from '../context/chatContext';
 import { AuthContext } from '../context/authContext';
 import axios from 'axios';
 import { SocketContext } from '../context/socketContext';
+import add from '../img/add.gif'
 
 const Chat = () => {
     const { chat, setChat, userOnline } = useContext(ChatContext);
-    const { currentUser } = useContext(AuthContext);
+    const { currentUser, setCurrentUser } = useContext(AuthContext);
     const { socket } = useContext(SocketContext);
     const [content, setContent] = useState('');
     const chatWrapperRef = useRef(null);
+    const myContacts = currentUser.contacts ? currentUser.contacts.map(contact => contact.contact.id) : null;
 
     const senderId = currentUser._id;
     const chatId = chat._id;
@@ -24,11 +26,34 @@ const Chat = () => {
     const participantLastName = chat && chat.participants 
       ? chat.participants.find(participant => participant.id !== currentUser._id)?.lastName 
       : null;
-  
-      useEffect(() => {
+
+      const addContact = myContacts ? myContacts.find(contact => contact === participantId) : null;
+
+      const setAsContact = async (participantId, participantPhoto, participantFirstName, participantLastName ) => {
+        const id = participantId;
+        const picture = participantPhoto;
+        const firstName = participantFirstName
+        const lastName = participantLastName
+        const userId = currentUser._id
+        
+        
+        try {
+          const res = await axios.put('http://localhost:4000/add-contact', { id, picture, userId, firstName, lastName });
+          localStorage.removeItem('currentUser')
+          setCurrentUser(res.data);
+          localStorage.setItem('currentUser', JSON.stringify(res.data));
+          Navigate('../messages')
+          console.log('Contact added successfully:', res.data);
+        } catch (error) {
+          console.error('Error adding contact:', error.response ? error.response.data : error.message);
+        }
+      };
+
+
+    useEffect(() => {
         if (socket) {
             socket.emit('join', currentUser._id);
-    
+
             socket.on('message', (message) => {
                 if (message.chatId === chatId) {
                     setChat(prevChat => ({
@@ -37,13 +62,12 @@ const Chat = () => {
                     }));
                 }
             });
-    
+
             return () => {
                 socket.off('message');
             };
         }
     }, [socket, chatId, setChat, currentUser._id]);
-    
 
     useEffect(() => {
         if (chatWrapperRef.current) {
@@ -79,9 +103,17 @@ const Chat = () => {
         <div className="receiver-info">
             <div className="receiver-photo-wrapper">
                 <img src={participantPhoto} alt="" className="participant-photo" />
-                <div className={`status-dot ${userOnline ? 'online' : 'offline'}`}></div>
             </div>
-            <h3>{participantFirstName} {participantLastName}</h3>
+            <div className="name-status-container">
+            <h3>
+                    {participantFirstName} {participantLastName}
+                </h3>
+            <div className="name-and-status">
+                <span className={`status-dot ${userOnline ? 'online' : 'offline'}`}></span>
+                <p>{userOnline ? "Online" : "Offline"}</p>
+            </div>
+            </div>
+            {!addContact && <img src={add} onClick={() => setAsContact(participantId, participantPhoto, participantFirstName, participantLastName )} />}
         </div>
     ) : null;
 
@@ -113,14 +145,14 @@ const Chat = () => {
             <hr />
             <div className="chat-wrapper" ref={chatWrapperRef}>
                 {displayMessages}
-            </div>
-            <div className="message-input">
-                <input
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    type="text"
-                />
-                <button className='btn btn-primary' onClick={() => sendMessage(content)}>Send</button>
+                <div className="message-input">
+                    <input
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        type="text"
+                    />
+                    <button className='btn btn-primary' onClick={() => sendMessage(content)}>Send</button>
+                </div>
             </div>
         </div>
     );

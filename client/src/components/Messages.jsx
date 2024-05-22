@@ -10,7 +10,6 @@ function Messages() {
   const [users, setRefreshData, cohorts] = useOutletContext();
   const { currentUser } = useContext(AuthContext);
   const { setChat, setUserOnline } = useContext(ChatContext);
-  const [content, setContent] = useState('');
   const senderId = currentUser._id;
   const senderPhoto = currentUser.profilePicture;
   const senderFirstName = currentUser.firstName;
@@ -20,7 +19,6 @@ function Messages() {
   const [selectedChatId, setSelectedChatId] = useState(null); // State for selected chat
   const [onlineStatuses, setOnlineStatuses] = useState({}); // State to store online statuses
 
-  console.log(onlineStatuses)
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -129,6 +127,8 @@ function Messages() {
         <img key={contact.contact.id} onClick={() => startChat(contact.contact)} className='contact-photo' src={contact.contact.photo} />
       ))
     : null;
+
+    console.log(currentUser)
 
   return (
     <div className="message-container">
