@@ -2096,6 +2096,8 @@ margin: 0;
       display: flex;
       flex-direction: column;
       gap: 1vh;
+      overflow: scroll;
+      padding: 1vh;
 
       .chat-item {
         display: flex;
@@ -2173,21 +2175,65 @@ margin: 0;
         padding: 1vh;
         height: 80vh;
 
+        
+
         .message-owner{
           align-self: flex-end;
+          display: flex;
+          gap: 1vh;
+          max-width: 50%;
+
+          .content {
+            display: flex;
+            flex-direction: column;
+
+            strong{
+              align-self: flex-end;
+            }
+
+            p{
+              text-wrap: wrap;
+              padding: 1vh;
+              background-color: #b1d7ff;
+              color: black;
+              border-radius: 5px 0px 5px 5px;
+            }
+          }
 
           img {
             height: 5vh;
             width: 5vh;
+            border-radius: 5px;
           }
         }
 
-        .recieved-message{
+        .received-message{
           align-self: flex-start;
+          display: flex;
+          gap: 1vh;
+          max-width: 50%;
+
+          .content {
+            display: flex;
+            flex-direction: column;
+
+            strong{
+              align-self: flex-start;
+            }
+
+            p{
+              text-wrap: wrap;
+              padding: 1vh;
+              background-color: rgb(232, 232, 232);
+              color: black;
+              border-radius: 2px 5px 5px 5px;
+            }
+          }
 
           img{
             height: 5vh;
             width: 5vh;
+            border-radius: 5px;
           }
         }
       }
@@ -2224,3 +2270,56 @@ margin: 0;
     }
   }
 }
+
+.participant-photo {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.status-dot {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid white; 
+}
+
+.online {
+  background-color: green;
+}
+
+.offline {
+  background-color: red;
+}
+
+.chat-item-container {
+  position: relative;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.chat-info {
+  margin-left: 10px;
+}
+
+.chat-item.selected {
+  background-color: #f0f0f0;
+}
+
+.participant-name {
+  font-weight: bold;
+}
+
+.last-message {
+  color: #888;
+}
+

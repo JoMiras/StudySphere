@@ -45,6 +45,10 @@ const LoginRegistration = () => {
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('currentUser', JSON.stringify(user));
       setIsLoggedIn(true);
+      
+      // Update user's online status after successful login
+      await axios.put('http://localhost:4000/update-online-status', { username });
+  
       setTimeout(() => {
         navigate("/home");
         setLoading(false); // Set loading to false after the login process is complete
@@ -54,6 +58,7 @@ const LoginRegistration = () => {
       setLoading(false); // Set loading to false if there's an error during login
     }
   };
+  
 
   const handleRegistration = async (e) => {
     e.preventDefault();

@@ -9,14 +9,16 @@ import teachers from "../img/seminar.png"
 import cohort from "../img/multiple-users-silhouette.png"
 import { NavLink } from 'react-router-dom';
 import Messages from './Messages';
+import axios from 'axios';
 
 function UserNavbar() {
-    const {setCurrentUser, setIsLoggedIn} = useContext(AuthContext)
+    const {setCurrentUser, setIsLoggedIn, currentUser} = useContext(AuthContext)
     const [active, setActive] =useState(false)
+    const username = currentUser.username;
     
   
-    const logout = () => {
-      console.log("logged out")
+    const logout = async (username) => {
+      await axios.put('http://localhost:4000/update-online-status', { username });
       setIsLoggedIn(false);
       setCurrentUser(null);
       localStorage.removeItem('accessToken');
@@ -73,7 +75,7 @@ function UserNavbar() {
          <div className="messages">
             <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Messages</NavLink>
          </div>
-         <button className='logout-btn' onClick={() => logout()}> <img src={logoutIcon} alt="" />Logout</button>
+         <button className='logout-btn' onClick={() => logout(username)}> <img src={logoutIcon} alt="" />Logout</button>
       </nav>
     )
   };

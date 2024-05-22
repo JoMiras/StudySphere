@@ -12,12 +12,73 @@ require('dotenv').config();
 const { Server } = require('socket.io');
 const { createServer } = require('node:http');
 const { time } = require('node:console');
+const http = require('http');
+const socketIo = require('socket.io');
+const axios = require('axios');
+
 
 
 const app = express(); // Creating an Express application
 app.use(cors()); // Using CORS middleware to enable cross-origin requests
 app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
 const server = createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  }
+});
+
+const userSocketMap = new Map();
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Handle authentication event from client
+  socket.on('authenticate', (data) => {
+    console.log('User authenticated:', data.userId);
+    userSocketMap.set(data.userId, socket);
+  });
+
+  // Handle registration event from client
+  socket.on('registration', (userId) => {
+    console.log('User registered:', userId);
+    // Associate the socket connection with the user's ID
+    userSocketMap.set(userId, socket);
+  });
+
+  socket.on('chatMessage', async (message) => {
+    const{chatId, senderId, content} = message;
+
+    // Save the message using the HTTP endpoint
+    try {
+        const res = await axios.put('http://localhost:4000/send-message', {chatId, senderId, content});
+        console.log('Message stored successfully:', res.data);
+    } catch (error) {
+        console.error('Error storing message:', error);
+    }
+
+    // Send the message to the receiver if they are online
+    const receiverSocket = userSocketMap.get(message.receiverId);
+    if (receiverSocket) {
+        receiverSocket.emit('message', message);
+    }
+});
+
+  // Disconnect event
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+    // Remove the user's socket connection from the map upon disconnection
+    userSocketMap.forEach((value, key) => {
+      if (value === socket) {
+        userSocketMap.delete(key);
+      }
+    });
+  });
+});
+
+
+
 
 
 
@@ -100,7 +161,11 @@ const UserSchema = new mongoose.Schema({
       firstName: String, 
       lastName: String
     }
-  }]
+  }],
+  online: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const User = mongoose.model('User', UserSchema); // Creating a User model based on the UserSchema
@@ -574,6 +639,46 @@ app.post('/login', async (req, res) => {
         res.status(500).send('Error logging in');
     }
 });
+
+//update user online status 
+app.put('/update-online-status', async (req, res) => {
+  const { username } = req.body; // Assuming the username is sent in the request body
+  try {
+    // Find the user by their username
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user's online status to true
+    user.online = !user.online;
+    console.log(user)
+    await user.save();
+
+    return res.status(200).json({ message: 'User online status updated successfully' });
+  } catch (error) {
+    console.error('Error updating online status:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+//checking online statuses
+app.get('/online-statuses', async (req, res) => {
+  try {
+    const users = await User.find({}, 'id online');
+    const onlineStatuses = {};
+    users.forEach(user => {
+      onlineStatuses[user.id] = user.online;
+    });
+    res.status(200).json(onlineStatuses);
+  } catch (error) {
+    console.error('Error fetching online statuses:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 
 // Creating a cohort in the database
 app.post('/newCohort', async (req, res) => {
@@ -1074,6 +1179,7 @@ app.put('/add-contact', async (req, res) => {
 
 
 
+io.listen(3000)
 const PORT = process.env.PORT || 4000; // Define port for the server to listen on
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // Log server start message

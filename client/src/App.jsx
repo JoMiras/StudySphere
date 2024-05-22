@@ -1,5 +1,5 @@
 // App.js
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthContext } from './context/authContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,6 +21,7 @@ import LoginRegistration from './Pages/RegisterLogin';
 import EditStudent from './components/EditStudent';
 import EditTeacher from './components/EditTeacher';
 import Messages from './components/Messages';
+import { Socket, io } from 'socket.io-client';
 
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
@@ -37,6 +38,7 @@ const App = () => {
     }
     return children
   };
+
 
   return (
     <BrowserRouter>

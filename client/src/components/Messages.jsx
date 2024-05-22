@@ -8,45 +8,51 @@ import add from "../img/add.png"
 
 function Messages() {
   const [users, setRefreshData, cohorts] = useOutletContext();
-  const [content, setContent] = useState('');
   const { currentUser } = useContext(AuthContext);
-  const [receiverId, setReceiverId] = useState('');
+  const { setChat, setUserOnline } = useContext(ChatContext);
+  const [content, setContent] = useState('');
   const senderId = currentUser._id;
   const senderPhoto = currentUser.profilePicture;
   const senderFirstName = currentUser.firstName;
   const senderLastName = currentUser.lastName;
   const [myChats, setMyChats] = useState([]);
-  const { setChat } = useContext(ChatContext);
   const [showAllUsers, setShowAllUsers] = useState(false);
   const [selectedChatId, setSelectedChatId] = useState(null); // State for selected chat
+  const [onlineStatuses, setOnlineStatuses] = useState({}); // State to store online statuses
 
-  const toggleShowAllUsers = () => {
-    setShowAllUsers(!showAllUsers);
-  };
+  console.log(onlineStatuses)
 
   useEffect(() => {
     const fetchChats = async () => {
-      console.log('fetching')
-      try {
-        const response = await axios.get('http://localhost:4000/get-chats', {
-          params: { senderId }
-        });
-        setMyChats(response.data);
-      } catch (error) {
-        console.error('Error fetching chats:', error);
-      }
+        console.log('fetching');
+        try {
+            const response = await axios.get('http://localhost:4000/get-chats', {
+                params: { senderId }
+            });
+            setMyChats(response.data);
+        } catch (error) {
+            console.error('Error fetching chats:', error);
+        }
     };
-  
+
     // Fetch chats initially
     fetchChats();
-  
-    
-    const interval = setInterval(fetchChats, 1000); 
-  
-    // Clear interval on component unmount to avoid memory leaks
-    return () => clearInterval(interval);
-  }, []);
-  
+
+    // Fetch online statuses of all users initially
+    const fetchOnlineStatuses = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/online-statuses');
+        setOnlineStatuses(response.data);
+      } catch (error) {
+        console.error('Error fetching online statuses:', error);
+      }
+    };
+
+    fetchOnlineStatuses();
+
+    // Cleanup function (empty, as there are no ongoing operations to cancel)
+    return () => {};
+}, []);
 
   const startChat = async (contact) => {
     const contactId = contact.id;
@@ -82,7 +88,8 @@ function Messages() {
       })
     : null;
 
-  const openChat = (chat) => {
+  const openChat = (chat, isOnline) => {
+    setUserOnline(isOnline);
     setChat(chat);
     setSelectedChatId(chat._id); // Set the selected chat ID
   };
@@ -92,16 +99,22 @@ function Messages() {
         // Find the other participant
         const otherParticipant = chat.participants.find(p => p.id !== currentUser._id);
 
+        // Get the online status from the state
+        const isOnline = onlineStatuses[otherParticipant.id];
+
         // Get the first and last message
-        const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content : 'No messages yet';
+        const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content.slice(0,30) : 'No messages yet';
 
         return (
           <div
             key={index}
-            onClick={() => openChat(chat)}
+            onClick={() => openChat(chat, isOnline)}
             className={`chat-item ${selectedChatId === chat._id ? 'selected' : ''}`} // Apply conditional class
           >
-            <img src={otherParticipant.picture} alt={`${otherParticipant.firstName} ${otherParticipant.lastName}'s profile`} className="participant-photo" />
+            <div className="chat-item-container">
+              <img src={otherParticipant.picture} alt={`${otherParticipant.firstName} ${otherParticipant.lastName}'s profile`} className="participant-photo" />
+              <div className={`status-dot ${isOnline ? 'online' : 'offline'}`}></div> {/* Status dot */}
+            </div>
             <div className="chat-info">
               <p className="participant-name">{`${otherParticipant.firstName} ${otherParticipant.lastName}`}</p>
               <p className="last-message">{lastMessage}</p>
@@ -113,7 +126,7 @@ function Messages() {
 
   const displayContacts = currentUser.contacts && currentUser.contacts.length > 0
     ? currentUser.contacts.map(contact => (
-        <img onClick={() => startChat(contact.contact)} className='contact-photo' src={contact.contact.photo} />
+        <img key={contact.contact.id} onClick={() => startChat(contact.contact)} className='contact-photo' src={contact.contact.photo} />
       ))
     : null;
 
@@ -140,7 +153,7 @@ function Messages() {
         </div>
       </div>
       <div className="right-side">
-        <Chat />
+        <Chat setMyChats={setMyChats} />
       </div>
     </div>
   );

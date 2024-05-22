@@ -1,72 +1,109 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { ChatContext } from '../context/chatContext';
 import { AuthContext } from '../context/authContext';
 import axios from 'axios';
+import { SocketContext } from '../context/socketContext';
 
 const Chat = () => {
-    const { chat, setChat } = useContext(ChatContext);
+    const { chat, setChat, userOnline } = useContext(ChatContext);
     const { currentUser } = useContext(AuthContext);
+    const { socket } = useContext(SocketContext);
     const [content, setContent] = useState('');
+    const chatWrapperRef = useRef(null);
+
     const senderId = currentUser._id;
     const chatId = chat._id;
+    const participant = chat && chat.participants.find(p => p.id !== currentUser._id);
+    const participantId = participant?.id;
+    const participantPhoto = chat && chat.participants 
+      ? chat.participants.find(participant => participant.id !== currentUser._id)?.picture 
+      : null;
+    const participantFirstName = chat && chat.participants 
+      ? chat.participants.find(participant => participant.id !== currentUser._id)?.firstName 
+      : null;
+    const participantLastName = chat && chat.participants 
+      ? chat.participants.find(participant => participant.id !== currentUser._id)?.lastName 
+      : null;
+  
+      useEffect(() => {
+        if (socket) {
+            socket.emit('join', currentUser._id);
+    
+            socket.on('message', (message) => {
+                if (message.chatId === chatId) {
+                    setChat(prevChat => ({
+                        ...prevChat,
+                        messages: [...prevChat.messages, message]
+                    }));
+                }
+            });
+    
+            return () => {
+                socket.off('message');
+            };
+        }
+    }, [socket, chatId, setChat, currentUser._id]);
+    
 
-    const participantPhoto = chat.participants 
-    ? chat.participants.find(participant => participant.id !== currentUser._id)?.picture 
-    : null;
-    const participantFirstName = chat.participants 
-    ? chat.participants.find(participant => participant.id !== currentUser._id)?.firstName 
-    : null;
-    const participantLastName = chat.participants 
-    ? chat.participants.find(participant => participant.id !== currentUser._id)?.lastName 
-    : null;
+    useEffect(() => {
+        if (chatWrapperRef.current) {
+            chatWrapperRef.current.scrollTo({
+                top: chatWrapperRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+    }, [chat]);
 
+    const sendMessage = async (content) => {
+        const message = { chatId, senderId, content, receiverId: participantId };
 
-    const sendMessage = async (senderId, content, receiverId) => {
-        try {
-            console.log(senderId, content, receiverId);
-            const res = await axios.put('http://localhost:4000/send-message', { chatId, senderId, content });
+        if (userOnline) {
+            socket.emit('chatMessage', message);
+            setChat(prevChat => ({
+                ...prevChat,
+                messages: [...prevChat.messages, { ...message, sender: senderId }]
+            }));
             setContent('');
-            setChat(res.data.chat)
-        } catch (error) {
-            console.error('Error sending message:', error);
-            // Handle error (e.g., show a toast message)
+        } else {
+            try {
+                const res = await axios.put('http://localhost:4000/send-message', message);
+                setContent('');
+                setChat(res.data.chat);
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
         }
     };
 
-    const receiverName = chat.participants ? chat.participants.map(participant => {
-        if(participant.id !== currentUser._id){
-            return(
-                <>
-                <img  src={participant.picture} alt="" />
-                <h3>{participant.firstName} {participant.lastName}</h3>
-                </>
-            )
-        }
-    }) : null
+    const receiverName = participant ? (
+        <div className="receiver-info">
+            <div className="receiver-photo-wrapper">
+                <img src={participantPhoto} alt="" className="participant-photo" />
+                <div className={`status-dot ${userOnline ? 'online' : 'offline'}`}></div>
+            </div>
+            <h3>{participantFirstName} {participantLastName}</h3>
+        </div>
+    ) : null;
 
-    const displayMessages = chat.messages ? chat.messages.map(message => {
-        if(message.sender === currentUser._id){
-            return(
-                <div className="message-owner">
-                    <img src={currentUser.profilePicture} alt="" />
+    const displayMessages = chat.messages ? chat.messages.map(message => (
+        message.sender === currentUser._id ? (
+            <div className="message-owner" key={message._id}>
+                <div className="content">
                     <strong>{currentUser.firstName} {currentUser.lastName}</strong>
                     <p>{message.content}</p>
                 </div>
-            )
-        } else {
-            return(
-                <div className="recieved-message">
-                    <img src={participantPhoto} alt="" />
+                <img src={currentUser.profilePicture} alt="" />
+            </div>
+        ) : (
+            <div className="received-message" key={message._id}>
+                <img src={participantPhoto} alt="" />
+                <div className="content">
                     <strong>{participantFirstName} {participantLastName}</strong>
                     <p>{message.content}</p>
                 </div>
-            )
-        }
-    }) : null;
-
-    console.log(participantPhoto)
-    
-
+            </div>
+        )
+    )) : null;
 
     return (
         <div className='chat-container'>
@@ -74,15 +111,16 @@ const Chat = () => {
                 {receiverName}
             </div>
             <hr />
-            <div className="chat-wrapper">
+            <div className="chat-wrapper" ref={chatWrapperRef}>
                 {displayMessages}
             </div>
             <div className="message-input">
-            <input
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                type="text" />
-                <button className='btn btn-primary' onClick={() => sendMessage(senderId, content, chatId)}>Send</button>
+                <input
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    type="text"
+                />
+                <button className='btn btn-primary' onClick={() => sendMessage(content)}>Send</button>
             </div>
         </div>
     );
