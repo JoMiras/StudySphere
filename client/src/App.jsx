@@ -26,6 +26,7 @@ import EditTeacher from './components/EditTeacher';
 
 
 
+
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
   const ProtectedRoute = ({ children }) => {

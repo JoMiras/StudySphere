@@ -5,6 +5,8 @@ import Button from 'react-bootstrap/Button';
 import { v4 as uuidv4 } from 'uuid';
 import '../style.scss';
 import axios from 'axios';
+import { Link } from 'react-router-dom'; 
+import { useLocation } from 'react-router-dom';
 
 
 function Messages() {
@@ -14,6 +16,8 @@ function Messages() {
     const [editedMessage, setEditedMessage] = useState({});
     const [editedMessageText, setEditedMessageText] = useState('');
 
+    const location = useLocation();
+    const userName = location.state ? location.state.userName : null;    
 
     const handleChange = (e) => {
         setNewMessage({ ...newMessage, [e.target.name]: e.target.value });
@@ -55,11 +59,15 @@ function Messages() {
     const generateUniqueId = () => {
         return uuidv4();
     };
-    
 
     return (
         <div className="message-container">
-            <h2>Messages</h2>
+
+        <div>
+            <h1>Welcome, {userName} </h1>
+            <p>This is the Messages page.</p>
+        </div>
+
             <ul className="message-list">
                 {messages.map((message) => (
                     <li key={`${message.id}-${message.text}`} className="message-item">

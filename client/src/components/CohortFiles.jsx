@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { CohortContext } from '../context/cohortContext';
 import axios from 'axios';
 import exam from "../img/exam.png"
@@ -12,7 +13,6 @@ import { StudentContext } from '../context/studentContext';
 import { TeacherContext } from '../context/teacherContext';
 import { useOutletContext } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
-import { Link } from 'react-router-dom';
 import messagingpic from "../img/messagingpic.png"
 
 function CohortFiles() {
@@ -24,11 +24,11 @@ function CohortFiles() {
   const [users, refreshData, cohorts] = useOutletContext();
   const {currentUser} = useContext(AuthContext);
 
-
   const readingMaterials = cohort ? cohort.cohortFiles.readingMaterial : null;
   const readingAssignments = cohort ? cohort.cohortFiles.assignments : null;
   const tests = cohort ? cohort.cohortFiles.tests : null;
   const teacherID = cohort ? cohort.instructorID : null;
+
 
   useEffect(() => {
     refreshData(prev => prev + 1)
@@ -79,6 +79,24 @@ function CohortFiles() {
     }
 }
 
+// added code
+const goToMessages = async (id) => {
+  try {
+      const res = await axios.get("http://localhost:4000/get-user", {
+          params: {
+              id: id
+          }
+      });
+      setStudent(res.data);
+      localStorage.setItem('student', JSON.stringify(res.data));
+      Navigate('../messages');
+  } catch (error) {
+      // Handle errors
+      console.error(error);
+  }
+}
+// end of added code
+
 const teachersProfile = async(id) => {
   localStorage.removeItem('teacher')
   try {
@@ -108,6 +126,8 @@ const displayReadingMaterials = readingMaterials
     ? tests.map((test, index) => <p key={index}>{test}</p>)
     : null;
 
+
+
   const displayStudents = cohort.students
     ? cohort.students.map((student, index) => (
       <>
@@ -115,8 +135,17 @@ const displayReadingMaterials = readingMaterials
           <img src={student.student.profilePicture || defaultPhoto} alt={`Student ${index + 1}`} />
           <strong>{student.student.username}</strong>
           <button onClick={() => goToProfile(student.student.id)} className='btn btn-primary btn-sm'>Profile</button>
-          <Link to="/home/messages" >
+          {/* <Link to="/home/messages" ></Link> */}
+
+          {/* <Link to={{ pathname: '/home/messages', state: { userName: student.userName } }}>
             <img src={messagingpic} alt="Messaging" className="picture-button"/>
+          </Link> */}
+
+          <Link>
+          <button onClick={() => goToMessages(student.student.id)}>
+          <img src={messagingpic} alt="Messaging" className="picture-button"/>
+          </button>
+
           </Link>
           {currentUser.role === "SuperAdmin" && <button onClick={() => removeFromCohort(student.student.id, cohort._id)} className='btn btn-danger btn-sm' >Remove</button>}
         </div>
@@ -178,8 +207,13 @@ const displayReadingMaterials = readingMaterials
             </div>
             <button onClick={() => teachersProfile(teacher._id)} className='btn btn-primary'>Profile</button>
             {/* takes users to messages */}
-            <Link to="/home/messages" >
+            {/* <Link to={{ pathname: '/home/messages', state: { userName: currentUser.name } }}>
               <img src={messagingpic} alt="Messaging" className="picture-button"/>
+            </Link> */}
+            <Link to={{ pathname: 'home/messages', state: {userName: student.student.username} }}>
+            <button onClick={() => goToMessages(student.student.id)}>
+              <img src={messagingpic} alt="Messaging" className="picture-button"/>
+            </button>
             </Link>
           </div>
         )}
