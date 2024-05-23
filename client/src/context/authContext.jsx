@@ -40,7 +40,6 @@ const AuthProvider = ({ children }) => {
     fetchData();
   }, [existingUser, refreshUserData]);
 
-  console.log(refreshUserData)
 
   return (
     <AuthContext.Provider value={{ currentUser, setCurrentUser, setIsLoggedIn, setRefreshUserData }}>

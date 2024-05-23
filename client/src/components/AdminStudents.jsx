@@ -101,7 +101,7 @@ function AdminStudents() {
                     <div className="student">
                         <div className="student-info">
                             <img className='student-img' src={student.profilePicture === '' ? defaultPhoto : student.profilePicture} alt="" />
-                            <strong>{student.username}</strong>
+                            <strong>{student.firstName} {student.lastName}</strong>
                             <p>{student.email}</p>
                         </div>
                         <div className="actions">

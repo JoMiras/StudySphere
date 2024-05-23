@@ -10,7 +10,7 @@ import { useOutletContext } from 'react-router-dom';
 function EditStudent() {
     const { student, setStudent } = useContext(StudentContext);
     const [users, setRefreshData] = useOutletContext();
-    const {setCurrentUser} = useContext(AuthContext);
+    const {setCurrentUser, setRefreshUserData, currentUser} = useContext(AuthContext);
     const [avatar, setAvatar] = useState('');
     const [formData, setFormData] = useState({
         firstName: '',
@@ -48,27 +48,28 @@ function EditStudent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if  (profilePicture === null) {
-            setTransferring(true)
+        if (profilePicture === null) {
+            setTransferring(true);
             try {
-                const res = await axios.put('http://localhost:4000/edit-user-no-photo', {firstName, lastName, dob, email, phoneNumber, address, role, id });
+                const res = await axios.put('http://localhost:4000/edit-user-no-photo', { firstName, lastName, dob, email, phoneNumber, address, role, id });
+                if (currentUser.role !== 'SuperAdmin') {
+                    setCurrentUser(res.data.user);
+                    localStorage.removeItem('currentUser');
+                    localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                }
+                await updateUserInCohorts(id);
+                setTransferring(false);
                 setTimeout(() => {
-                    setTransferring(false)
+                    setTransferring(false);
                 }, 1000);
-                localStorage.removeItem('currentUser')
-                localStorage.removeItem('student')
-                localStorage.setItem('student', JSON.stringify(res.data.user))
-                localStorage.setItem('currentUser', JSON.stringify(res.data.user))
-                setStudent(res.data.user)
-                setCurrentUser(res.data.user)
-                refreshData(prev => prev + 1)
+                // Now update user in cohorts
+                await updateUserInCohorts(id);
             } catch (error) {
                 console.error('Error updating user without profile picture:', error);
             }
         } else {
             try {
-                // Construct FormData for request with profilePicture
-                setTransferring(true)
+                setTransferring(true);
                 const formDataToSend = new FormData();
                 formDataToSend.append('firstName', firstName);
                 formDataToSend.append('lastName', lastName);
@@ -76,31 +77,45 @@ function EditStudent() {
                 formDataToSend.append('email', email);
                 formDataToSend.append('phoneNumber', phoneNumber);
                 formDataToSend.append('address', address);
-                formDataToSend.append('profilePicture', profilePicture); // Append the profile picture file
+                formDataToSend.append('profilePicture', profilePicture);
                 formDataToSend.append('role', role);
                 formDataToSend.append('id', student._id);
-                console.log(formDataToSend)
-
-    
-                // Send formData to endpoint for update with profilePicture
                 const res = await axios.put('http://localhost:4000/edit-user', formDataToSend, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-                setTransferring(false)
-                console.log(res);
+                if (currentUser.role !== 'SuperAdmin') {
+                    setCurrentUser(res.data.user);
+                    localStorage.removeItem('currentUser');
+                    localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                }
+                setTransferring(false);
+                // Now update user in cohorts
+                await updateUserInCohorts(id);
             } catch (error) {
                 console.error('Error updating user with profile picture:', error);
             }
         }
     };
     
+    const updateUserInCohorts = async (id) => {
+        try {
+            await axios.put('http://localhost:4000/updateUserInCohorts', {firstName, lastName, profilePicture, id});
+        } catch (error) {
+            console.error('Error updating user in cohorts:', error);
+        }
+    };
+
+    console.log(firstName)
+    
+    
         
 
     return (
         <div className='edit-student-container'>
             <div className="edit-student-wrapper">
+            <button onClick={() => {Navigate(-1)}} className='btn btn-success'>Done</button>
                 {transferring && <img className='transferring' src={transfer}/> }
                 {!transferring && 
                 <>
@@ -207,7 +222,6 @@ function EditStudent() {
                                 </div>
                             </div>
                         </div>
-                        <button onClick={() => {Navigate(-1)}} className='btn btn-secondary'>Done</button>
                         <button type="submit" className="btn btn-primary">Submit</button>
                     </div>
                 </form>

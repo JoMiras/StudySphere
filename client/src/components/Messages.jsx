@@ -5,11 +5,12 @@ import { ChatContext } from '../context/chatContext';
 import axios from 'axios';
 import Chat from './Chat';
 import add from "../img/add.png"
+import { SocketContext } from '../context/socketContext';
 
 function Messages() {
   const [users, setRefreshData, cohorts] = useOutletContext();
   const { currentUser } = useContext(AuthContext);
-  const { setChat, setUserOnline } = useContext(ChatContext);
+  const { setChat, setUserOnline, chat } = useContext(ChatContext);
   const senderId = currentUser._id;
   const senderPhoto = currentUser.profilePicture;
   const senderFirstName = currentUser.firstName;
@@ -18,6 +19,8 @@ function Messages() {
   const [showAllUsers, setShowAllUsers] = useState(false);
   const [selectedChatId, setSelectedChatId] = useState(null); // State for selected chat
   const [onlineStatuses, setOnlineStatuses] = useState({}); // State to store online statuses
+  const { socket } = useContext(SocketContext);
+
 
 
   useEffect(() => {
@@ -57,7 +60,6 @@ function Messages() {
     const receiverPhoto = contact.photo;
     const receiverFirstName = contact.firstName;
     const receiverLastName = contact.lastName;
-    console.log(contactId, receiverPhoto, senderPhoto);
 
     try {
       await axios.post('http://localhost:4000/make-chat', {
@@ -97,6 +99,7 @@ function Messages() {
         // Find the other participant
         const otherParticipant = chat.participants.find(p => p.id !== currentUser._id);
 
+
         // Get the online status from the state
         const isOnline = onlineStatuses[otherParticipant.id];
 
@@ -124,11 +127,10 @@ function Messages() {
 
   const displayContacts = currentUser.contacts && currentUser.contacts.length > 0
     ? currentUser.contacts.map(contact => (
-        <img key={contact.contact.id} onClick={() => startChat(contact.contact)} className='contact-photo' src={contact.contact.photo} />
+        <img key={contact.contact.id} className='contact-photo' src={contact.contact.photo} />
       ))
     : null;
 
-    console.log(currentUser)
 
   return (
     <div className="message-container">

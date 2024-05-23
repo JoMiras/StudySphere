@@ -1176,6 +1176,40 @@ app.put('/add-contact', async (req, res) => {
   }
 });
 
+//updating cohort with user data if they choose to edit theyre profile
+app.put('/updateUserInCohorts', async (req, res) => {
+  const { firstName, lastName, profilePicture, id } = req.body;
+
+  try {
+      // Fetch all cohorts where the user is a member
+      const userCohorts = await Cohort.find({ 'students.student.id': id });
+
+      // Update user data in each cohort
+      await Promise.all(userCohorts.map(async (cohort) => {
+          // Find the student entry for the user in the cohort
+          const studentIndex = cohort.students.findIndex(student => student.student.id === id);
+          if (studentIndex !== -1) {
+              // Construct updated user data
+              const updatedUserData = {
+                  firstName,
+                  lastName,
+                  profilePicture
+              };
+              // Update user data in the cohort
+              cohort.students[studentIndex].student = { ...cohort.students[studentIndex].student, ...updatedUserData };
+              await cohort.save();
+              console.log('cohorts updated')
+          }
+      }));
+
+      res.status(200).json({ message: 'User data updated in all cohorts successfully' });
+  } catch (error) {
+      console.error('Error updating user data in cohorts:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 
 
 

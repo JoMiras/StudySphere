@@ -6,8 +6,6 @@ const ChatContextProvider = ({children}) => {
     const [chat, setChat] = useState('')
     const [userOnline, setUserOnline] =useState(false)
 
-    console.log(chat)
-
     return(
         <ChatContext.Provider value={{setChat, chat, setUserOnline, userOnline}}>
             {children}

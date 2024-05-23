@@ -50,6 +50,11 @@ function EditTeacher() {
             setTransferring(true)
             try {
                 const res = await axios.put('http://localhost:4000/edit-user-no-photo', {firstName, lastName, dob, email, phoneNumber, address, role, id });
+                if(currentUser.role !== 'SuperAdmin'){
+                    setCurrentUser(res.data.user)
+                    localStorage.removeItem('currentuser')
+                    localStorage.setItem('currentuser', JSON.stringify(res.data.user));
+                }
                 setTimeout(() => {
                     setTransferring(false)
                 }, 1000);
@@ -77,8 +82,12 @@ function EditTeacher() {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
+                if(currentUser.role !== 'SuperAdmin'){
+                    setCurrentUser(res.data.user)
+                    localStorage.removeItem('currentuser')
+                    localStorage.setItem('currentuser', JSON.stringify(res.data.user));
+                }
                 setTransferring(false)
-                console.log(res);
             } catch (error) {
                 console.error('Error updating user with profile picture:', error);
             }

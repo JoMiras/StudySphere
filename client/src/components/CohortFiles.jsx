@@ -130,7 +130,7 @@ const displayReadingMaterials = readingMaterials
       <>
        <div className='cohort-students' key={student.id}>
           <img src={student.student.profilePicture || defaultPhoto} alt={`Student ${index + 1}`} />
-          <strong>{student.student.username}</strong>
+          <strong>{student.student.firstName} {student.student.lastName}</strong>
           <button onClick={() => goToProfile(student.student.id)} className='btn btn-primary btn-sm'>Profile</button>
           {currentUser.role === "SuperAdmin" && <button onClick={() => removeFromCohort(student.student.id, cohort._id)} className='btn btn-danger btn-sm' >Remove</button>}
           <button onClick={() => setAsContact(student, userId)} className='btn btn-success btn-sm'>Message</button>
@@ -139,7 +139,6 @@ const displayReadingMaterials = readingMaterials
       ))
     : null;
 
-    console.log(cohort.students)
 
 
   return (

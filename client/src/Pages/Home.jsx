@@ -11,7 +11,6 @@ function Home() {
   const [users, setUsers] = useState('');
   const [refreshData, setRefreshData] = useState(0);
   const [cohorts, setCohorts] = useState([]);
-  const [messages, setMessages] = useState([]);
 
 
   useEffect(() => {
@@ -40,13 +39,17 @@ function Home() {
     fetchUsers();
   }, [refreshData]);
 
+  console.log(currentUser.firstName)
+
   return (
     <div className="home-container">
       <div className='home'>
         {currentUser.role === "SuperAdmin" && <AdminNavBar />}
         {currentUser.role === "student" && <UserNavbar />}
         <div className="home-body">
-          <Navbar />
+          <Navbar 
+          
+          />
           <Outlet context={[users, setRefreshData, cohorts]} />
         </div>
       </div>
