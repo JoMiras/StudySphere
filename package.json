@@ -12,7 +12,11 @@
   "dependencies": {
     "@mui/material": "^5.15.15",
     "@nivo/bar": "^0.85.1",
+    "@tsparticles/all": "^3.4.0",
+    "@tsparticles/react": "^3.0.0",
     "concurrently": "^8.2.2",
-    "recharts": "^2.12.5"
+    "emailjs-com": "^3.2.0",
+    "recharts": "^2.12.5",
+    "tsparticles": "^3.4.0"
   }
 }

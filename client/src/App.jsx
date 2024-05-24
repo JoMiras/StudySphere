@@ -22,7 +22,9 @@ import StudentCourses from './components/StudentCourses';
 import LoginRegistration from './Pages/RegisterLogin';
 import EditStudent from './components/EditStudent';
 import EditTeacher from './components/EditTeacher';
+import LandingPage from './Pages/Landing';
 
+import PageNotFound from './Pages/PageNotFound';
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
   const ProtectedRoute = ({ children }) => {
@@ -44,6 +46,7 @@ const App = () => {
       <Routes>
         <Route path="/">
           <Route index element={<LoginRegistration/>} />
+          <Route path="landing" element={<LandingPage />} />
           <Route path="home" element={<ProtectedRoute><Home /></ProtectedRoute>}>
             <Route path="admindashboard" element={<SuperAdminRoute> <AdminDashboard /> </SuperAdminRoute>}/>  
             <Route path="adminstudents" element={<SuperAdminRoute><AdminStudents /></SuperAdminRoute>}/>
@@ -60,7 +63,9 @@ const App = () => {
             <Route path="courses" element={<StudentCourses />}/>
             <Route path="edit-student" element={<EditStudent />} />
             <Route path="edit-teacher" element={<EditTeacher />} />
+            
           </Route>
+          <Route path="*" element={<PageNotFound />} /> {/*Should be 404page */}
         </Route>
       </Routes>
     </BrowserRouter>
