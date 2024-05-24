@@ -2109,13 +2109,37 @@ margin: 0;
       .chat-item {
         display: flex;
         align-items: center;
+
+
         cursor: pointer;
         padding: 10px;
         border-radius: 5px;
         box-shadow: rgba(0, 0, 0, 0.12) 0px 1px 3px, rgba(0, 0, 0, 0.24) 0px 1px 2px;
 
         &.selected {
-          background-color: rgb(232, 232, 232);
+          border: 2px solid #3272b3;
+        }
+
+        .unread-message{
+          display: flex;
+          margin-left: auto;
+
+          p{
+            height: 20px;
+            width: 20px;
+            border-radius: 10px;
+            background-color: #3272b3;
+            color: white;
+            vertical-align: middle;
+            text-align: center;
+            font-size: 14px;
+          }
+
+          img{
+            height: 50px;
+            width: 50px;
+            background-color: gray;
+          }
         }
       }
 
@@ -2168,6 +2192,13 @@ margin: 0;
         padding: 1vh;
         gap: 1vh;
         width: 100%;
+
+        input{
+          height: 4vh;
+          border-radius: 5px;
+          border: 1px solid gray;
+          padding: 1vh;
+        }
 
         .receiver-info {
           display: flex;
@@ -2249,6 +2280,8 @@ margin: 0;
         padding: 1vh;
         height: 80vh;
         max-width: 100%;
+        
+        
       }
   
       .message-owner,
@@ -2256,6 +2289,15 @@ margin: 0;
         display: flex;
         gap: 1vh;
         max-width: 100%; /* Adjust as needed */
+
+        .timestamp {
+          font-size: 12px !important;
+          color: gray !important;
+          margin-top: -10px !important;
+          margin-bottom: 10px !important;
+          background-color: none !important;
+          
+      }
       }
   
       .message-owner {

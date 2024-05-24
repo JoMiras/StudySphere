@@ -25,7 +25,8 @@ const Chat = ({ setMyChats }) => {
     const [participantData, setParticipantData] = useState('')
     const addContact = myContacts ? myContacts.find(contact => contact === participantId) : null;
 
-    const filtered = chat?  chat.messages.filter(message => message.content.toLowerCase().includes(filteredMessages.toLowerCase())) : null;
+    const filtered = chat ? chat.messages.filter(message => message.content.toLowerCase().includes(filteredMessages.toLowerCase())) : null;
+    
 
     const setAsContact = async (participantId, participantPhoto, participantFirstName, participantLastName) => {
         const id = participantId;
@@ -33,7 +34,6 @@ const Chat = ({ setMyChats }) => {
         const firstName = participantFirstName;
         const lastName = participantLastName;
         const userId = currentUser._id;
-        
 
         try {
             const res = await axios.put('http://localhost:4000/add-contact', { id, picture, userId, firstName, lastName });
@@ -47,16 +47,14 @@ const Chat = ({ setMyChats }) => {
     };
 
     useEffect(() => {
-        const fetch = async () =>{
-            const participant = await axios.get('http://localhost:4000/get-user', {params:{id:participantId}});
-            setParticipantData(participant.data)
-            console.log(participantData.profilePicture)
-        }
+        const fetch = async () => {
+            const participant = await axios.get('http://localhost:4000/get-user', { params: { id: participantId } });
+            setParticipantData(participant.data);
+            console.log(participantData.profilePicture);
+        };
 
         fetch();
-    }, [chat])
-
-
+    }, [chat]);
 
     useEffect(() => {
         if (socket) {
@@ -69,7 +67,7 @@ const Chat = ({ setMyChats }) => {
                         messages: [...prevChat.messages, message]
                     }));
                 }
-                updateChats(); 
+                updateChats();
             });
 
             return () => {
@@ -82,6 +80,12 @@ const Chat = ({ setMyChats }) => {
         try {
             const response = await axios.get('http://localhost:4000/get-chats', {
                 params: { senderId }
+            });
+            // Sort the chats based on the most recent message timestamp
+            response.data.sort((a, b) => {
+                const lastMessageA = a.messages[a.messages.length - 1];
+                const lastMessageB = b.messages[b.messages.length - 1];
+                return new Date(lastMessageB.timestamp) - new Date(lastMessageA.timestamp);
             });
             setMyChats(response.data);
         } catch (error) {
@@ -97,30 +101,113 @@ const Chat = ({ setMyChats }) => {
             });
         }
     }, [chat, filteredMessages.length === 0]);
-    
 
     const sendMessage = async (content) => {
-        const message = { chatId, senderId, content, receiverId: participantId };
-
+        const message = {
+            chatId,
+            senderId,
+            content,
+            receiverId: participantId,
+            timestamp: new Date().toISOString(), // Include a correct timestamp
+            read: true
+        };
+    
         if (userOnline) {
             socket.emit('chatMessage', message);
             setChat(prevChat => ({
                 ...prevChat,
-                messages: [...prevChat.messages, { ...message, sender: senderId }]
+                messages: [...prevChat.messages, { ...message, sender: senderId}]
             }));
             setContent('');
-            updateChats();
         } else {
             try {
                 const res = await axios.put('http://localhost:4000/send-message', message);
                 setChat(res.data.chat);
                 setContent('');
-                updateChats();
             } catch (error) {
                 console.error('Error sending message:', error);
             }
         }
+        updateChats();
     };
+    
+    const formatTime = (timestamp) => {
+        return new Date(timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const formatDate = (timestamp) => {
+        return new Date(timestamp).toLocaleDateString([], {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
+    };
+
+    const isSameDay = (d1, d2) => {
+        const date1 = new Date(d1);
+        const date2 = new Date(d2);
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    };
+
+    
+    useEffect(() => {
+        if (chatId) {
+            const readMessage = async () => {
+                try {
+                    const res = await axios.get('http://localhost:4000/message-read', {
+                        params: { chatId, senderId } // Pass chatId as a parameter
+                    });
+                } catch (error) {
+                    console.error('Error marking messages as read:', error);
+                }
+            }
+            readMessage();
+        }
+    }, [chat, chatId]);
+    
+   
+
+
+    const displayMessages = filtered ? filtered.map((message, index) => {
+        const messageTimestamp = new Date(message.timestamp);
+        const prevMessageTimestamp = index > 0 ? new Date(filtered[index - 1].timestamp) : null;
+
+        const showDate = !prevMessageTimestamp || !isSameDay(messageTimestamp, prevMessageTimestamp);
+
+        return (
+            <React.Fragment key={message._id}>
+                {showDate && (
+                    <div style={{textAlign:'center', color:'gray'}} className="message-date">
+                        {formatDate(message.timestamp)}
+                    </div>
+                )}
+                {message.sender === currentUser._id ? (
+                    <div className="message-owner">
+                        <div className="content">
+                            <strong>{currentUser.firstName} {currentUser.lastName}</strong>
+                            <p>{message.content}</p>
+                            <span className="timestamp">{formatTime(message.timestamp)}</span>
+                        </div>
+                        <img src={currentUser.profilePicture} alt="" />
+                    </div>
+                ) : (
+                    <div className="received-message">
+                        <img src={participantData.profilePicture} alt="" />
+                        <div className="content">
+                            <strong>{participantData.firstName} {participantData.lastName}</strong>
+                            <p>{message.content}</p>
+                            <span className="timestamp">{formatTime(message.timestamp)}</span>
+                        </div>
+                    </div>
+                )}
+            </React.Fragment>
+        );
+    }) : null;
 
     const receiverName = participantData ? (
         <div className="receiver-info">
@@ -138,36 +225,14 @@ const Chat = ({ setMyChats }) => {
         </div>
     ) : null;
 
-    const displayMessages = filtered ? filtered.map(message => (
-        message.sender === currentUser._id ? (
-            <div className="message-owner" key={message._id}>
-                <div className="content">
-                    <strong>{currentUser.firstName} {currentUser.lastName}</strong>
-                    <p>{message.content}</p>
-                </div>
-                <img src={currentUser.profilePicture} alt="" />
-            </div>
-        ) : (
-            <div className="received-message" key={message._id}>
-                <img src={participantData.profilePicture} alt="" />
-                <div className="content">
-                    <strong>{participantData.firstName} {participantData.lastName}</strong>
-                    <p>{message.content}</p>
-                </div>
-            </div>
-        )
-    )) : null;
-
-    
-
     return (
         <div className='chat-container'>
             <div className="chat-header">
                 {receiverName}
                 <input
-                type="text"
-                onChange={(e) => setFilteredMessages(e.target.value)}
-                placeholder="Search conversation..."
+                    type="text"
+                    onChange={(e) => setFilteredMessages(e.target.value)}
+                    placeholder="Search conversation..."
                 />
             </div>
             <hr />

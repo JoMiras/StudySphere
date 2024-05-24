@@ -6,6 +6,7 @@ import axios from 'axios';
 import Chat from './Chat';
 import add from "../img/add.png"
 import { SocketContext } from '../context/socketContext';
+import unread from "../img/chat (1).gif"
 
 function Messages() {
   const [users, setRefreshData, cohorts] = useOutletContext();
@@ -20,8 +21,13 @@ function Messages() {
   const [selectedChatId, setSelectedChatId] = useState(null); // State for selected chat
   const [onlineStatuses, setOnlineStatuses] = useState({}); // State to store online statuses
   const { socket } = useContext(SocketContext);
+  const [updateChat, setUpdateChat] = useState(0)
 
 
+
+  socket ? socket.on('message', () => {
+    setUpdateChat(prev => prev + 1)
+  }) : null
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -53,7 +59,7 @@ function Messages() {
 
     // Cleanup function (empty, as there are no ongoing operations to cancel)
     return () => {};
-}, []);
+}, [chat, updateChat]);
 
   const startChat = async (contact) => {
     const contactId = contact.id;
@@ -88,23 +94,46 @@ function Messages() {
       })
     : null;
 
-  const openChat = (chat, isOnline) => {
+ const openChat = async (chat, isOnline) => {
+    const chatId = chat._id;
     setUserOnline(isOnline);
     setChat(chat);
-    setSelectedChatId(chat._id); // Set the selected chat ID
-  };
+    setSelectedChatId(chatId); // Set the selected chat ID
+    
+    try {
+        await axios.get('http://localhost:4000/message-read', {
+            params: { chatId, senderId } // Pass chatId as a parameter
+        });
+        // Request succeeded, continue with any additional logic
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+        // Handle the error (e.g., show an error message)
+    }
+};
+
 
   const showMyChats = myChats
-    ? myChats.map((chat, index) => {
+  ? myChats
+      .slice()
+      .sort((a, b) => {
+        // Get the timestamps of the last messages in each chat
+        const lastMessageTimestampA = a.messages.length > 0 ? new Date(a.messages[a.messages.length - 1].timestamp) : new Date(0);
+        const lastMessageTimestampB = b.messages.length > 0 ? new Date(b.messages[b.messages.length - 1].timestamp) : new Date(0);
+        // Sort in descending order based on timestamp
+        return lastMessageTimestampB - lastMessageTimestampA;
+      })
+      .map((chat, index) => {
         // Find the other participant
         const otherParticipant = chat.participants.find(p => p.id !== currentUser._id);
-
 
         // Get the online status from the state
         const isOnline = onlineStatuses[otherParticipant.id];
 
         // Get the first and last message
-        const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content.slice(0,30) : 'No messages yet';
+        const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content.slice(0, 30) : 'No messages yet';
+
+        const unreadMessages = chat.messages.filter(message => message.read === false && message.sender !== currentUser._id).length;
+            
 
         return (
           <div
@@ -120,16 +149,21 @@ function Messages() {
               <p className="participant-name">{`${otherParticipant.firstName} ${otherParticipant.lastName}`}</p>
               <p className="last-message">{lastMessage}</p>
             </div>
+            {unreadMessages > 0 && <div className="unread-message">
+              <p>{unreadMessages}</p>
+              <img src={unread} alt="" />
+            </div>}
           </div>
         );
       })
-    : null;
+  : null;
 
   const displayContacts = currentUser.contacts && currentUser.contacts.length > 0
     ? currentUser.contacts.map(contact => (
-        <img key={contact.contact.id} className='contact-photo' src={contact.contact.photo} />
+        <img onClick={() => startChat(contact.contact)} key={contact.contact.id} className='contact-photo' src={contact.contact.photo} />
       ))
     : null;
+
 
 
   return (

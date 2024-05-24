@@ -256,7 +256,11 @@ const chatSchema = new mongoose.Schema({
   messages: [{
     sender: String, // String for the sender
     content: String, // String for the content of the message
-    timestamp: { type: Date, default: Date.now } // Date with a default value of the current date and time
+    timestamp: { type: Date, default: Date.now }, // Date with a default value of the current date and time
+    read:{
+      type: Boolean,
+      default: false
+    }
   }]
 }, { timestamps: true }); // Automatically add createdAt and updatedAt fields
 
@@ -352,7 +356,7 @@ app.put('/add-contact', async (req, res) => {
 //making a message 
 app.put('/send-message', async (req, res) => {
   try {
-    const { chatId, senderId, content } = req.body;
+    const { chatId, senderId, content, timestamp } = req.body;
 
     // Validate input
     if (!chatId || !senderId || !content) {
@@ -366,7 +370,7 @@ app.put('/send-message', async (req, res) => {
     }
 
     // Add the new message to the chat
-    chat.messages.push({ sender: senderId, content, timestamp: new Date() });
+    chat.messages.push({ sender: senderId, content, timestamp: timestamp });
 
     // Save the updated chat document
     await chat.save();
@@ -1208,6 +1212,103 @@ app.put('/updateUserInCohorts', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+//update contacts when editing profile
+app.put('/update-my-contact-info', async (req, res) => {
+  const { id, firstName, lastName, photo } = req.body;
+  console.log('Received ID:', id);
+
+  try {
+    // Find all users who have the specified user in their contacts
+    const userContacts = await User.find({ 'contacts.contact.id': id });
+
+    // Log the result of the find query
+    console.log('User Contacts:', userContacts);
+
+    // If no users are found, log a message and return
+    if (userContacts.length === 0) {
+      console.log('No users found with the specified contact ID.');
+      return res.status(404).json({ message: 'No users found with the specified contact ID.' });
+    }
+
+    // Update user data in each contact list
+    await Promise.all(userContacts.map(async (contact) => {
+      const userIndex = contact.contacts.findIndex(user => user.contact.id === id);
+      if (userIndex !== -1) {
+        // Update contact information
+        contact.contacts[userIndex].contact.firstName = firstName;
+        contact.contacts[userIndex].contact.lastName = lastName;
+        if (photo) {
+          contact.contacts[userIndex].contact.photo = photo;
+        }
+        await contact.save();
+      }
+    }));
+
+    res.status(200).json({ message: 'User contact info updated successfully in all contact lists' });
+  } catch (error) {
+    console.error('Error updating user contact info:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+   //update message to read
+   app.get('/message-read', async (req, res) => {
+    const { chatId, senderId } = req.query; // Retrieve chatId from req.query
+
+    try {
+        const chats = await Chat.updateMany(
+            { _id: chatId, "messages.read": false },
+            { $set: { "messages.$[elem].read": true } },
+            { arrayFilters: [{ "elem.sender": { $ne: senderId } }] } // Update only if senderId is not equal to id
+        );
+        res.status(200).send('Messages marked as read');
+    } catch (error) {
+        res.status(500).send('Error marking messages as read');
+    }
+});
+
+
+app.put('/update-participant-info', async (req, res) => {
+  const { id, firstName, lastName, photo } = req.body;
+  
+  try {
+    // Find all chats where the specified user is a participant
+    const chats = await Chat.find({ 'participants.id': id });
+
+    // Log the result of the find query
+    console.log('Chats with the participant:', chats);
+
+    // If no chats are found, log a message and return
+    if (chats.length === 0) {
+      console.log('No chats found with the specified participant ID.');
+      return res.status(404).json({ message: 'No chats found with the specified participant ID.' });
+    }
+
+    // Update participant data in each chat
+    await Promise.all(chats.map(async (chat) => {
+      const participantIndex = chat.participants.findIndex(participant => participant.id === id);
+      if (participantIndex !== -1) {
+        // Update participant information
+        chat.participants[participantIndex].firstName = firstName;
+        chat.participants[participantIndex].lastName = lastName;
+        if (photo) {
+          chat.participants[participantIndex].picture = photo;
+        }
+        await chat.save();
+      }
+    }));
+
+  
+  
+
+    res.status(200).json({ message: 'Participant info updated successfully in all chats' });
+  } catch (error) {
+    console.error('Error updating participant info:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 
 
 

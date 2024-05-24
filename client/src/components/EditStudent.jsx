@@ -48,28 +48,31 @@ function EditStudent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (profilePicture === null) {
-            setTransferring(true);
-            try {
-                const res = await axios.put('http://localhost:4000/edit-user-no-photo', { firstName, lastName, dob, email, phoneNumber, address, role, id });
+        setTransferring(true);
+    
+        try {
+            if (profilePicture === null) {
+                // Update user without profile picture
+                const res = await axios.put('http://localhost:4000/edit-user-no-photo', { 
+                    firstName, 
+                    lastName, 
+                    dob, 
+                    email, 
+                    phoneNumber, 
+                    address, 
+                    role, 
+                    id 
+                });
+                
                 if (currentUser.role !== 'SuperAdmin') {
                     setCurrentUser(res.data.user);
-                    localStorage.removeItem('currentUser');
                     localStorage.setItem('currentUser', JSON.stringify(res.data.user));
                 }
-                await updateUserInCohorts(id);
-                setTransferring(false);
-                setTimeout(() => {
-                    setTransferring(false);
-                }, 1000);
-                // Now update user in cohorts
-                await updateUserInCohorts(id);
-            } catch (error) {
-                console.error('Error updating user without profile picture:', error);
-            }
-        } else {
-            try {
-                setTransferring(true);
+    
+                await updateUserInCohorts(id, firstName, lastName, null);
+                await updateMyContacts(id, firstName, lastName, null);
+            } else {
+                // Update user with profile picture
                 const formDataToSend = new FormData();
                 formDataToSend.append('firstName', firstName);
                 formDataToSend.append('lastName', lastName);
@@ -80,34 +83,75 @@ function EditStudent() {
                 formDataToSend.append('profilePicture', profilePicture);
                 formDataToSend.append('role', role);
                 formDataToSend.append('id', student._id);
+    
                 const res = await axios.put('http://localhost:4000/edit-user', formDataToSend, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
+    
                 if (currentUser.role !== 'SuperAdmin') {
                     setCurrentUser(res.data.user);
-                    localStorage.removeItem('currentUser');
                     localStorage.setItem('currentUser', JSON.stringify(res.data.user));
                 }
-                setTransferring(false);
-                // Now update user in cohorts
-                await updateUserInCohorts(id);
-            } catch (error) {
-                console.error('Error updating user with profile picture:', error);
+    
+                const profilePictureUrl = res.data.user.profilePicture; // Assuming the response contains the updated profilePicture URL
+    
+                await updateUserInCohorts(id, firstName, lastName, profilePictureUrl);
+                await updateMyContacts(id, firstName, lastName, profilePictureUrl);
+                await updateParticipantInfo(id, firstName, lastName, profilePictureUrl);
             }
+    
+            setTransferring(false);
+            setTimeout(() => {
+                setTransferring(false);
+            }, 1000);
+    
+        } catch (error) {
+            console.error('Error updating user:', error);
+            setTransferring(false);
         }
     };
     
-    const updateUserInCohorts = async (id) => {
+    const updateUserInCohorts = async (id, firstName, lastName, profilePicture) => {
         try {
-            await axios.put('http://localhost:4000/updateUserInCohorts', {firstName, lastName, profilePicture, id});
+            await axios.put('http://localhost:4000/updateUserInCohorts', {
+                id,
+                firstName,
+                lastName,
+                profilePicture
+            });
         } catch (error) {
             console.error('Error updating user in cohorts:', error);
         }
     };
+    
+    const updateMyContacts = async (id, firstName, lastName, profilePicture) => {
+        try {
+            await axios.put('http://localhost:4000/update-my-contact-info', {
+                id,
+                firstName,
+                lastName,
+                photo: profilePicture
+            });
+        } catch (error) {
+            console.error('Error updating user data in contacts:', error);
+        }
+    };
 
-    console.log(firstName)
+    const updateParticipantInfo = async (id, firstName, lastName, profilePicture) => {
+        try {
+            await axios.put('http://localhost:4000/update-participant-info', {
+                id,
+                firstName,
+                lastName,
+                photo: profilePicture
+            });
+        } catch (error) {
+            console.error('Error updating user data in contacts:', error);
+        }
+    };
+    
     
     
         

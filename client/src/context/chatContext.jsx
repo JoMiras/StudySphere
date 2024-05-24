@@ -4,7 +4,7 @@ const ChatContext = createContext();
 
 const ChatContextProvider = ({children}) => {
     const [chat, setChat] = useState('')
-    const [userOnline, setUserOnline] =useState(false)
+    const [userOnline, setUserOnline] = useState(false)
 
     return(
         <ChatContext.Provider value={{setChat, chat, setUserOnline, userOnline}}>
