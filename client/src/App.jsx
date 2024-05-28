@@ -23,6 +23,7 @@ import LoginRegistration from './Pages/RegisterLogin';
 import EditStudent from './components/EditStudent';
 import EditTeacher from './components/EditTeacher';
 import LandingPage from './Pages/Landing';
+import Faq from './Pages/FAQ';
 
 import PageNotFound from './Pages/PageNotFound';
 const App = () => {
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="edit-teacher" element={<EditTeacher />} />
             
           </Route>
+          <Route path="faq" element={<ProtectedRoute><Faq /></ProtectedRoute>} />
           <Route path="*" element={<PageNotFound />} /> {/*Should be 404page */}
         </Route>
       </Routes>

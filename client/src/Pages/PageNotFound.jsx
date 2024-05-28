@@ -101,7 +101,7 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import emailjs from 'emailjs-com';
 import '../404Page.scss';
@@ -109,12 +109,34 @@ import '../Landing.scss';
 import Globe from "../img/globe(2).png";
 import ParticlespnfComponent from '../components/particlespnf';
 import Switch from '../components/Switch';
+import { AuthContext } from '../context/authContext'; 
 
 const PageNotFound = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    // Initialize isDarkMode state based on the value stored in localStorage or default to false (light mode)
+    return localStorage.getItem('isDarkMode') === 'true';
+  });
+  
   const [email, setEmail] = useState('');
   const [description, setDescription] = useState('');
   const [message, setMessage] = useState('');
+
+  // Access setIsLoggedIn and setCurrentUser from the AuthContext
+  const { setIsLoggedIn, setCurrentUser } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    // Clear authentication tokens and user info 
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('currentUser');
+    
+    // Update context to reflect that the user is no longer logged in
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+
+    // Redirect to the login page
+    window.location.href = '/'; 
+  };
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -149,8 +171,8 @@ const PageNotFound = () => {
           <div className="logo"><img src={Globe} alt="Globe" /></div>
           <nav>
             <ul>
-              <li><Link to="/">Landing</Link></li>
-              <li><Link to="/logout"> Logout</Link></li>
+              <li><Link to="/landing">Landing</Link></li>
+              <li onClick={handleLogout}><a href="#">Logout</a></li>
             </ul>
           </nav>
           <div className="lsearch">
@@ -197,4 +219,3 @@ const PageNotFound = () => {
 };
 
 export default PageNotFound;
-
