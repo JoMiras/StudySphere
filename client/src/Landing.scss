@@ -139,6 +139,13 @@ nav ul li a {
   }
 }
 
+@media (max-width: 375px) {
+  .hero-content button {
+    display: none;
+  }
+}
+
+
 .hero-content p {
   font-size: 1.2rem;
   margin-bottom: 30px;
