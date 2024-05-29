@@ -150,7 +150,7 @@ const PageNotFound = () => {
       description: description,
     };
 
-    emailjs.send('service_2p0f2a9', 'template_gvu95ps', templateParams, 'bWrT4Ko6dE5BD0B9u')
+    emailjs.send('', '', templateParams, '')
       .then((response) => {
         console.log('Email sent successfully!', response.status, response.text);
         setMessage('Error report sent successfully!');
