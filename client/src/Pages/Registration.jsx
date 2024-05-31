@@ -14,14 +14,15 @@ const Registration = () => {
     phoneNumber: '',
     password: '',
     confirmPassword: '',
-    profilePicture: ''
+    profilePicture: null, // Initialize profilePicture as null
+    role: 'student' // Default role is 'student'
   });
 
   const [avatar, setAvatar] = useState('');
-  const [userAvailability, setUSerAvailability] = useState(null);
-  const [showPasswordStrength, setShowPasswordStrength] = useState(false); // State to track if password strength should be shown
+  const [userAvailability, setUserAvailability] = useState(null);
+  const [showPasswordStrength, setShowPasswordStrength] = useState(false);
   const navigate = useNavigate();
-  const { username, email, phoneNumber, password, confirmPassword, profilePicture } = formData;
+  const { username, email, phoneNumber, password, confirmPassword, profilePicture, role } = formData;
 
   const passwordStrengthStyle = {
     color:"#023E8A",
@@ -40,50 +41,54 @@ const Registration = () => {
   };
 
   const onFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData({ ...formData, profilePicture: file }); // Set the file itself in formData
     const reader = new FileReader();
     reader.onload = () => {
-      setFormData({ ...formData, profilePicture: reader.result });
       setAvatar(reader.result);
     };
-    reader.readAsDataURL(e.target.files[0]);
+    reader.readAsDataURL(file);
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
       console.error('Passwords do not match');
-    } else {
-      try {
-        const res = await axios.post('http://localhost:4000/register', { username, email, phoneNumber, password, profilePicture });
-        navigate("/login");
-      } catch (err) {
-        console.error('Registration error:', err.response.data);
-      }
+      return; // Add return statement to prevent further execution
+    }
+
+    const formDataToSend = new FormData(); // Create FormData object
+    formDataToSend.append('username', username);
+    formDataToSend.append('email', email);
+    formDataToSend.append('phoneNumber', phoneNumber);
+    formDataToSend.append('password', password);
+    formDataToSend.append('profilePicture', profilePicture);
+    formDataToSend.append('role', role); // Append role to formData
+
+    try {
+      const res = await axios.post('http://localhost:4000/register', formDataToSend);
+      navigate("/login");
+    } catch (err) {
+      console.error('Registration error:', err.response ? err.response.data : err.message); // Display error message
     }
   };
 
   const checkUsernameAvailability = async () => {
-    console.log(username)
-   try {
-    const res =  await axios.post('http://localhost:4000/checkUsername', {username});
-    setUSerAvailability(res.data)
-   } catch (error) {
-    console.error(error)
-   }
+    try {
+      const res =  await axios.post('http://localhost:4000/checkUsername', { username });
+      setUserAvailability(res.data);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
-
   useEffect(() => {
-    if(username === ''){
-      setUSerAvailability(null)
+    if (username === '') {
+      setUserAvailability(null);
     } else {
       checkUsernameAvailability();
     }
-  }, [username])
-
-
-
-  
+  }, [username]);
 
   return (
     <div className='register-container'>
@@ -94,27 +99,27 @@ const Registration = () => {
       <div className='formContainer'>
         <div className='formWrapper'>
           <span className='form-message'>Register</span>
-          <form onSubmit={e => onSubmit(e)}>
+          <form onSubmit={onSubmit}>
             <div className="inputWrapper username-wrapper">
-              <input type="text" id="userName" name="username" value={username} onChange={e => onChange(e)} required  placeholder='Username'/>
+              <input type="text" id="userName" name="username" value={username} onChange={onChange} required  placeholder='Username'/>
               {userAvailability === true && <img className="thumbs-up" src={thumbsUp}/>}
               {userAvailability === false && <img className="thumbs-down" src={thumbsDown}/>}
             </div>
             <div className="inputWrapper username-wrapper">
-              <input type="email" id="email" name="email" value={email} onChange={e => onChange(e)} required placeholder='Email'/>
+              <input type="email" id="email" name="email" value={email} onChange={onChange} required placeholder='Email'/>
             </div>
             <div className="inputWrapper">
-              <input type="tel" id="phoneNumber" name="phoneNumber" value={phoneNumber} onChange={e => onChange(e)} required placeholder='Phone Number'/>
+              <input type="tel" id="phoneNumber" name="phoneNumber" value={phoneNumber} onChange={onChange} required placeholder='Phone Number'/>
             </div>
             <div className="inputWrapper">
-              <input type="password" id="password" name="password" value={password} onChange={e => onChange(e)} minLength='6' required placeholder='Password'/>
+              <input type="password" id="password" name="password" value={password} onChange={onChange} minLength='6' required placeholder='Password'/>
             </div>
             {showPasswordStrength && <PasswordStrengthBar 
-            password={password} 
-            scoreWordStyle={passwordStrengthStyle}
+              password={password} 
+              scoreWordStyle={passwordStrengthStyle}
             />}
             <div className="inputWrapper">
-              <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={e => onChange(e)} minLength='6' required placeholder='Confirm Password'/>
+              <input type="password" id="confirmPassword" name="confirmPassword" value={confirmPassword} onChange={onChange} minLength='6' required placeholder='Confirm Password'/>
             </div>
             <div className='avatar-container'>
               <label htmlFor='file' className='avatar-input'>
@@ -126,6 +131,28 @@ const Registration = () => {
                   onChange={onFileChange}
                   style={{ display: 'none', cursor: 'pointer' }}
                 />
+              </label>
+            </div>
+            <div className='role-selection'>
+              <label>
+                <input
+                  type="radio"
+                  name="role"
+                  value="student"
+                  checked={role === 'student'}
+                  onChange={onChange}
+                />
+                Student
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name="role"
+                  value="teacher"
+                  checked={role === 'teacher'}
+                  onChange={onChange}
+                />
+                Instructor
               </label>
             </div>
             <button type='submit'>Register</button>

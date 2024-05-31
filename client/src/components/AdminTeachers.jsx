@@ -5,9 +5,12 @@ import { useOutletContext } from "react-router-dom";
 import defaultPhoto from '../img/shark.png'
 import { TeacherContext } from '../context/teacherContext';
 import { useNavigate } from 'react-router-dom';
+import { Prev } from 'react-bootstrap/esm/PageItem';
+
 
 function AdminTeachers() {
-    const [users] = useOutletContext();
+    const [refresh, setRefresh] = useState(0);
+    const [users, setRefreshData] = useOutletContext();
     const [showModal, setShowModal] = useState(false);
     const [showAddTeacherModal, setShowAddTeacherModal] = useState(false);
     const [selectedTeacher, setSelectedTeacher] = useState(null);
@@ -18,10 +21,10 @@ function AdminTeachers() {
         password: '',
         role: 'teacher'
     });
-
     const teachers = users ? users.filter(user => user.role === "teacher") : [];
     const { username, email, password, role } = formData;
     const Navigate = useNavigate();
+    const {setTeacher} = useContext(TeacherContext)
 
     const toggleModal = (teacher) => {
         setShowModal(!showModal);
@@ -39,8 +42,9 @@ function AdminTeachers() {
     const addTeacher = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post("http://localhost:4000/register", { username, email, password, role });
-            alert(`Teacher ${res.data.username} was added`);
+            const res = await axios.post("http://localhost:4000/register-admin", { username, email, password, role });
+            setRefreshData(prev => prev + 1)
+            toggleAddTeacherModal()
         } catch (error) {
             if (error.response) {
                 alert(`Error: ${error.response.data.message}`);
@@ -56,7 +60,8 @@ function AdminTeachers() {
         const confirmed = window.confirm(`Are you sure you want to delete the user with email: ${email}?`);
         if (confirmed) {
             try {
-                const res = await axios.post("http://localhost:4000/delete-user", { email });
+                const res = await axios.delete("http://localhost:4000/delete-user", { data:{email} });
+                setRefreshData(prev => prev + 1)
                 setShowModal(false);
                 console.log('User has been deleted:', res.data);
             } catch (error) {
@@ -68,6 +73,7 @@ function AdminTeachers() {
     };
 
     const teachersPage = (selectedTeacher) => {
+        setTeacher(selectedTeacher)
         localStorage.setItem('teacher', JSON.stringify(selectedTeacher));
         Navigate("../teacherprofile")
     };

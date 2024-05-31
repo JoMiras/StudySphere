@@ -1,0 +1,245 @@
+.error-container {
+    text-align: center;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(to right, grey 50%, white 50%);
+  }
+  
+  @keyframes rotate-and-roll {
+    50% {
+      transform: translate3d(100%, 10%, 0) rotate(0deg);
+    }
+    100% {
+      transform: translate3d(350%, 0%, 0) rotate(360deg);
+    }
+  }
+  
+  .sphere {
+    width: 25vw;
+    height: 35vw;
+    background: url('lightbulb.png') no-repeat center center;
+    background-size: contain;
+    animation: rotate-and-roll 4s linear infinite alternate;
+  }
+  
+  .sorry {
+    width: 10%;
+    background-color: transparent;
+    color: #023e8a;
+    animation: bounce 7s linear infinite;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+  
+  .pnfh {
+    margin-bottom: 2%;
+  }
+  
+  
+  $light-background-color: #fff;
+  $light-text-color: #333;
+  $dark-background-color: #000;
+  $dark-text-color: #fff;
+  $dark-boxShadow-color: #08e97c1a;
+  
+  .landing-page {
+    font-family: Arial, sans-serif;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    overflow-y: auto;
+    margin: 0;
+    position: relative; 
+    z-index: 1; 
+  }
+  
+  .landing-page.light {
+    background-color: $light-background-color;
+    color: $light-text-color;
+  }
+  
+  .landing-page.dark {
+    background-color: $dark-background-color;
+    color: $dark-text-color;
+  }
+  
+  .lheader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: $light-background-color;
+    width: 70%;
+    max-width: 1200px;
+    padding: 10px 50px;
+    box-sizing: border-box;
+    box-shadow: 0 0 10px #08e97c1a;
+    height: 10vh;
+  
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+  
+  .landing-page.dark .lheader {
+    background-color: $dark-background-color;
+    box-shadow: 0 0 10px #08e97c1a;
+  }
+  
+  .logo img {
+    width: 50px;
+  
+    @media (max-width: 768px) {
+      margin-bottom: 10px;
+    }
+  }
+  
+  nav ul {
+    list-style-type: none;
+    display: flex;
+  
+    @media (max-width: 768px) {
+      flex-direction: column;
+      width: 100%;
+    }
+  }
+  
+  nav ul li {
+    margin-right: 20px;
+  
+    @media (max-width: 768px) {
+      margin-right: 0;
+      margin-bottom: 10px;
+    }
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: $light-text-color;
+  }
+  
+  // Footer styles
+  .footer {
+    text-align: center;
+    padding: 35px 0;
+    background-color: #333;
+    color: #fff;
+    width: 100%;
+    height: 10vh;
+    margin-top: auto;
+    z-index: 2;
+  }
+  
+  #particles {
+    z-index: -1;
+    width: 100%;
+    height: 30vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  
+  // Error report styles
+  .error-report {
+    width: 70%;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.9); 
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+  
+    .error-report-form {
+      display: flex;
+      flex-direction: column;
+  
+      label {
+        margin-bottom: 10px;
+        font-weight: bold;
+        color: #023e8a;
+      }
+  
+      input[type="email"],
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+  
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+  
+      button {
+        padding: 10px 20px;
+        background-color: #023e8a;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+  
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+  
+      p {
+        margin-top: 10px;
+        color: green;
+        font-weight: bold;
+      }
+    }
+  }
+  
+  .landing-page.dark .error-report {
+    background-color: rgba(11, 34, 1, 0.8);
+    color: #ffffff;
+    
+  
+    .error-report-form {
+      label {
+        color: #ffffff;
+      }
+  
+      input[type="email"],
+      textarea {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+      }
+  
+      button {
+        background-color: #08e97c;
+  
+        &:hover {
+          background-color: #05a656;
+        }
+      }
+  
+      p {
+        color: #08e97c;
+      }
+    }
+  }
+  

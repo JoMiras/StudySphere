@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { StudentContext } from '../context/studentContext';
 import { useOutletContext } from 'react-router-dom';
 import axios from 'axios'
@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import defaultCohortPhoto from "../img/teamwork(1).png"
 import { CohortContext } from '../context/cohortContext';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import { AuthContext } from '../context/authContext';
 
 
 function StudentProfile() {
@@ -17,14 +18,18 @@ function StudentProfile() {
     const Navigate = useNavigate();
     const [selectedCohort, setSelectedCohort] = useState(null);
     const {setCohort} = useContext(CohortContext);
+    const {currentUser} = useContext(AuthContext);
 
     const listCohorts = cohorts ? cohorts.map(cohort => (
         <option key={cohort._id} value={cohort._id}>{cohort.cohortName}</option>
     )) : null;
 
+    useEffect(() => {
+        refreshData(prev => prev + 1)
+        console.log('refreshed')
+      }, [])
+
     const handleAddToCohort = async () => {
-        console.log(id, selectedCohort, profilePicture, username);
-        console.log(id)
         try {
             const res = await axios.post("http://localhost:4000/add-to-class", {
                 studentId: id,
@@ -33,6 +38,7 @@ function StudentProfile() {
                 username
             });
             console.log("Response:", res.data);
+            refreshData(prev => prev + 1)
             closeModal();
         } catch (error) {
             alert('User is already in selected cohort')
@@ -60,7 +66,7 @@ function StudentProfile() {
                     <img src={defaultCohortPhoto} alt="" />
                     <p>{cohort.cohortName}</p>
                     <ProgressBar striped variant="warning" now={60} style={{marginBottom:"5px"}}/>
-                    <button onClick={() => courseOverView(cohort)} className='btn btn-primary '>Overview</button>
+                    <button onClick={() => courseOverView(cohort)} className='btn btn-primary '>View</button>
                 </div>
             );
           }
@@ -77,9 +83,7 @@ function StudentProfile() {
         console.log(course)
     }
 
-    
-    //<button className="btn btn-primary" onClick={openModal}>Add to Cohort</button>
-
+    console.log(student._id === currentUser._id)
   
     
     return (
@@ -107,7 +111,8 @@ function StudentProfile() {
                 </div>
                 <div style={{marginTop:"20px"}} className="add-to-cohort">
                     <button className="btn btn-primary" onClick={openModal}>Add to Cohort</button>
-                    <button className='btn btn-secondary'>Edit</button>
+                    {(currentUser._id === student._id || currentUser.role === "SuperAdmin") && 
+                    <button onClick={() => Navigate("../edit-student")} className='btn btn-secondary'>Edit</button>}
                     <button onClick={() => Navigate(-1)} className='btn btn-success'>Done</button>
                 </div>
             </div>
@@ -117,12 +122,6 @@ function StudentProfile() {
                         {showMyCourses}
                     </div>
             </div>
-            
-            
-
-
-
-
             {modalVisible && (
                 <div className="modal" tabIndex="-1" role="dialog" style={{ display: 'block' }}>
                     <div className="modal-dialog" role="document">
@@ -145,6 +144,7 @@ function StudentProfile() {
                 </div>
             )}
         </div>
+
     );
 }
 
