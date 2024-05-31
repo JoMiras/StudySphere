@@ -8,17 +8,18 @@ import student from "../img/graduation.png"
 import teachers from "../img/seminar.png"
 import cohort from "../img/multiple-users-silhouette.png"
 import { NavLink } from 'react-router-dom';
-import messaging from '../img/messaging.png';
+import axios from 'axios';
 
 
 function AdminNavBar() {
 
-  const {setCurrentUser, setIsLoggedIn} = useContext(AuthContext)
+  const {setCurrentUser, setIsLoggedIn, currentUser} = useContext(AuthContext)
   const [active, setActive] =useState(false)
+  const username = currentUser.username
   
 
-  const logout = () => {
-    console.log("logged out")
+  const logout = async () => {
+    await axios.put('http://localhost:4000/update-online-status', { username });
     setIsLoggedIn(false);
     setCurrentUser(null);
     localStorage.removeItem('accessToken');
@@ -78,10 +79,10 @@ function AdminNavBar() {
        <div className="cohorts">
           <NavLink to={"admincohorts"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={cohort} alt="" />Cohorts</NavLink>
        </div>
-       <div className="messages">
-          <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={messaging} alt="" />Messages</NavLink>
-       </div>
        <button className='logout-btn' onClick={() => logout()}> <img src={logoutIcon} alt="" />Logout</button>
+       <div className="messages">
+            <NavLink to={"messages"} style={({ isActive }) => isActive ? activeStyles : unActiveStyles}> <img src={teachers} alt="" />Messages</NavLink>
+         </div>
     </nav>
   )
 };

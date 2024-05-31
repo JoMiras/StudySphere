@@ -7,12 +7,11 @@ import books from "../img/network.png"
 import quiz from "../img/megaphone.png"
 import events from "../img/upcoming.png"
 import defaultPhoto from "../img/shark.png"
-import { Outlet, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { StudentContext } from '../context/studentContext';
 import { TeacherContext } from '../context/teacherContext';
 import { useOutletContext } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
-
 
 function CohortFiles() {
   const { cohort, setCohort } = useContext(CohortContext);
@@ -21,8 +20,8 @@ function CohortFiles() {
   const {setStudent} = useContext(StudentContext);
   const {setTeacher} = useContext(TeacherContext)
   const [users, refreshData, cohorts] = useOutletContext();
-  const {currentUser} = useContext(AuthContext);
-
+  const {currentUser, setCurrentUser} = useContext(AuthContext);
+  const userId = currentUser._id;
 
   const readingMaterials = cohort ? cohort.cohortFiles.readingMaterial : null;
   const readingAssignments = cohort ? cohort.cohortFiles.assignments : null;
@@ -95,6 +94,25 @@ const teachersProfile = async(id) => {
 }
 }
 
+
+const setAsContact = async (student, userId) => {
+  const id = student.student.id;
+  const picture = student.student.profilePicture;
+  const firstName = student.student.firstName
+  const lastName = student.student.lastName
+  try {
+    const res = await axios.put('http://localhost:4000/add-contact', { id, picture, userId, firstName, lastName });
+    localStorage.removeItem('currentUser')
+    setCurrentUser(res.data);
+    localStorage.setItem('currentUser', JSON.stringify(res.data));
+    Navigate('../messages')
+    console.log('Contact added successfully:', res.data);
+  } catch (error) {
+    console.error('Error adding contact:', error.response ? error.response.data : error.message);
+  }
+};
+
+
 const displayReadingMaterials = readingMaterials
     ? readingMaterials.map((material, index) => <p key={index}>{material}</p>)
     : null;
@@ -112,26 +130,24 @@ const displayReadingMaterials = readingMaterials
       <>
        <div className='cohort-students' key={student.id}>
           <img src={student.student.profilePicture || defaultPhoto} alt={`Student ${index + 1}`} />
-          <strong>{student.student.username}</strong>
+          <strong>{student.student.firstName} {student.student.lastName}</strong>
           <button onClick={() => goToProfile(student.student.id)} className='btn btn-primary btn-sm'>Profile</button>
           {currentUser.role === "SuperAdmin" && <button onClick={() => removeFromCohort(student.student.id, cohort._id)} className='btn btn-danger btn-sm' >Remove</button>}
+          <button onClick={() => setAsContact(student, userId)} className='btn btn-success btn-sm'>Message</button>
         </div>
       </>
       ))
     : null;
 
 
+
   return (
-    <div className='home-content'>
+    <div>
       <header className='files-header'>
         <h1 style={{ textAlign: "center", marginTop: "20px" }}>{cohort.cohortName}</h1>
         <button onClick={() => {Navigate(-1)}} className='btn btn-success btn-sm' style={{width:"100px", height:"35px",alignSelf:"center"}} >Done</button>
       </header>
-      <div>
-        <Outlet context={[cohort]} />
-      </div>
-
-      {/* <div className='files-container'>
+      <div className='files-container'>
         <div className="files-wrapper">
           <div className='files reading-material' onClick={()=>{
             console.log('hello')
@@ -140,11 +156,12 @@ const displayReadingMaterials = readingMaterials
             <h4>Discussion Board</h4>
             {displayReadingMaterials.length}
           </div>
-          <div className="files assignments">
+          <div onClick={() => Navigate('../assignments')} className="files assignments">
             <img src={book} alt="" />
-            <h4>Assignments</h4>
+            <h4>Homework and Tests</h4>
             {displayAssignments.length}
           </div>
+
           <div className="files tests">
             <img src={exam} alt="" />
             <h4>Exams</h4>
@@ -181,7 +198,7 @@ const displayReadingMaterials = readingMaterials
         )}
 
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }

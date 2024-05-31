@@ -27,7 +27,13 @@ const NewCohort = () => {
     },
     cohortFiles: {
       readingMaterial: [],
-      assignments: [],
+      assignments: [{
+        name: String,
+        type: String,
+        questions: Array,
+        rubricFileUrl: String,
+        submissions: Array
+      }],
       tests: []
     },
     providerID: '',

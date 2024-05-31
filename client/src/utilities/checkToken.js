@@ -26,4 +26,4 @@ export async function checkAndRenewToken() {
   } catch (error) {
     console.error('Token check and renew error:', error.response.data);
   }
-};
+}

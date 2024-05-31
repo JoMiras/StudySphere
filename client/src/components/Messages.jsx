@@ -1,217 +1,198 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { MessageContext } from '../context/messageContext';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import { v4 as uuidv4 } from 'uuid';
-import '../style.scss';
+import { useOutletContext } from 'react-router-dom';
+import { AuthContext } from '../context/authContext';
+import { ChatContext } from '../context/chatContext';
 import axios from 'axios';
-
+import Chat from './Chat';
+import add from "../img/add.png"
+import { SocketContext } from '../context/socketContext';
+import unread from "../img/chat (1).gif"
 
 function Messages() {
-    const { messages, addMessage, removeMessage, updateMessage } = useContext(MessageContext);
-    const [newMessage, setNewMessage] = useState({ id: null, text: '' });
-    const [showModal, setShowModal] = useState(false);
-    const [editedMessage, setEditedMessage] = useState({});
-    const [editedMessageText, setEditedMessageText] = useState('');
+  const [users, setRefreshData, cohorts] = useOutletContext();
+  const { currentUser } = useContext(AuthContext);
+  const { setChat, setUserOnline, chat } = useContext(ChatContext);
+  const senderId = currentUser._id;
+  const senderPhoto = currentUser.profilePicture;
+  const senderFirstName = currentUser.firstName;
+  const senderLastName = currentUser.lastName;
+  const [myChats, setMyChats] = useState([]);
+  const [showAllUsers, setShowAllUsers] = useState(false);
+  const [selectedChatId, setSelectedChatId] = useState(null); // State for selected chat
+  const [onlineStatuses, setOnlineStatuses] = useState({}); // State to store online statuses
+  const { socket } = useContext(SocketContext);
+  const [updateChat, setUpdateChat] = useState(0)
 
 
-    const handleChange = (e) => {
-        setNewMessage({ ...newMessage, [e.target.name]: e.target.value });
+
+  socket ? socket.on('message', () => {
+    setUpdateChat(prev => prev + 1)
+  }) : null
+
+  useEffect(() => {
+    const fetchChats = async () => {
+        console.log('fetching');
+        try {
+            const response = await axios.get('http://localhost:4000/get-chats', {
+                params: { senderId }
+            });
+            setMyChats(response.data);
+        } catch (error) {
+            console.error('Error fetching chats:', error);
+        }
     };
 
-    // const generateUniqueId = () => {
-    //     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    // };
+    // Fetch chats initially
+    fetchChats();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const id = generateUniqueId();
-        addMessage({ id, ...newMessage });
-        setNewMessage({ id: '', text: '' });
+    // Fetch online statuses of all users initially
+    const fetchOnlineStatuses = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/online-statuses');
+        setOnlineStatuses(response.data);
+      } catch (error) {
+        console.error('Error fetching online statuses:', error);
+      }
     };
 
-    const handleDelete = (messageId) => {
-        // Remove the message with the specified messageId
-        removeMessage(messageId);
-    };
+    fetchOnlineStatuses();
 
-    const handleShowModal = (messageId) => {
-        const messageToEdit = messages.find(message => message.id === messageId);
-        setEditedMessage(messageToEdit);
-        setEditedMessageText(messageToEdit.text);
-        setShowModal(true);
-    };
+    // Cleanup function (empty, as there are no ongoing operations to cancel)
+    return () => {};
+}, [chat, updateChat]);
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-        setEditedMessage({}); // Resets Edited Message State
-    };
+  const startChat = async (contact) => {
+    const contactId = contact.id;
+    const receiverPhoto = contact.photo;
+    const receiverFirstName = contact.firstName;
+    const receiverLastName = contact.lastName;
 
-    const handleUpdate = () => {
-        updateMessage({ ...editedMessage, text: editedMessageText });
-        setShowModal(false);
-    };
+    try {
+      await axios.post('http://localhost:4000/make-chat', {
+        senderId,
+        senderPhoto,
+        receiverId: contactId,
+        receiverPhoto,
+        receiverFirstName,
+        receiverLastName,
+        senderFirstName,
+        senderLastName
+      });
+    } catch (error) {
+      console.error('Error starting chat:', error);
+    }
+  };
 
-    const generateUniqueId = () => {
-        return uuidv4();
-    };
+  const displayUsers = users
+    ? users.slice(0, showAllUsers ? users.length : 8).map((user, index) => {
+        if (currentUser._id === user._id) return null;
+        return (
+          <div key={index}>
+            <img style={{ height: '5vh' }} src={user.profilePicture} onClick={() => startChat(user._id)} />
+          </div>
+        );
+      })
+    : null;
+
+ const openChat = async (chat, isOnline) => {
+    const chatId = chat._id;
+    setUserOnline(isOnline);
+    setChat(chat);
+    setSelectedChatId(chatId); // Set the selected chat ID
     
+    try {
+        await axios.get('http://localhost:4000/message-read', {
+            params: { chatId, senderId } // Pass chatId as a parameter
+        });
+        // Request succeeded, continue with any additional logic
+    } catch (error) {
+        console.error('Error marking messages as read:', error);
+        // Handle the error (e.g., show an error message)
+    }
+};
 
-    return (
-        <div className="message-container">
-            <h2>Messages</h2>
-            <ul className="message-list">
-                {messages.map((message) => (
-                    <li key={`${message.id}-${message.text}`} className="message-item">
-                        {message.text}
-                        <button onClick={() => handleDelete(message.id)}>Delete</button>
-                        <button onClick={() => handleShowModal(message.id)}>Edit</button>
-                    </li>
-                ))}
-            </ul>
-            <form className="message-form" onSubmit={handleSubmit}>
-                <input type="text" name="text" value={newMessage.text} onChange={handleChange} />
-                <button type="submit">Add Message</button>
-            </form>
 
-            {/* Modal for editing message */}
-            <Modal show={showModal} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Message</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <textarea value={editedMessageText} onChange={(e) => setEditedMessageText(e.target.value)} />
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModal}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={handleUpdate}>
-                        Save Changes
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+  const showMyChats = myChats
+  ? myChats
+      .slice()
+      .sort((a, b) => {
+        // Get the timestamps of the last messages in each chat
+        const lastMessageTimestampA = a.messages.length > 0 ? new Date(a.messages[a.messages.length - 1].timestamp) : new Date(0);
+        const lastMessageTimestampB = b.messages.length > 0 ? new Date(b.messages[b.messages.length - 1].timestamp) : new Date(0);
+        // Sort in descending order based on timestamp
+        return lastMessageTimestampB - lastMessageTimestampA;
+      })
+      .map((chat, index) => {
+        // Find the other participant
+        const otherParticipant = chat.participants.find(p => p.id !== currentUser._id);
+
+        // Get the online status from the state
+        const isOnline = onlineStatuses[otherParticipant.id];
+
+        // Get the first and last message
+        const lastMessage = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].content.slice(0, 30) : 'No messages yet';
+
+        const unreadMessages = chat.messages.filter(message => message.read === false && message.sender !== currentUser._id).length;
+            
+
+        return (
+          <div
+            key={index}
+            onClick={() => openChat(chat, isOnline)}
+            className={`chat-item ${selectedChatId === chat._id ? 'selected' : ''}`} // Apply conditional class
+          >
+            <div className="chat-item-container">
+              <img src={otherParticipant.picture} alt={`${otherParticipant.firstName} ${otherParticipant.lastName}'s profile`} className="participant-photo" />
+              <div className={`status-dot ${isOnline ? 'online' : 'offline'}`}></div> {/* Status dot */}
+            </div>
+            <div className="chat-info">
+              <p className="participant-name">{`${otherParticipant.firstName} ${otherParticipant.lastName}`}</p>
+              <p className="last-message">{lastMessage}</p>
+            </div>
+            {unreadMessages > 0 && <div className="unread-message">
+              <p>{unreadMessages}</p>
+              <img src={unread} alt="" />
+            </div>}
+          </div>
+        );
+      })
+  : null;
+
+  const displayContacts = currentUser.contacts && currentUser.contacts.length > 0
+    ? currentUser.contacts.map(contact => (
+        <img onClick={() => startChat(contact.contact)} key={contact.contact.id} className='contact-photo' src={contact.contact.photo} />
+      ))
+    : null;
+
+
+
+  return (
+    <div className="message-container">
+      <div className="left-side">
+        <div className="search-conversation">
+          <input placeholder='Search here...' type="text" />
+          <img src={add} alt="" />
         </div>
-    );
+        <div className="contacts">
+          <div className="header">
+            <h3>Contacts</h3>
+          </div>
+          <div className="users">
+            {displayContacts}
+          </div>
+        </div>
+        <div className="chats">
+          <div className="header">
+            <h3>Chats</h3>
+          </div>
+          {showMyChats}
+        </div>
+      </div>
+      <div className="right-side">
+        <Chat setMyChats={setMyChats} />
+      </div>
+    </div>
+  );
 }
 
 export default Messages;
-
-
-
-
-// import React, { useState, useContext, useEffect } from 'react';
-// import { MessageContext } from '../context/messageContext';
-// import Modal from 'react-bootstrap/Modal';
-// import Button from 'react-bootstrap/Button';
-// import { v4 as uuidv4 } from 'uuid';
-// import '../style.scss'; // Assuming you have some SCSS styles
-// import axios from 'axios';
-
-// function Messages() {
-//     const { messages, setMessages } = useContext(MessageContext);
-//     const [newMessage, setNewMessage] = useState({ text: '' });
-//     const [showModal, setShowModal] = useState(false);
-//     const [editedMessage, setEditedMessage] = useState({});
-//     const [editedMessageText, setEditedMessageText] = useState('');
-
-//     useEffect(() => {
-//         fetchMessages();
-//     }, []); // Fetch messages on component mount
-
-//     const fetchMessages = async () => {
-//         try {
-//             const response = await axios.get('/api/messages');
-//             setMessages(response.data); // Assuming response.data is an array of messages
-//         } catch (error) {
-//             console.error('Error fetching messages:', error);
-//         }
-//     };
-
-//     const handleChange = (e) => {
-//         setNewMessage({ ...newMessage, [e.target.name]: e.target.value });
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         try {
-//             const response = await axios.post('/api/messages', newMessage);
-//             setMessages([...messages, response.data]); // Add the new message to the messages array
-//             setNewMessage({ text: '' });
-//         } catch (error) {
-//             console.error('Error adding message:', error);
-//         }
-//     };
-
-//     const handleDelete = async (messageId) => {
-//         try {
-//             await axios.delete(`/api/messages/${messageId}`);
-//             setMessages(messages.filter(message => message.id !== messageId));
-//         } catch (error) {
-//             console.error('Error deleting message:', error);
-//         }
-//     };
-
-//     const handleShowModal = (messageId) => {
-//         const messageToEdit = messages.find(message => message.id === messageId);
-//         setEditedMessage(messageToEdit);
-//         setEditedMessageText(messageToEdit.text);
-//         setShowModal(true);
-//     };
-
-//     const handleCloseModal = () => {
-//         setShowModal(false);
-//     };
-
-//     const handleUpdate = async () => {
-//         try {
-//             await axios.put(`/api/messages/${editedMessage.id}`, { ...editedMessage, text: editedMessageText });
-//             const updatedMessages = messages.map(message =>
-//                 message.id === editedMessage.id ? { ...message, text: editedMessageText } : message
-//             );
-//             setMessages(updatedMessages);
-//             setShowModal(false);
-//         } catch (error) {
-//             console.error('Error updating message:', error);
-//         }
-//     };
-
-//     return (
-//         <div className="message-container">
-//             <h2>Messages</h2>
-//             <ul className="message-list">
-//                 {messages.map((message) => (
-//                     <li key={message.id} className="message-item">
-//                         {message.text}
-//                         <button onClick={() => handleDelete(message.id)}>Delete</button>
-//                         <button onClick={() => handleShowModal(message.id)}>Edit</button>
-//                     </li>
-//                 ))}
-//             </ul>
-//             <form className="message-form" onSubmit={handleSubmit}>
-//                 <input type="text" name="text" value={newMessage.text} onChange={handleChange} />
-//                 <button type="submit">Add Message</button>
-//             </form>
-
-//             {/* Modal for editing message */}
-//             <Modal show={showModal} onHide={handleCloseModal}>
-//                 <Modal.Header closeButton>
-//                     <Modal.Title>Edit Message</Modal.Title>
-//                 </Modal.Header>
-//                 <Modal.Body>
-//                     <textarea value={editedMessageText} onChange={(e) => setEditedMessageText(e.target.value)} />
-//                 </Modal.Body>
-//                 <Modal.Footer>
-//                     <Button variant="secondary" onClick={handleCloseModal}>
-//                         Close
-//                     </Button>
-//                     <Button variant="primary" onClick={handleUpdate}>
-//                         Save Changes
-//                     </Button>
-//                 </Modal.Footer>
-//             </Modal>
-//         </div>
-//     );
-// }
-
-// export default Messages;

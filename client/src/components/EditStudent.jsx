@@ -10,7 +10,7 @@ import { useOutletContext } from 'react-router-dom';
 function EditStudent() {
     const { student, setStudent } = useContext(StudentContext);
     const [users, setRefreshData] = useOutletContext();
-    const {setCurrentUser} = useContext(AuthContext);
+    const {setCurrentUser, setRefreshUserData, currentUser} = useContext(AuthContext);
     const [avatar, setAvatar] = useState('');
     const [formData, setFormData] = useState({
         firstName: '',
@@ -48,27 +48,31 @@ function EditStudent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if  (profilePicture === null) {
-            setTransferring(true)
-            try {
-                const res = await axios.put('http://localhost:4000/edit-user-no-photo', {firstName, lastName, dob, email, phoneNumber, address, role, id });
-                setTimeout(() => {
-                    setTransferring(false)
-                }, 1000);
-                localStorage.removeItem('currentUser')
-                localStorage.removeItem('student')
-                localStorage.setItem('student', JSON.stringify(res.data.user))
-                localStorage.setItem('currentUser', JSON.stringify(res.data.user))
-                setStudent(res.data.user)
-                setCurrentUser(res.data.user)
-                refreshData(prev => prev + 1)
-            } catch (error) {
-                console.error('Error updating user without profile picture:', error);
-            }
-        } else {
-            try {
-                // Construct FormData for request with profilePicture
-                setTransferring(true)
+        setTransferring(true);
+    
+        try {
+            if (profilePicture === null) {
+                // Update user without profile picture
+                const res = await axios.put('http://localhost:4000/edit-user-no-photo', { 
+                    firstName, 
+                    lastName, 
+                    dob, 
+                    email, 
+                    phoneNumber, 
+                    address, 
+                    role, 
+                    id 
+                });
+                
+                if (currentUser.role !== 'SuperAdmin') {
+                    setCurrentUser(res.data.user);
+                    localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                }
+    
+                await updateUserInCohorts(id, firstName, lastName, null);
+                await updateMyContacts(id, firstName, lastName, null);
+            } else {
+                // Update user with profile picture
                 const formDataToSend = new FormData();
                 formDataToSend.append('firstName', firstName);
                 formDataToSend.append('lastName', lastName);
@@ -76,31 +80,86 @@ function EditStudent() {
                 formDataToSend.append('email', email);
                 formDataToSend.append('phoneNumber', phoneNumber);
                 formDataToSend.append('address', address);
-                formDataToSend.append('profilePicture', profilePicture); // Append the profile picture file
+                formDataToSend.append('profilePicture', profilePicture);
                 formDataToSend.append('role', role);
                 formDataToSend.append('id', student._id);
-                console.log(formDataToSend)
-
     
-                // Send formData to endpoint for update with profilePicture
                 const res = await axios.put('http://localhost:4000/edit-user', formDataToSend, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
                 });
-                setTransferring(false)
-                console.log(res);
-            } catch (error) {
-                console.error('Error updating user with profile picture:', error);
+    
+                if (currentUser.role !== 'SuperAdmin') {
+                    setCurrentUser(res.data.user);
+                    localStorage.setItem('currentUser', JSON.stringify(res.data.user));
+                }
+    
+                const profilePictureUrl = res.data.user.profilePicture; // Assuming the response contains the updated profilePicture URL
+    
+                await updateUserInCohorts(id, firstName, lastName, profilePictureUrl);
+                await updateMyContacts(id, firstName, lastName, profilePictureUrl);
+                await updateParticipantInfo(id, firstName, lastName, profilePictureUrl);
             }
+    
+            setTransferring(false);
+            setTimeout(() => {
+                setTransferring(false);
+            }, 1000);
+    
+        } catch (error) {
+            console.error('Error updating user:', error);
+            setTransferring(false);
         }
     };
+    
+    const updateUserInCohorts = async (id, firstName, lastName, profilePicture) => {
+        try {
+            await axios.put('http://localhost:4000/updateUserInCohorts', {
+                id,
+                firstName,
+                lastName,
+                profilePicture
+            });
+        } catch (error) {
+            console.error('Error updating user in cohorts:', error);
+        }
+    };
+    
+    const updateMyContacts = async (id, firstName, lastName, profilePicture) => {
+        try {
+            await axios.put('http://localhost:4000/update-my-contact-info', {
+                id,
+                firstName,
+                lastName,
+                photo: profilePicture
+            });
+        } catch (error) {
+            console.error('Error updating user data in contacts:', error);
+        }
+    };
+
+    const updateParticipantInfo = async (id, firstName, lastName, profilePicture) => {
+        try {
+            await axios.put('http://localhost:4000/update-participant-info', {
+                id,
+                firstName,
+                lastName,
+                photo: profilePicture
+            });
+        } catch (error) {
+            console.error('Error updating user data in contacts:', error);
+        }
+    };
+    
+    
     
         
 
     return (
         <div className='edit-student-container'>
             <div className="edit-student-wrapper">
+            <button onClick={() => {Navigate(-1)}} className='btn btn-success'>Done</button>
                 {transferring && <img className='transferring' src={transfer}/> }
                 {!transferring && 
                 <>
@@ -207,7 +266,6 @@ function EditStudent() {
                                 </div>
                             </div>
                         </div>
-                        <button onClick={() => {Navigate(-1)}} className='btn btn-secondary'>Done</button>
                         <button type="submit" className="btn btn-primary">Submit</button>
                     </div>
                 </form>

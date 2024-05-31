@@ -9,7 +9,81 @@ const nodemailer = require('nodemailer');
 const multer = require('multer');
 const { ObjectId } = require('mongodb');
 require('dotenv').config();
+const { Server } = require('socket.io');
+const { createServer } = require('node:http');
+const { time } = require('node:console');
+const http = require('http');
+const socketIo = require('socket.io');
+const axios = require('axios');
 
+
+
+const app = express(); // Creating an Express application
+app.use(cors()); // Using CORS middleware to enable cross-origin requests
+app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
+const server = createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*',
+  }
+});
+
+const userSocketMap = new Map();
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Handle authentication event from client
+  socket.on('authenticate', (data) => {
+    console.log('User authenticated:', data.userId);
+    userSocketMap.set(data.userId, socket);
+  });
+
+  // Handle registration event from client
+  socket.on('registration', (userId) => {
+    console.log('User registered:', userId);
+    // Associate the socket connection with the user's ID
+    userSocketMap.set(userId, socket);
+  });
+
+  socket.on('chatMessage', async (message) => {
+    const{chatId, senderId, content} = message;
+
+    // Save the message using the HTTP endpoint
+    try {
+        const res = await axios.put('http://localhost:4000/send-message', {chatId, senderId, content});
+        console.log('Message stored successfully:', res.data);
+    } catch (error) {
+        console.error('Error storing message:', error);
+    }
+
+    // Send the message to the receiver if they are online
+    const receiverSocket = userSocketMap.get(message.receiverId);
+    if (receiverSocket) {
+        receiverSocket.emit('message', message);
+    }
+});
+
+  // Disconnect event
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+    // Remove the user's socket connection from the map upon disconnection
+    userSocketMap.forEach((value, key) => {
+      if (value === socket) {
+        userSocketMap.delete(key);
+      }
+    });
+  });
+});
+
+
+
+
+
+
+
+//cloudinary for users to upload photos of themselves
 const cloudinary = require('cloudinary').v2;
           
 cloudinary.config({ 
@@ -46,10 +120,6 @@ const transporter = nodemailer.createTransport({
 const EMAIL_SECRET = process.env.EMAIL_SECRET;
 
 
-const app = express(); // Creating an Express application
-app.use(cors()); // Using CORS middleware to enable cross-origin requests
-app.use(bodyParser.json({ limit: '50mb' })); //had to increase the payload amount to accommodate the size of avatar photos
-
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGO_LINK, {
   useNewUrlParser: true, // MongoDB connection options
@@ -83,6 +153,18 @@ const UserSchema = new mongoose.Schema({
   isEmailConfirmed: { // Whether or not the user has verified their email
     type: Boolean,
     default: false
+  },
+  contacts: [{
+    contact:{
+      id: String,
+      photo: String,
+      firstName: String, 
+      lastName: String
+    }
+  }],
+  online: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -105,7 +187,13 @@ const CohortSchema = new mongoose.Schema({
   },
   cohortFiles: {
     readingMaterial: Array,
-    assignments: Array,
+    assignments: [{
+      name: String,
+      type: String,
+      questions: Array,
+      rubricFileUrl: String,
+      submissions: Array
+    }],
     tests: Array
   },
   providerID: String, // Providers are like schools
@@ -116,6 +204,8 @@ const CohortSchema = new mongoose.Schema({
   students: [{
     student: {
       id:String,
+      firstName: String,
+      lastName: String,
       profilePicture:String,
       username:String
     }
@@ -123,6 +213,14 @@ const CohortSchema = new mongoose.Schema({
 });
 
 const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the User model
+
+
+const Submission = mongoose.model('Submission', new mongoose.Schema({
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  assignmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Cohort', required: true },
+  answers: { type: Array, required: true },
+  submittedAt: { type: Date, default: Date.now }
+}));
 
 const discussionPostSchema = new mongoose.Schema({
   title: String,
@@ -146,6 +244,8 @@ const discussionPostSchema = new mongoose.Schema({
   }
 });
 
+
+
 const DiscussionPost = mongoose.model('DiscussionPost', discussionPostSchema);
 
 
@@ -158,14 +258,151 @@ const Photo = mongoose.model('Photo', photoSchema);
 
 
 
+// Define the chat schema with messages embedded directly
+const chatSchema = new mongoose.Schema({
+  participants: [{
+    id: String,
+    picture: String,
+    firstName: String,
+    lastName: String
+  }], // Array of strings for participants
+  title: String, // String for the chat title
+  messages: [{
+    sender: String, // String for the sender
+    content: String, // String for the content of the message
+    timestamp: { type: Date, default: Date.now }, // Date with a default value of the current date and time
+    read:{
+      type: Boolean,
+      default: false
+    }
+  }]
+}, { timestamps: true }); // Automatically add createdAt and updatedAt fields
 
+// Create the Chat model
+const Chat = mongoose.model('Chat', chatSchema);
+
+
+//making a chat
+app.post('/make-chat', async (req, res) => {
+  const { senderId, receiverId, senderPhoto, receiverPhoto, receiverFirstName, receiverLastName, senderFirstName, senderLastName } = req.body;
+
+  if (!senderId || !receiverId) {
+    return res.status(400).json({ error: 'Sender ID and Receiver ID are required.' });
+  }
+
+  try {
+    // // Check if a chat already exists with the same participants
+    // const existingChat = await Chat.findOne({ 
+    //   participants: { $all: [senderId, receiverId] }
+    // });
+
+    // if (existingChat) {
+    //   return res.status(200).json(existingChat); // Return existing chat instead of error
+    // }
+
+    // Create a new chat if one doesn't already exist
+    const newChat = new Chat({ 
+      participants: [
+        { id: senderId, picture: senderPhoto, firstName:senderFirstName, lastName:senderLastName }, 
+        { id: receiverId, picture: receiverPhoto, firstName:receiverFirstName, lastName:receiverLastName }
+      ]
+    });
+
+    await newChat.save();
+    res.status(201).json(newChat); // Send back the newly created chat
+  } catch (error) {
+    console.error('Error creating chat:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+
+
+//get chats
+app.get('/get-chats', async (req, res) => {
+  try {
+    const { senderId } = req.query;
+
+    if (!senderId) {
+      return res.status(400).json({ error: 'Sender ID is required.' });
+    }
+
+    // Query the Chat model to find chats involving the specified senderId
+    const chats = await Chat.find({ 'participants.id': senderId });
+
+    res.json(chats);
+  } catch (error) {
+    console.error('Error fetching chats:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+//update message 
+app.put('/add-contact', async (req, res) => {
+  const { id, picture, userId, lastName, firstName} = req.body;
+
+  if (!userId || !id || !picture) {
+    return res.status(400).send('Invalid request body');
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Check if the contact already exists
+    // const contactExists = user.contacts.some(contact => contact.contact.id === id);
+    // if (contactExists) {
+    //   return res.status(400).send('Contact already exists');
+    // }
+
+    user.contacts.push({ contact: { id, photo: picture, lastName, firstName } });
+    await user.save();
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+//making a message 
+app.put('/send-message', async (req, res) => {
+  try {
+    const { chatId, senderId, content, timestamp } = req.body;
+
+    // Validate input
+    if (!chatId || !senderId || !content) {
+      return res.status(400).json({ error: 'Chat ID, Sender ID, and content are required.' });
+    }
+
+    // Find the chat by ID
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat not found.' });
+    }
+
+    // Add the new message to the chat
+    chat.messages.push({ sender: senderId, content, timestamp: timestamp });
+
+    // Save the updated chat document
+    await chat.save();
+
+    // Respond with success
+    res.status(200).json({chat});
+  } catch (error) {
+    console.error('Error sending message:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 
 
 // add student to cohort 
 app.post("/add-to-class", async (req, res) => {
-  const { studentId, cohortId, profilePicture, username } = req.body;
+  const { studentId, cohortId, profilePicture, username, firstName, lastName } = req.body;
   try {
     const cohort = await Cohort.findOne({ _id: cohortId });
     if (!cohort) {
@@ -185,7 +422,9 @@ app.post("/add-to-class", async (req, res) => {
             student: {
               id: studentId,
               profilePicture: profilePicture,
-              username: username
+              username: username,
+              firstName,
+              lastName
             }
           }
         }
@@ -274,7 +513,7 @@ app.post('/upload', upload.single('profilePicture'), async (req, res) => {
 app.post('/register', upload.single('profilePicture'), async (req, res) => {
   try {
     const result = await cloudinary.uploader.upload(req.file.path);
-    const { username, email,  phoneNumber, password, refreshToken, role, profilePicture} = req.body;
+    const { username, email,  phoneNumber, password, refreshToken, role, profilePicture, firstName, lastName} = req.body;
     const existingUser = await User.findOne({
       $or: [
           { username: username },
@@ -293,7 +532,7 @@ app.post('/register', upload.single('profilePicture'), async (req, res) => {
   
     
     const hashedPassword = await bcrypt.hash(password, 10); // Hash the password using bcrypt
-    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture:result.secure_url, role, isEmailConfirmed:false}); // Create a new User document
+    const newUser = new User({ username, email,  phoneNumber, password: hashedPassword, refreshToken, profilePicture:result.secure_url, role, isEmailConfirmed:false, firstName, lastName}); // Create a new User document
     await newUser.save(); // Save the new user to the database
 
     // Setting up user for confirmation
@@ -322,7 +561,6 @@ app.post('/register', upload.single('profilePicture'), async (req, res) => {
 
 //admin student add shortcut
 app.post('/register-admin', async (req, res) => {
-  console.log('ping')
   try {
     const { username, email,  phoneNumber, password, refreshToken, role} = req.body;
     const existingUser = await User.findOne({
@@ -420,6 +658,46 @@ app.post('/login', async (req, res) => {
     }
 });
 
+//update user online status 
+app.put('/update-online-status', async (req, res) => {
+  const { username } = req.body; // Assuming the username is sent in the request body
+  try {
+    // Find the user by their username
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update user's online status to true
+    user.online = !user.online;
+    console.log(user)
+    await user.save();
+
+    return res.status(200).json({ message: 'User online status updated successfully' });
+  } catch (error) {
+    console.error('Error updating online status:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+//checking online statuses
+app.get('/online-statuses', async (req, res) => {
+  try {
+    const users = await User.find({}, 'id online');
+    const onlineStatuses = {};
+    users.forEach(user => {
+      onlineStatuses[user.id] = user.online;
+    });
+    res.status(200).json(onlineStatuses);
+  } catch (error) {
+    console.error('Error fetching online statuses:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+
 // Creating a cohort in the database
 app.post('/newCohort', async (req, res) => {
   try {
@@ -450,23 +728,27 @@ app.get('/cohorts', async (req, res) => {
 
 // Add a new assignment to a cohort
 app.post('/newAssignment', async (req, res) => {
-  const { cohortID, assignmentName, questions } = req.body;
-
-  console.log('Received data:', req.body);
+  const { cohortID, assignmentName, assignmentType, questions, rubricFileUrl } = req.body;
 
   try {
+    // Ensure questions is an array, even if empty
+    const questionsArray = assignmentType !== 'essay' ? questions : [];
+
     // Find the cohort by its ID and push the new assignment to the assignments array
     const updatedCohort = await Cohort.findByIdAndUpdate(
       cohortID,
       {
         $push: {
           'cohortFiles.assignments': {
-            assignmentName: assignmentName,
-            questions: questions
+            name: assignmentName,
+            type: assignmentType,
+            questions: questionsArray,
+            rubricFileUrl: rubricFileUrl || null, // Save the file URL if provided,
+            submissions: 0 // Initialize submissions count
           }
         }
       },
-      { new: true} // Return the updated document and use the newer MongoDB driver method
+      { new: true } // Return the updated document and use the newer MongoDB driver method
     );
 
     if (!updatedCohort) {
@@ -476,10 +758,42 @@ app.post('/newAssignment', async (req, res) => {
     res.status(200).json({ message: 'Assignment added successfully.', updatedCohort });
   } catch (error) {
     console.error('Error adding assignment:', error);
-    res.status(500).json({ message: 'Error adding assignment to the cohort.' });
+    res.status(500).json({ message: 'Error adding assignment to the cohort.', error: error.message });
   }
 });
 
+// Submit assignment endpoint
+app.post('/submitAssignment', async (req, res) => {
+  const { studentId, assignmentId, answers } = req.body;
+
+  try {
+    const newSubmission = {
+      studentId,
+      assignmentId,
+      answers,
+      submittedAt: new Date()
+    };
+
+    const updatedCohort = await Cohort.findOneAndUpdate(
+      { 'cohortFiles.assignments._id': ObjectId(assignmentId) },
+      {
+        $push: {
+          'cohortFiles.assignments.$.submissions': newSubmission
+        }
+      },
+      { new: true }
+    );
+
+    if (!updatedCohort) {
+      return res.status(404).json({ message: 'Assignment not found.' });
+    }
+
+    res.status(200).json({ message: 'Assignment submitted successfully.', updatedCohort });
+  } catch (error) {
+    console.error('Error submitting assignment:', error);
+    res.status(500).json({ message: 'Error submitting assignment.', error: error.message });
+  }
+});
 
 // Refresh token endpoint
 app.post('/refresh-token', async (req, res) => {
@@ -930,8 +1244,160 @@ app.delete("/delete-post", async (req, res) => {
 });
 
 
+//messaging 
+app.put('/add-contact', async (req, res) => {
+  const userId = req.params.userId;
+  const { id, photo } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    user.contacts.push({ contact: { id, photo } });
+    await user.save();
+    res.status(200).send('Contact added successfully');
+  } catch (error) {
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+//updating cohort with user data if they choose to edit theyre profile
+app.put('/updateUserInCohorts', async (req, res) => {
+  const { firstName, lastName, profilePicture, id } = req.body;
+
+  try {
+      // Fetch all cohorts where the user is a member
+      const userCohorts = await Cohort.find({ 'students.student.id': id });
+
+      // Update user data in each cohort
+      await Promise.all(userCohorts.map(async (cohort) => {
+          // Find the student entry for the user in the cohort
+          const studentIndex = cohort.students.findIndex(student => student.student.id === id);
+          if (studentIndex !== -1) {
+              // Construct updated user data
+              const updatedUserData = {
+                  firstName,
+                  lastName,
+                  profilePicture
+              };
+              // Update user data in the cohort
+              cohort.students[studentIndex].student = { ...cohort.students[studentIndex].student, ...updatedUserData };
+              await cohort.save();
+              console.log('cohorts updated')
+          }
+      }));
+
+      res.status(200).json({ message: 'User data updated in all cohorts successfully' });
+  } catch (error) {
+      console.error('Error updating user data in cohorts:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//update contacts when editing profile
+app.put('/update-my-contact-info', async (req, res) => {
+  const { id, firstName, lastName, photo } = req.body;
+  console.log('Received ID:', id);
+
+  try {
+    // Find all users who have the specified user in their contacts
+    const userContacts = await User.find({ 'contacts.contact.id': id });
+
+    // Log the result of the find query
+    console.log('User Contacts:', userContacts);
+
+    // If no users are found, log a message and return
+    if (userContacts.length === 0) {
+      console.log('No users found with the specified contact ID.');
+      return res.status(404).json({ message: 'No users found with the specified contact ID.' });
+    }
+
+    // Update user data in each contact list
+    await Promise.all(userContacts.map(async (contact) => {
+      const userIndex = contact.contacts.findIndex(user => user.contact.id === id);
+      if (userIndex !== -1) {
+        // Update contact information
+        contact.contacts[userIndex].contact.firstName = firstName;
+        contact.contacts[userIndex].contact.lastName = lastName;
+        if (photo) {
+          contact.contacts[userIndex].contact.photo = photo;
+        }
+        await contact.save();
+      }
+    }));
+
+    res.status(200).json({ message: 'User contact info updated successfully in all contact lists' });
+  } catch (error) {
+    console.error('Error updating user contact info:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+   //update message to read
+   app.get('/message-read', async (req, res) => {
+    const { chatId, senderId } = req.query; // Retrieve chatId from req.query
+
+    try {
+        const chats = await Chat.updateMany(
+            { _id: chatId, "messages.read": false },
+            { $set: { "messages.$[elem].read": true } },
+            { arrayFilters: [{ "elem.sender": { $ne: senderId } }] } // Update only if senderId is not equal to id
+        );
+        res.status(200).send('Messages marked as read');
+    } catch (error) {
+        res.status(500).send('Error marking messages as read');
+    }
+});
 
 
+app.put('/update-participant-info', async (req, res) => {
+  const { id, firstName, lastName, photo } = req.body;
+  
+  try {
+    // Find all chats where the specified user is a participant
+    const chats = await Chat.find({ 'participants.id': id });
+
+    // Log the result of the find query
+    console.log('Chats with the participant:', chats);
+
+    // If no chats are found, log a message and return
+    if (chats.length === 0) {
+      console.log('No chats found with the specified participant ID.');
+      return res.status(404).json({ message: 'No chats found with the specified participant ID.' });
+    }
+
+    // Update participant data in each chat
+    await Promise.all(chats.map(async (chat) => {
+      const participantIndex = chat.participants.findIndex(participant => participant.id === id);
+      if (participantIndex !== -1) {
+        // Update participant information
+        chat.participants[participantIndex].firstName = firstName;
+        chat.participants[participantIndex].lastName = lastName;
+        if (photo) {
+          chat.participants[participantIndex].picture = photo;
+        }
+        await chat.save();
+      }
+    }));
+
+  
+  
+
+    res.status(200).json({ message: 'Participant info updated successfully in all chats' });
+  } catch (error) {
+    console.error('Error updating participant info:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
+// Ensure the uploads folder is served statically
+app.use('/uploads', express.static('uploads'));
+
+
+// io.listen(3000)
 const PORT = process.env.PORT || 4000; // Define port for the server to listen on
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`); // Log server start message
