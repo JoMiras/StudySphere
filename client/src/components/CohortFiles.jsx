@@ -24,7 +24,6 @@ function CohortFiles() {
   const userId = currentUser._id;
 
   const readingMaterials = cohort ? cohort.cohortFiles.readingMaterial : null;
-  const readingAssignments = cohort ? cohort.cohortFiles.assignments : null;
   const tests = cohort ? cohort.cohortFiles.tests : null;
   const teacherID = cohort ? cohort.instructorID : null;
 
@@ -117,9 +116,6 @@ const displayReadingMaterials = readingMaterials
     ? readingMaterials.map((material, index) => <p key={index}>{material}</p>)
     : null;
 
-  const displayAssignments = readingAssignments
-    ? readingAssignments.map((assignment, index) => <p key={index}>{assignment}</p>)
-    : null;
 
   const displayTests = tests
     ? tests.map((test, index) => <p key={index}>{test}</p>)
@@ -159,7 +155,7 @@ const displayReadingMaterials = readingMaterials
           <div onClick={() => Navigate('../assignments')} className="files assignments">
             <img src={book} alt="" />
             <h4>Homework and Tests</h4>
-            {displayAssignments.length}
+            {0}
           </div>
 
           <div className="files tests">

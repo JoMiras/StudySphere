@@ -170,6 +170,7 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', UserSchema); // Creating a User model based on the UserSchema
 
+
 // Defining Cohort Schema
 const CohortSchema = new mongoose.Schema({
   cohortName: String,
@@ -187,13 +188,6 @@ const CohortSchema = new mongoose.Schema({
   },
   cohortFiles: {
     readingMaterial: Array,
-    assignments: [{
-      name: String,
-      type: String,
-      questions: Array,
-      rubricFileUrl: String,
-      submissions: Array
-    }],
     tests: Array
   },
   providerID: String, // Providers are like schools
@@ -214,6 +208,36 @@ const CohortSchema = new mongoose.Schema({
 
 const Cohort = mongoose.model('Cohort', CohortSchema); // Cohort model like the User model
 
+
+// Defining Assignment Schema
+const AssignmentSchema = new mongoose.Schema({
+  cohortID: { type: mongoose.Schema.Types.ObjectId, ref: 'Cohort', required: true },
+  assignmentName: { type: String, required: true },
+  assignmentType: { type: String, required: true },
+  questions: [
+    {
+      type: {
+        type: String,
+        required: true
+      },
+      questionText: {
+        type: String,
+        required: true
+      },
+      answers: [
+        {
+          text: { type: String, required: true },
+          correct: { type: Boolean, required: true }
+        }
+      ]
+    }
+  ],
+  rubricFileUrl: { type: String, default: null },
+  submissions: { type: Number, default: 0 }
+});
+const Assignment = mongoose.model('Assignment', AssignmentSchema);
+
+//Defining Submission Schema
 
 const Submission = mongoose.model('Submission', new mongoose.Schema({
   studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -726,74 +750,59 @@ app.get('/cohorts', async (req, res) => {
   }
 });
 
+// Endpoint to fetch assignments by cohortID
+app.get('/api/assignments', async (req, res) => {
+  const { cohortID } = req.query;
+  
+  try {
+    const assignments = await Assignment.find({ cohortID });
+    res.status(200).json(assignments);
+  } catch (error) {
+    console.error('Error fetching assignments:', error);
+    res.status(500).json({ message: 'Error fetching assignments.', error: error.message });
+  }
+});
+
+
 // Add a new assignment to a cohort
 app.post('/newAssignment', async (req, res) => {
-  const { cohortID, assignmentName, assignmentType, questions, rubricFileUrl } = req.body;
+  // const { cohortID, assignmentName, assignmentType, questions, rubricFileUrl } = req.body;
+  console.log("Received data:", req.body);
 
   try {
-    // Ensure questions is an array, even if empty
-    const questionsArray = assignmentType !== 'essay' ? questions : [];
-
-    // Find the cohort by its ID and push the new assignment to the assignments array
-    const updatedCohort = await Cohort.findByIdAndUpdate(
-      cohortID,
-      {
-        $push: {
-          'cohortFiles.assignments': {
-            name: assignmentName,
-            type: assignmentType,
-            questions: questionsArray,
-            rubricFileUrl: rubricFileUrl || null, // Save the file URL if provided,
-            submissions: 0 // Initialize submissions count
-          }
-        }
-      },
-      { new: true } // Return the updated document and use the newer MongoDB driver method
-    );
-
-    if (!updatedCohort) {
-      return res.status(404).json({ message: 'Cohort not found.' });
+    // Validate required fields
+    if (!cohortID || !assignmentName || !assignmentType) {
+      return res.status(400).json({ message: 'cohortID, assignmentName, and assignmentType are required.' });
     }
 
-    res.status(200).json({ message: 'Assignment added successfully.', updatedCohort });
+    // Ensure questions is an array, even if empty
+    const questionsArray = Array.isArray(questions) ? questions : [];
+    console.log("Assignment Name:", assignmentName);
+    console.log("Assignment Type:", assignmentType);
+    console.log("Questions Array:", questionsArray);
+
+    // Create a new assignment
+    const newAssignment = new Assignment({
+      cohortID,
+      assignmentName: assignmentName,
+      assignmentType: assignmentType,
+      questions: questionsArray,
+      rubricFileUrl: rubricFileUrl || null,
+      submissions: 0
+    });
+
+    // Save the new assignment to the database
+    await newAssignment.save();
+    console.log("Assignment saved successfully:", newAssignment);
+
+    res.status(200).json({ message: 'Assignment added successfully.' });
   } catch (error) {
     console.error('Error adding assignment:', error);
     res.status(500).json({ message: 'Error adding assignment to the cohort.', error: error.message });
   }
 });
 
-// Submit assignment endpoint
-app.post('/submitAssignment', async (req, res) => {
-  const { studentId, assignmentId, answers } = req.body;
 
-  try {
-    const newSubmission = {
-      studentId,
-      assignmentId,
-      answers,
-      submittedAt: new Date()
-    };
-
-    const updatedCohort = await Cohort.findOneAndUpdate(
-      { 'cohortFiles.assignments._id': ObjectId(assignmentId) },
-      {
-        $push: {
-          'cohortFiles.assignments.$.submissions': newSubmission
-        }
-      },
-      { new: true }
-    );
-
-    if (!updatedCohort) {
-      return res.status(404).json({ message: 'Assignment not found.' });
-    }
-
-    res.status(200).json({ message: 'Assignment submitted successfully.', updatedCohort });
-  } catch (error) {
-    console.error('Error submitting assignment:', error);
-    res.status(500).json({ message: 'Error submitting assignment.', error: error.message });
-  }
-});
 
 // Refresh token endpoint
 app.post('/refresh-token', async (req, res) => {

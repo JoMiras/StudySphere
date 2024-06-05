@@ -871,6 +871,8 @@ margin: 0;
 }
 
 
+//Assignmetns Styling
+
 $primary-color: #0069ac;
 $secondary-color: #005b9a;
 $tab-width: 400px;
@@ -897,13 +899,10 @@ body {
 .assignments-container {
   padding: 20px;
   display: flex;
+  height: 100%;
   flex-direction: column;
   align-items: center;
-  button {
-    margin-bottom: 10px;
-    z-index: 99;
-  }
-
+  
   .new-assignment-container {
     width: fit-content;
     background: $form-background;
@@ -1052,114 +1051,103 @@ body {
   }
 
   .assignment-panel {
-  position: fixed;
-  top: 0;
-  right: -100%;
-  width: 100%;
-  max-width: 500px;
-  height: 100%;
-  background-color: #f5faff;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
-  transition: right 0.3s ease;
-  padding: 20px;
-  z-index: 1000;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    max-width: 500px;
+    height: 100%;
+    background-color: #f5faff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+    transition: right 0.3s ease;
+    padding: 20px;
+    z-index: 1000;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 
-.assignment-panel.open {
-  right: 0;
-}
+    &.open {
+      right: 0;
+    }
 
-.assignment-panel h2 {
-  color: #0069ac;
-  font-size: 24px;
-  margin-bottom: 20px;
-}
+    h2 {
+      color: #0069ac;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
 
-.assignment-panel .close-btn {
-  cursor: pointer;
-  background: none;
-  border: none;
-  font-size: 1.5em;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}
+    .close-btn {
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
 
-.assignment-panel .formWrapper {
-  display: flex;
-  flex-direction: column;
-}
+    .formWrapper {
+      display: flex;
+      flex-direction: column;
 
-.assignment-panel .formWrapper label {
-  color: #0069ac;
-  margin-bottom: 5px;
-}
+      label {
+        color: #0069ac;
+        margin-bottom: 5px;
+      }
 
-.assignment-panel .formWrapper input,
-.assignment-panel .formWrapper select,
-.assignment-panel .formWrapper textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
 
-.assignment-panel .formWrapper button {
-  background-color: #0069ac;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
+      button {
+        background-color: #0069ac;
+        color: white;
+        border: none;
+        padding: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
 
-.assignment-panel .formWrapper button:hover {
-  background-color: #005b96;
-}
+        &:hover {
+          background-color: #005b96;
+        }
+      }
 
-.assignment-panel .formWrapper .add-question-btn,
-.assignment-panel .formWrapper .add-answer-btn {
-  background-color: #007bff;
-  margin-top: 10px;
-}
+      .add-question-btn,
+      .add-answer-btn {
+        background-color: #007bff;
+        margin-top: 10px;
+      }
 
-.assignment-panel .formWrapper .remove-btn {
-  background-color: #dc3545;
-  margin-top: 10px;
-}
+      .remove-btn {
+        background-color: #dc3545;
+        margin-top: 10px;
 
-.assignment-panel .formWrapper .remove-btn:hover {
-  background-color: #c82333;
-}
+        &:hover {
+          background-color: #c82333;
+        }
+      }
+    }
+  }
 
-// Overlay styles
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: none;
-  z-index: 999;
-}
-
-.overlay.show {
-  display: block;
-}
-
+  .no-assignments {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #555;
+  }
 
   .assignments {
     display: flex;
     flex-wrap: wrap;
-    gap: $gap;
-    margin: -$gap / 2;
+    gap: 16px;
     justify-content: center;
+    margin-top: 20px;
 
     .assignment-tab {
       background: linear-gradient(145deg, $tab-background, lighten($tab-background, 10%));
@@ -1198,6 +1186,14 @@ body {
         font-style: italic;
       }
     }
+  }
+
+  .new-assignment-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px; // Adjust as needed
+    z-index: 99;
+    margin-bottom: 0; // Ensure no margin-bottom
   }
 }
 

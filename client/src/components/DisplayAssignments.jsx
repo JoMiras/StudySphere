@@ -1,4 +1,5 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 import { AuthContext } from '../context/authContext';
 import { CohortContext } from '../context/cohortContext';
 import NewAssignment from './NewAssignment';
@@ -11,6 +12,20 @@ const DisplayAssignments = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [studentAnswers, setStudentAnswers] = useState([]);
+  const [assignments, setAssignments] = useState([]); // Initialize as an empty array
+
+  useEffect(() => {
+    const fetchAssignments = async () => {
+      try {
+        const response = await axios.get(`/api/assignments?cohortID=${cohort._id}`);
+        setAssignments(Array.isArray(response.data) ? response.data : []); // Ensure response.data is an array
+      } catch (error) {
+        console.error('Error fetching assignments:', error);
+      }
+    };
+
+    fetchAssignments();
+  }, [cohort._id]);
 
   const togglePanel = () => {
     setIsPanelOpen(!isPanelOpen);
@@ -47,44 +62,51 @@ const DisplayAssignments = () => {
     // Add your form submission logic here
   };
 
-  const displayCohort = cohort.cohortFiles.assignments.map((assignment, index) => {
-    const questionCount = Array.isArray(assignment.questions) ? assignment.questions.length : 0;
-    return (
-      <div
-        key={index}
-        className="assignment-tab"
-        onClick={() => handleAssignmentClick(assignment)}
-      >
-        <div className="assignment-name">{assignment.assignmentName}</div>
-        <div className="assignment-type">Type: {assignment.assignmentType}</div>
-        <div className="number-of-questions">Questions: {questionCount}</div>
-        <div className="students-submitted">Students submitted: {assignment.submitted}</div>
-        {currentUser.role === 'student' && (
-          <button className="btn btn-outline-primary btn-sm">
-            Submit Assignment
-          </button>
-        )}
-      </div>
-    );
-  });
+  // Check if assignments is an array before using map
+  const displayAssignments = Array.isArray(assignments) && assignments.length > 0
+    ? assignments.map((assignment, index) => {
+        const questionCount = Array.isArray(assignment.questions) ? assignment.questions.length : 0;
+        return (
+          <div
+            key={index}
+            className="assignment-tab"
+            onClick={() => handleAssignmentClick(assignment)}
+          >
+            <div className="assignment-name">{assignment.name}</div>
+            <div className="assignment-type">Type: {assignment.type}</div>
+            <div className="number-of-questions">Questions: {questionCount}</div>
+            <div className="students-submitted">Students submitted: {assignment.submissions}</div>
+            {currentUser.role === 'student' && (
+              <button className="btn btn-outline-primary btn-sm">
+                Submit Assignment
+              </button>
+            )}
+          </div>
+        );
+      })
+    : <div className="no-assignments">No assignments available.</div>;
 
   return (
     <div className='assignments-container'>
       {currentUser.role === 'SuperAdmin' && (
         <>
-          <button type="button" className="btn btn-outline-primary btn-sm" onClick={() => setNewAssignmentPanel(true)}>
+          <button
+            type="button"
+            className="btn btn-outline-primary btn-sm new-assignment-btn"
+            onClick={() => setNewAssignmentPanel(true)}
+          >
             New Assignment
           </button>
           <div className={`overlay ${newAssignmentPanel ? 'show' : ''}`} onClick={() => setNewAssignmentPanel(false)}></div>
           <div className={`panel ${newAssignmentPanel ? 'open' : ''}`}>
             <button className="close-btn" onClick={() => setNewAssignmentPanel(false)}>&times;</button>
             <h2>Create New Assignment</h2>
-            <NewAssignment />
+            <NewAssignment onClose={() => setNewAssignmentPanel(false)} />
           </div>
         </>
       )}
       <div className="assignments">
-        {displayCohort}
+        {displayAssignments}
       </div>
       <div className={`overlay ${isPanelOpen ? 'show' : ''}`} onClick={togglePanel}></div>
       <div className={`assignment-panel ${isPanelOpen ? 'open' : ''}`}>
