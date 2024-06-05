@@ -766,7 +766,7 @@ app.get('/api/assignments', async (req, res) => {
 
 // Add a new assignment to a cohort
 app.post('/newAssignment', async (req, res) => {
-  // const { cohortID, assignmentName, assignmentType, questions, rubricFileUrl } = req.body;
+  const { cohortID, assignmentName, assignmentType, questions, rubricFileUrl } = req.body;
   console.log("Received data:", req.body);
 
   try {
