@@ -33,6 +33,7 @@
     "recharts": "^2.12.5",
     "sass": "^1.74.1",
     "socket.io-client": "^4.7.5",
+    "use-local-storage": "^3.0.0",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {

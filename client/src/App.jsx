@@ -1,7 +1,8 @@
 // App.js
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { AuthContext } from './context/authContext';
+// import { PhoneNumberContext } from './context/phoneNumberContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import AdminStudents from './components/AdminStudents';
@@ -22,7 +23,10 @@ import EditStudent from './components/EditStudent';
 import EditTeacher from './components/EditTeacher';
 import Messages from './components/Messages';
 import { Socket, io } from 'socket.io-client';
+import LandingPage from './Pages/Landing';
+import Faq from './Pages/FAQ';
 
+import PageNotFound from './Pages/PageNotFound';
 const App = () => {
   const { currentUser, setIsLoggedIn } = useContext(AuthContext);
   const ProtectedRoute = ({ children }) => {
@@ -45,6 +49,7 @@ const App = () => {
       <Routes>
         <Route path="/">
           <Route index element={<LoginRegistration/>} />
+          <Route path="landing" element={<LandingPage />} />
           <Route path="home" element={<ProtectedRoute><Home /></ProtectedRoute>}>
             <Route path="admindashboard" element={<SuperAdminRoute> <AdminDashboard /> </SuperAdminRoute>}/>  
             <Route path="adminstudents" element={<SuperAdminRoute><AdminStudents /></SuperAdminRoute>}/>
@@ -62,7 +67,10 @@ const App = () => {
             <Route path="edit-student" element={<EditStudent />} />
             <Route path="edit-teacher" element={<EditTeacher />} />
             <Route path="messages" element={<Messages />} />
+            
           </Route>
+          <Route path="faq" element={<ProtectedRoute><Faq /></ProtectedRoute>} />
+          <Route path="*" element={<PageNotFound />} /> {/*Should be 404page */}
         </Route>
       </Routes>
     </BrowserRouter>

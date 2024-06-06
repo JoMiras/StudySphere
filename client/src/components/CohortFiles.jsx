@@ -7,11 +7,12 @@ import books from "../img/network.png"
 import quiz from "../img/megaphone.png"
 import events from "../img/upcoming.png"
 import defaultPhoto from "../img/shark.png"
-import { useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { StudentContext } from '../context/studentContext';
 import { TeacherContext } from '../context/teacherContext';
 import { useOutletContext } from 'react-router-dom';
 import { AuthContext } from '../context/authContext';
+
 
 function CohortFiles() {
   const { cohort, setCohort } = useContext(CohortContext);
@@ -142,12 +143,16 @@ const displayReadingMaterials = readingMaterials
 
 
   return (
-    <div>
+    <div className='home-content'>
       <header className='files-header'>
         <h1 style={{ textAlign: "center", marginTop: "20px" }}>{cohort.cohortName}</h1>
         <button onClick={() => {Navigate(-1)}} className='btn btn-success btn-sm' style={{width:"100px", height:"35px",alignSelf:"center"}} >Done</button>
       </header>
-      <div className='files-container'>
+      <div>
+        <Outlet context={[cohort]} />
+      </div>
+
+      {/* <div className='files-container'>
         <div className="files-wrapper">
           <div className='files reading-material' onClick={()=>{
             console.log('hello')
@@ -197,7 +202,7 @@ const displayReadingMaterials = readingMaterials
         )}
 
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
